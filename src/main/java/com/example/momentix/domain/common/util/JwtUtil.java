@@ -2,24 +2,18 @@ package com.example.momentix.domain.common.util;
 
 
 
-import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.auth.impl.UserDetailsServiceImpl;
-import com.nimbusds.jose.Payload;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.List;
 
 public class JwtUtil {
-    private static SecretKey secretKey;
+    private static SecretKey secretKey;// 비밀키(서버만 알고있어야 하는 키)
 
     private static final long ACCESS_TOKEN = 1000L * 60 * 30;
     private static final long REFRESH_TOKEN = 1000L * 60 * 60 * 24 * 7;
@@ -91,9 +85,9 @@ public class JwtUtil {
     }
 
     // 토큰만으로 Authentication 생성 (DB 조회 X)
-    public static Authentication getAuthenticationFromToken(String token,  UserDetailsService userDetailsService ) {
+    public static Authentication getAuthenticationFromToken(String token,  UserDetailsServiceImpl userDetailsServiceImpl) {
         String username = getUserEmailFromToken(token);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }

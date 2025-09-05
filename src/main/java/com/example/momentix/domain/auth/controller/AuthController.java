@@ -2,7 +2,6 @@ package com.example.momentix.domain.auth.controller;
 
 import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.common.util.JwtUtil;
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;

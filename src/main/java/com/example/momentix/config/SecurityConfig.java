@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,10 +32,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/refresh").permitAll() //오른쪽은 리프레시
                                 // 엔드포인트 위해 넣어줌
                         .requestMatchers("/auth/me").authenticated() // 나중에 지울 예정
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/host/**").hasRole("HOST")
-                        .requestMatchers("/user/**").hasRole("USER")
-//                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 );
         http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);

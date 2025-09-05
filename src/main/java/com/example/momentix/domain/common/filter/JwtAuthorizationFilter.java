@@ -1,5 +1,6 @@
 package com.example.momentix.domain.common.filter;
 
+import com.example.momentix.domain.auth.impl.UserDetailsServiceImpl;
 import com.example.momentix.domain.common.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,7 +17,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -33,7 +33,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             if (JwtUtil.validateToken(token)) {
                 // refresh 토큰은 인증에 사용하지 않음
                 if (!"refresh".equals(JwtUtil.getUserEmailFromToken(token))) {
-                    Authentication auth = JwtUtil.getAuthenticationFromToken(token, userDetailsService);
+                    Authentication auth = JwtUtil.getAuthenticationFromToken(token, userDetailsServiceImpl);
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
             }

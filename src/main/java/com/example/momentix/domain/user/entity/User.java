@@ -20,7 +20,7 @@ public class User {
     @Column( length = 11)  // 01012345678
     private String phoneNumber;
 
-    @Column( length = 10)
+    @Column( length = 8)
     private String birthDate;
 
     @Column(length = 15)  // host만 입력 (사업자번호)
