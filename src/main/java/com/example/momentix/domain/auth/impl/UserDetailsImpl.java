@@ -1,5 +1,6 @@
 package com.example.momentix.domain.auth.impl;
 
+import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.entity.SignIn;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,8 @@ public class UserDetailsImpl implements UserDetails {
     // 이 값이 시큐리티 컨텍스트에 올라감
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = signIn.getUser().getRole();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role));
+        RoleType role = signIn.getUser().getRole();
+        return List.of(new SimpleGrantedAuthority("ROLE_" + signIn.getUser().getRole().name()));
     }
 
     @Override

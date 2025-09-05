@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
 import java.util.Map;
 
-
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @RestController
@@ -33,9 +32,9 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(req.username(), req.password())
         );
 
-
         // 로그인 성공 시 반환된 사용자 정보 객체 (UserDetailsImpl 구현체)
          // Authentication에서 꺼내서 principal 변수에 담음
+        // TODO:타입체크 후 캐스팅하는 방식임
         UserDetails principal = (UserDetails) authentication.getPrincipal();
 
         // 로그인한 사용자의 아이디(username) 조회
@@ -43,7 +42,8 @@ public class AuthController {
 
         // 권한 가져오기
         String role = principal.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).findFirst().orElse("ROLE_USER")
+                .map(GrantedAuthority::getAuthority)
+                .findFirst().orElse("ROLE_USER")
                 .replace("ROLE_", "");
 
 
@@ -53,14 +53,14 @@ public class AuthController {
                 .orElseThrow();
 
 
-        // 로그인 성공 후 JWT 발급
-        String accessToken  = JwtUtil.createAccessToken(userId, username, role);
+        // 로그인 성공 후 JWT 발급(추후에 삭제할 거임, 바디에 어세스 토큰 보여야 해서 일단 넣음)
+        String accessToken = JwtUtil.createAccessToken(userId, username, role);
         String refreshToken = JwtUtil.createRefreshToken(userId);
 
 
         //refreshToken 생성
         // HttpOnly 리프레시 쿠키<- XSS 때문, 나중에 리프레시 엔드포인트 요청 만들 예정!
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken) 
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true) //XSS 공격 방지
                 .secure(true)
                 .sameSite("Strict") // CSRF 방지
