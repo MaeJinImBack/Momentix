@@ -4,6 +4,7 @@ package com.example.momentix.domain.common.util;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.auth.impl.UserDetailsServiceImpl;
+import com.nimbusds.jose.Payload;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -65,13 +66,18 @@ public class JwtUtil {
         return false;
     }
 
-    // Claims 추출
+    // 클레임이란? Payload에 담긴 key-value 쌍 데이터
+    // JWT 구조는 보통 Header.Payload.Signature 3부분으로 구성
+    // Header: 토큰 타입, 해시 알고리즘
+    //Payload (Claims): 토큰에 담긴 실제 데이터 (ex. userId, role, 만료시간 등)
+    //Signature: Header + Payload + secretKey를 해시해서 만든 값 (위변조 방지용)
+    // JWT 토큰에서 Claims(클레임, 토큰에 담긴 실제 데이터) 를 꺼내오는 역할
     private static Claims getClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+                .setSigningKey(secretKey) // 토큰 서명 검증에 사용할 비밀키 등록
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseClaimsJws(token) // 전달 받은 토큰 검증 + 파싱
+                .getBody(); // 토큰의 페이로드(클레임) 반환
     }
 
     // 이메일(subject) 꺼내기
