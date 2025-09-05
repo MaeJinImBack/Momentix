@@ -15,7 +15,10 @@ import java.util.List;
 public class UserDetailsImpl implements UserDetails {
     private final SignIn signIn;
 
-    //DB에 role 없어서 코드에서 직접 부여하는 메서드
+    // 회원가입 때 role이 저장됨 <- hasRole에서 가져와서.
+    // 로그인하면 DB에서 role을 꺼내옴 getAuthorities()
+    //  "ROLE"+role -> "ROLE_USER"형태로 감쌈
+    // 이 값이 시큐리티 컨텍스트에 올라감
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String role = signIn.getUser().getRole();
