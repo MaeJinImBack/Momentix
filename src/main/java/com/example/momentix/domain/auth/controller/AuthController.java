@@ -53,7 +53,7 @@ public class AuthController {
                 .map(r -> r.replace("ROLE_", "")) //나중에 인터셉터 만들면서 수정 예정
                 .map(RoleType::valueOf)
                 .findFirst()
-                .orElse(RoleType.USER);
+                .orElse(RoleType.CONSUMER);
 
 
         Long userId = signInRepository.findUserIdByUsername(username)
