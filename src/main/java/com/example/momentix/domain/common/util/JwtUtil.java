@@ -2,6 +2,7 @@ package com.example.momentix.domain.common.util;
 
 
 
+import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.impl.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -24,7 +25,7 @@ public class JwtUtil {
     }
 
     //어세스 토큰 생성
-    public static String createAccessToken(Long userId, String email, String role) {
+    public static String createAccessToken(Long userId, String email, RoleType role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)

@@ -12,14 +12,17 @@ public interface SignInRepository extends JpaRepository<SignIn,Long> {
     @Query("""
         select s
         from SignIn s
-        join fetch s.user u
+        join fetch s.users u
         where s.username = :username
     """)
     Optional<SignIn> findWithUserByUsername(@Param("username") String username);
 
-    //username으로 SignIn만 조회: 단순히 로그인 요청 시 DB에서 계정(SignIn) 존재 여부 확인할 때 사용
+ @Query("select u.userId from SignIn s join s.users u where s.username = :username")
+ Optional<Long> findUserIdByUsername(@Param("username") String username);
+
+ //username으로 SignIn만 조회: 단순히 로그인 요청 시 DB에서 계정(SignIn) 존재 여부 확인할 때 사용
     Optional<SignIn> findByUsername(String username);
 
     // refresh 토큰에서 꺼낸 userId로 조회
-    Optional<SignIn> findByUser_UserId(Long userId);
+    Optional<SignIn> findByUsers_UserId(Long userId);
 }

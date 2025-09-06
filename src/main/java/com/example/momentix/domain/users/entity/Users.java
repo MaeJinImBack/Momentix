@@ -30,7 +30,7 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private RoleType role;   // "USER", "ADMIN", "HOST"
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SignIn signIn;
 
 }

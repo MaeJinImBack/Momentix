@@ -20,7 +20,7 @@ public class SignIn {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false, unique = true)
-    private Users user;
+    private Users users;
 
     public String getUsername() {return username;}
 
@@ -28,6 +28,6 @@ public class SignIn {
         return password;
     }
     public Users getUser() {
-        return user;
+        return users;
     }
 }

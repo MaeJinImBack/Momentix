@@ -1,5 +1,6 @@
 package com.example.momentix.domain.auth.controller;
 
+import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.common.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -41,17 +43,21 @@ public class AuthController {
         String username = principal.getUsername();
 
         // 권한 가져오기
-        String role = principal.getAuthorities().stream()
+//        RoleType role = principal.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .findFirst().orElse("ROLE_USER");
+
+        //걍 하나로 합침(자르기랑 권한)
+        RoleType role = principal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .findFirst().orElse("ROLE_USER")
-                .replace("ROLE_", "");
+                .map(r -> r.replace("ROLE_", "")) //나중에 인터셉터 만들면서 수정 예정
+                .map(RoleType::valueOf)
+                .findFirst()
+                .orElse(RoleType.USER);
 
 
-        // username으로 DB에서 SignIn엔티티 찾음
-        Long userId = signInRepository.findByUsername(username)
-                .map(s -> s.getUser().getUserId())
-                .orElseThrow();
-
+        Long userId = signInRepository.findUserIdByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("not found: " + username));
 
         // 로그인 성공 후 JWT 발급(추후에 삭제할 거임, 바디에 어세스 토큰 보여야 해서 일단 넣음)
         String accessToken = JwtUtil.createAccessToken(userId, username, role);

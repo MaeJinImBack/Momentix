@@ -23,7 +23,20 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         RoleType role = signIn.getUser().getRole();
-        return List.of(new SimpleGrantedAuthority("ROLE_" + signIn.getUser().getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" +  role.name()));
+    }
+
+    // 나중에 서비스/컨트롤러에서 바로 쓰게
+    public Long getUserId(){
+        return signIn.getUser().getUserId();
+    }
+
+    public RoleType getRole() {
+        return signIn.getUser().getRole();
+    }
+
+    public String getRoleName() {
+        return signIn.getUser().getRole().name();
     }
 
     @Override
@@ -35,6 +48,7 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return signIn.getUsername();
     }
+
 
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
