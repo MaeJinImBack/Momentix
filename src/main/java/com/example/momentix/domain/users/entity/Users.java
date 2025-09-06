@@ -34,6 +34,9 @@ public class Users extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private RoleType role;   // "USER", "ADMIN", "HOST"
 
+    @Column(length = 12)
+    private String slackId;
+
     @Column(nullable = false)
     private boolean isDeleted = false;
 
