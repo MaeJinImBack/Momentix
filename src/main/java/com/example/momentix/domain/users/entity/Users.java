@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Table(name="users")
 @Getter
 @Entity
@@ -23,7 +25,7 @@ public class Users extends TimeStamped {
     private String phoneNumber;
 
     @Column( length = 8)
-    private String birthDate;
+    private LocalDateTime birthDate;
 
     @Column(length = 10)  // host만 입력 (사업자번호)
     private String businessNumber;
