@@ -1,4 +1,4 @@
-package com.example.momentix.domain.user.controller;
+package com.example.momentix.domain.users.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 

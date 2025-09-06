@@ -1,4 +1,4 @@
-package com.example.momentix.domain.user.repository;
+package com.example.momentix.domain.users.repository;
 
 import org.springframework.stereotype.Repository;
 
