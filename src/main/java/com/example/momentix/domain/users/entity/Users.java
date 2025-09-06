@@ -2,6 +2,7 @@ package com.example.momentix.domain.users.entity;
 
 import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.entity.SignIn;
+import com.example.momentix.domain.common.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor
-public class Users {
+public class Users extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(length = 10)  // 3~20자 닉네임
+    @Column(length = 10)
     private String nickname;
 
     @Column( length = 11)  // 01012345678
@@ -30,6 +31,9 @@ public class Users {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleType role;   // "USER", "ADMIN", "HOST"
+
+    @Column(nullable = false)
+    private boolean isDeleted = false;
 
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SignIn signIn;
