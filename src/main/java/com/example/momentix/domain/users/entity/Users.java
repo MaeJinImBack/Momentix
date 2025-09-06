@@ -27,10 +27,10 @@ public class Users {
     @Column(length = 10)  // host만 입력 (사업자번호)
     private String businessNumber;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleType role;   // "USER", "ADMIN", "HOST"
 
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SignIn signIn;
-
 }
