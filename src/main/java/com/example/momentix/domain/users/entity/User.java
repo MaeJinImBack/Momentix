@@ -1,4 +1,4 @@
-package com.example.momentix.domain.user.entity;
+package com.example.momentix.domain.users.entity;
 
 import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.entity.SignIn;

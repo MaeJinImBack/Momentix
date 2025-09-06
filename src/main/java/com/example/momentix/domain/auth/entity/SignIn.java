@@ -1,6 +1,6 @@
 package com.example.momentix.domain.auth.entity;
 
-import com.example.momentix.domain.user.entity.User;
+import com.example.momentix.domain.users.entity.User;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
