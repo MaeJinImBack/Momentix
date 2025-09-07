@@ -9,10 +9,10 @@ public enum EventCategoryType {
     CLASSIC("클래식"),
     PLAY("연극");
 
-    private String eventCategory;
+    private final String eventGenre;
 
 
     EventCategoryType(String eventCategory) {
-        this.eventCategory = eventCategory;
+        this.eventGenre = eventCategory;
     }
 }
