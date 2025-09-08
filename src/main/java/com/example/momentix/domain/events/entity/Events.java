@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class Events extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     // 공연 제목
     @Column(nullable = false)
@@ -38,6 +39,14 @@ public class Events extends TimeStamped {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventCategoryType eventCategoryType;
+
+    // 공연 시작 날짜
+    @Column(nullable = false)
+    private LocalDate eventStartDate;
+
+    // 공연 종료 날짜
+    @Column(nullable = false)
+    private LocalDate eventEndDate;
 
     // 공연장
     @Builder.Default
@@ -60,18 +69,20 @@ public class Events extends TimeStamped {
     private boolean isDeleted;
 
 
-    public void addEventInfo(EventPlace eventPlace, EventTimes eventTime, ReservationTimes reservationTime, EventCast eventCast) {
+    public void addEventInfo(EventPlace eventPlace, ReservationTimes reservationTime, EventCast eventCast) {
         eventPlaceList.add(eventPlace);
         eventPlace.setEvents(this);
-
-        eventTimeList.add(eventTime);
-        eventTime.setEvents(this);
 
         reservationTimeList.add(reservationTime);
         reservationTime.setEvents(this);
 
         eventCastList.add(eventCast);
-        eventPlace.setEvents(this);
+        eventCast.setEvents(this);
+    }
+
+    public void addEventTime(EventTimes eventTimes) {
+        eventTimeList.add(eventTimes);
+        eventTimes.setEvents(this);
     }
 
 }

@@ -34,6 +34,8 @@ public class EventsService {
                 .eventTitle(requestDto.getEventTitle())
                 .ageRatingType(requestDto.getAgeRating())
                 .eventCategoryType(requestDto.getEventCategory())
+                .eventStartDate(requestDto.getEventStartDate())
+                .eventEndDate(requestDto.getEventEndDate())
                 .build();
 
         // Places(공연장) 공연장 정보로 검색 or 생성
@@ -46,11 +48,13 @@ public class EventsService {
         placesRepository.save(places);
 
         // EventTimes(공연 시간) 생성
-        EventTimes eventTimes = EventTimes.builder()
-                .eventStartTime(requestDto.getEventStartTime())
-                .eventEndTime(requestDto.getEventEndTime())
-                .events(createEvent)
-                .build();
+        for (EventTimes eventTimesRequest : requestDto.getEventTimeList()){
+            EventTimes eventTimes = EventTimes.builder()
+                    .eventStartTime(eventTimesRequest.getEventStartTime())
+                    .eventEndTime(eventTimesRequest.getEventEndTime())
+                    .build();
+            createEvent.addEventTime(eventTimes);
+        }
 
         // ReservationTimes(예매 시간) 생성
         ReservationTimes reservationTimes = ReservationTimes.builder()
@@ -74,7 +78,6 @@ public class EventsService {
                         .events(createEvent)
                         .places(places)
                         .build(),
-                eventTimes,
                 reservationTimes,
                 EventCast.builder()
                         .events(createEvent)
@@ -84,7 +87,7 @@ public class EventsService {
         // Events(공연) 저장
         eventsRepository.save(createEvent);
 
-        return new EventsResponseDto(createEvent, places, eventTimes, reservationTimes, casts);
+        return new EventsResponseDto(createEvent, places, reservationTimes, casts);
 
     }
 }
