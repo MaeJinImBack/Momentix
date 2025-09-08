@@ -39,9 +39,9 @@ public class SignUpServiceTest {
                 "hansol1212@test.com",
                 "1233",
                 "4566",
-                "ninkanme",
+                "nickname",
                 "20000219",
-                "01029388457",
+                "010-2938-8457",
                 null
         );
         // 아이디 중복 이런 거 없어서 스텁 필요없음
@@ -64,7 +64,7 @@ public class SignUpServiceTest {
                 "1234",
                 "nickname",
                 "20000219",
-                "01029388457",
+                "010-2938-8457",
                 null
         );
         given(signInRepository.existsByUsername("user1")).willReturn(true); //willReturn이란, 어떤 값을 돌려줘라~라고 가짜 객체의 동작을 지정할 때 쓰는 문법
