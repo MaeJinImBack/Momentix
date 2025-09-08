@@ -23,10 +23,12 @@ public class SignIn {
     @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false, unique = true)
     private Users users;
 
+    //캡슐화, new+set을 안해도 되게 만듦
     public static SignIn create(String username, String rawPassword, PasswordEncoder encoder, Users users) {
         SignIn signIn = new SignIn();
         signIn.setUsername(username);
         signIn.setPassword(encoder.encode(rawPassword));
+        //Users에도 setSignIn()을 해줘야 양방향 관계 완성됨
         signIn.setUsers(users);
         return signIn;
     }
