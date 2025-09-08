@@ -77,7 +77,7 @@ public class Events extends TimeStamped {
         reservationTime.setEvents(this);
 
         eventCastList.add(eventCast);
-        eventPlace.setEvents(this);
+        eventCast.setEvents(this);
     }
 
     public void addEventTime(EventTimes eventTimes) {
