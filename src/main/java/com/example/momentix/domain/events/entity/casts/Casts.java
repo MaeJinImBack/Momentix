@@ -27,7 +27,7 @@ public class Casts extends TimeStamped {
     private String castImageUrl;
 
     @OneToMany(mappedBy = "casts")
-    private List<EventCast> eventCast;
+    private List<EventCast> eventCastList;
 
     @Builder
     public Casts(String castName) {
