@@ -1,8 +1,8 @@
 package com.example.momentix.domain.ticket.entity;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
-import com.example.momentix.domain.events.entity.eventtime.EventTime;
-import com.example.momentix.domain.events.entity.seat.Seat;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
+import com.example.momentix.domain.events.entity.seats.Seats;
 import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
@@ -15,7 +15,7 @@ import jakarta.persistence.*;
     }
 )
 
-public class Ticket extends TimeStamped {
+public class Tickets extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,12 +39,12 @@ public class Ticket extends TimeStamped {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "eventTimeId")
-    private EventTime eventTime;
+    private EventTimes eventTime;
 
     //전시는 구현 전이라 optional = false
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name =  "seatId")
-    private Seat seat;
+    private Seats seat;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "historyId")
