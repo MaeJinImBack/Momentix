@@ -18,6 +18,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -26,16 +27,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String header = request.getHeader("Authorization");
 
-        if(header != null && header.startsWith("Bearer ")) {
-
+        if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
-
-            if (JwtUtil.validateToken(token)) {
-                // refresh 토큰은 인증에 사용하지 않음
-                if (!"refresh".equals(JwtUtil.getUserEmailFromToken(token))) {
-                    Authentication auth = JwtUtil.getAuthenticationFromToken(token, userDetailsServiceImpl);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+            if (JwtUtil.validateToken(token)
+                    && !"refresh".equalsIgnoreCase(JwtUtil.getTokenType(token))) {
+                Authentication auth = JwtUtil.getAuthenticationFromToken(token, userDetailsServiceImpl);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         filterChain.doFilter(request,response);
