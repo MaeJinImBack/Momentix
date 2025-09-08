@@ -22,11 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http,
-                                           JwtAuthorizationFilter jwtAuthorizationFilter,
-                                           AuthenticationProvider authenticationProvider) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -34,28 +32,33 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/refresh").permitAll() //오른쪽은 리프레시
                                 // 엔드포인트 위해 넣어줌
                         .requestMatchers("/auth/me").authenticated() // 나중에 지울 예정
-                        .requestMatchers("/error").permitAll()
-                        .anyRequest().authenticated()
-                )
-        .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().permitAll()
+                );
+        http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // SignInService 에서 주입받아 쓰고 있으므로 제공 필요
+    // 인증 핵심 빈
+    //AuthenticationManager: 사용자의 아이디/비밀번호가 맞는지 검사하는 주체.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     //DB기반 로그인 처리
+    //AuthenticationProvider: 매니저가 직접 인증을 수행하지 않고 여러 프로바이더에 위임해서 인증 처리함
     @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,PasswordEncoder passwordEncoder
-            ) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        return provider;
+    public AuthenticationProvider authenticationProvider(
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
+    ) {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        // 1) 로그인 시 아이디(username)로 DB에서 사용자 정보 조회
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        // 2) 조회된 사용자 비밀번호와 로그인 시도한 비밀번호를 비교 (암호화된 값 기준)
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
+        // 3) 최종적으로 AuthenticationManager에 등록될 Provider 반환
+        return daoAuthenticationProvider;
     }
 }
