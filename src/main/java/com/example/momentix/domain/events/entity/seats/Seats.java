@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class Seats extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     // 좌석 등급
     @Enumerated(EnumType.STRING)

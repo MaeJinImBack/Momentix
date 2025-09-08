@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
 public class Events extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Long id;
 
     // 공연 제목
     @Column(nullable = false)
@@ -38,6 +39,14 @@ public class Events extends TimeStamped {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventCategoryType eventCategoryType;
+
+    // 공연 시작 날짜
+    @Column(nullable = false)
+    private LocalDate eventStartDate;
+
+    // 공연 종료 날짜
+    @Column(nullable = false)
+    private LocalDate eventEndDate;
 
     // 공연장
     @Builder.Default
