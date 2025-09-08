@@ -1,8 +1,6 @@
 package com.example.momentix.domain.auth.service;
 
 import com.example.momentix.domain.auth.dto.SignUpRequest;
-import com.example.momentix.domain.auth.entity.RoleType;
-import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -60,8 +59,11 @@ public class SignUpService {
         Users users = Users.createHost(signUpRequest.getBusinessNumber(), username, rawPassword, passwordEncoder);
         userRepository.save(users);
 
+        Map<String, String> creds = new HashMap<>();
+        creds.put("username", username);
+        creds.put("password", rawPassword);
         // 저장
-        return Map.of("username", username, "password", rawPassword);
+        return creds;
     }
 
 

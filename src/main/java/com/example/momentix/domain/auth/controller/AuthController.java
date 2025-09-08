@@ -2,6 +2,7 @@ package com.example.momentix.domain.auth.controller;
 
 
 import com.example.momentix.domain.auth.dto.SignUpRequest;
+import com.example.momentix.domain.auth.dto.SignUpResponse;
 import com.example.momentix.domain.auth.service.SignInService;
 import com.example.momentix.domain.auth.service.SignUpService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 
 @RequestMapping("/auth")
@@ -40,10 +42,10 @@ public class AuthController {
     // 이후에 /auth/refresh, /auth/logout 추가 예정
 
     @PostMapping("/sign-up/user")
-    public ResponseEntity<Map<String,String>> signUpUser( @Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req) {
-        signUpService.signUpUser(req);
+    public ResponseEntity<SignUpResponse> signUpUser(@Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req) {
+        Long userId = signUpService.signUpUser(req);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message","회원가입 성공"));
+                .body(new SignUpResponse("회원가입 성공", userId));
     }
 
     @PostMapping("/sign-up/host")
@@ -53,12 +55,12 @@ public class AuthController {
 
         Map<String, String> creds = signUpService.signUpHost(req);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "message",  "회원가입 성공! 아이디와 비밀번호는 일치합니다. 비밀번호를 변경해 주세요.",
-                        "username", creds.get("username"),
-                        "password", creds.get("password")
-                ));
+        Map<String, String> body = new HashMap<>();
+        body.put("message",  "회원가입 성공! 아이디와 비밀번호는 일치합니다. 비밀번호를 변경해 주세요.");
+        body.put("username", creds.get("username"));
+        body.put("password", creds.get("password"));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     public record SigninReq(String username, String password) {}

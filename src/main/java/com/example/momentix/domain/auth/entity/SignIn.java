@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Table(name="signin")
+@Table(name="Signin")
 @Entity
 @NoArgsConstructor
 public class SignIn {

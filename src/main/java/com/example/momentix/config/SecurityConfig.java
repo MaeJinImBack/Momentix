@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/refresh","/auth/sign-up","/auth/sign-up/user", "/auth/sign-up/host").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
 
                         // host 공연등록 가능
                         .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
