@@ -1,13 +1,10 @@
 package com.example.momentix.domain.events.dto.response;
 
 import com.example.momentix.domain.events.entity.enums.EventCategoryType;
-import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
-import com.example.momentix.domain.events.entity.places.Places;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
