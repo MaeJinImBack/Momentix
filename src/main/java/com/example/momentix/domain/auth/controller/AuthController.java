@@ -55,7 +55,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of(
-                        "message",  "회원가입 성공! 아이디와 비밀번호를 일치합니다. 비밀번호를 변경해 주세요.",
+                        "message",  "회원가입 성공! 아이디와 비밀번호는 일치합니다. 비밀번호를 변경해 주세요.",
                         "username", creds.get("username"),
                         "password", creds.get("password")
                 ));

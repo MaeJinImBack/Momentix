@@ -3,6 +3,7 @@ package com.example.momentix.domain.auth.entity;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Table(name="signin")
 @Entity
@@ -21,6 +22,14 @@ public class SignIn {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false, unique = true)
     private Users users;
+
+    public static SignIn create(String username, String rawPassword, PasswordEncoder encoder, Users users) {
+        SignIn signIn = new SignIn();
+        signIn.setUsername(username);
+        signIn.setPassword(encoder.encode(rawPassword));
+        signIn.setUsers(users);
+        return signIn;
+    }
 
     public String getUsername() {return username;}
 
