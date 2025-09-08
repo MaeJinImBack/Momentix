@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Table(name="users")
 @Getter
@@ -25,7 +25,7 @@ public class Users extends TimeStamped {
     private String phoneNumber;
 
     @Column( length = 8)
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
 
     @Column(length = 10)  // host만 입력 (사업자번호)
     private String businessNumber;
@@ -33,6 +33,9 @@ public class Users extends TimeStamped {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleType role;   // "USER", "ADMIN", "HOST"
+
+    @Column(length = 12)
+    private String slackId;
 
     @Column(nullable = false)
     private boolean isDeleted = false;
