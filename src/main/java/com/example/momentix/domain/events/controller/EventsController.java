@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +29,7 @@ public class EventsController {
     }
 
     @GetMapping()
+    @Transactional(readOnly = true)
     public ResponseEntity<Page<AllReadEventsResponseDto>> readAllEvents(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
         Page<AllReadEventsResponseDto> response = eventsService.allReadEvents(pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
