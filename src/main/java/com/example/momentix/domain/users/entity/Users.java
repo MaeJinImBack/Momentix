@@ -1,11 +1,13 @@
 package com.example.momentix.domain.users.entity;
 
+import com.example.momentix.domain.auth.dto.SignUpRequest;
 import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.common.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -42,4 +44,43 @@ public class Users extends TimeStamped {
 
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SignIn signIn;
+
+
+    //Consumer(일반 유저) 회원가입 시 Users + SignIn 객체를 생성
+    // 양방향, 1:1 관계 (한 유저당 로그인 계정 하나)
+    public static Users createConsumer(SignUpRequest dto, PasswordEncoder encoder) {
+        // 1. Users 엔티티 기본 정보 세팅
+        Users users = new Users();
+        users.setRole(RoleType.CONSUMER);// 일반 유저 역할 부여
+        users.setNickname(dto.getNickname());
+        users.setPhoneNumber(dto.getPhoneNumber());
+        users.setBirthDate(LocalDate.parse(dto.getBirthDate()));
+        // 2. SignIn 엔티티 생성 (로그인 계정 정보)
+        // SignIn.create() 내부에서 비밀번호 암호화 + 양방향 연관관계(users ↔ signIn) 연결까지 처리
+        SignIn signIn = SignIn.create(dto.getUsername(), dto.getPassword(), encoder, users);
+        // 3. Users에도 signIn 세팅 (양방향 관계 유지)
+        users.setSignIn(signIn);
+
+        return users;
+    }
+
+
+    // Host(호스트 회원) 회원가입 시 Users + SignIn 객체를 생성하는 정적 메서드
+    public static Users createHost(String businessNumber, String username, String rawPassword, PasswordEncoder encoder) {
+        Users users = new Users();
+        users.setRole(RoleType.HOST);
+        users.setBusinessNumber(businessNumber);
+
+        SignIn signIn = SignIn.create(username, rawPassword, encoder, users);
+        users.setSignIn(signIn);
+
+        return users;
+    }
+
+    public void setNickname(String nickname){ this.nickname = nickname; }
+    public void setPhoneNumber(String phoneNumber){ this.phoneNumber = phoneNumber; }
+    public void setBirthDate(LocalDate birthDate){ this.birthDate = birthDate; }
+    public void setBusinessNumber(String businessNumber){ this.businessNumber = businessNumber; }
+    public void setRole(RoleType role){ this.role = role; }
+    public void setSignIn(SignIn signIn){ this.signIn = signIn; }
 }
