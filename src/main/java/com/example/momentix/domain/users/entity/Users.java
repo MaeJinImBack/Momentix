@@ -42,4 +42,12 @@ public class Users extends TimeStamped {
 
     @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SignIn signIn;
+
+
+    public void setNickname(String nickname){ this.nickname = nickname; }
+    public void setPhoneNumber(String phoneNumber){ this.phoneNumber = phoneNumber; }
+    public void setBirthDate(LocalDate birthDate){ this.birthDate = birthDate; }
+    public void setBusinessNumber(String businessNumber){ this.businessNumber = businessNumber; }
+    public void setRole(RoleType role){ this.role = role; }
+    public void setSignIn(SignIn signIn){ this.signIn = signIn; }
 }

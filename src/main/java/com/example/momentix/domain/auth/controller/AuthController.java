@@ -1,19 +1,26 @@
 package com.example.momentix.domain.auth.controller;
 
 
+import com.example.momentix.domain.auth.dto.SignUpRequest;
 import com.example.momentix.domain.auth.service.SignInService;
+import com.example.momentix.domain.auth.service.SignUpService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import java.time.Duration;
+import java.util.Map;
 
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
     private final SignInService signInService;
+    private final SignUpService signUpService;
 
     @PostMapping("/sign-in")
     public ResponseEntity<TokenRes> signIn(@RequestBody SigninReq req) {
@@ -33,6 +40,28 @@ public class AuthController {
     }
 
     // 이후에 /auth/refresh, /auth/logout 추가 예정
+
+    @PostMapping("/sign-up/user")
+    public ResponseEntity<Map<String,String>> signUpUser( @Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req) {
+        signUpService.signUpUser(req);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message","회원가입 성공"));
+    }
+
+    @PostMapping("/sign-up/host")
+    public ResponseEntity<Map<String,String>> signUpHost(
+            @Validated(SignUpRequest.HostSignUp.class)
+            @RequestBody SignUpRequest req) {
+
+        Map<String, String> creds = signUpService.signUpHost(req);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of(
+                        "message",  "회원가입 성공",
+                        "username", creds.get("username"),
+                        "password", creds.get("password")
+                ));
+    }
 
     public record SigninReq(String username, String password) {}
     public record TokenRes(String accessToken, String refreshToken) {}

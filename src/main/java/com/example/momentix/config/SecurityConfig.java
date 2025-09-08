@@ -31,8 +31,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/refresh").permitAll() //오른쪽은 리프레시
-                                // 엔드포인트 위해 넣어줌
+                        .requestMatchers(HttpMethod.POST, "/auth/sign-in", "/auth/refresh","/auth/sign-up","/auth/sign-up/user", "/auth/sign-up/host").permitAll()
                         .requestMatchers("/auth/me").authenticated() // 나중에 지울 예정
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
