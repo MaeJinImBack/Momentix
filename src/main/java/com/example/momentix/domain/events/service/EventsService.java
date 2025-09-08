@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.service;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
 import com.example.momentix.domain.events.entity.EventCast;
 import com.example.momentix.domain.events.entity.EventPlace;
@@ -15,8 +16,14 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimesReposi
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import com.example.momentix.domain.events.repository.reservationtimes.ReservationTimesRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +55,7 @@ public class EventsService {
         placesRepository.save(places);
 
         // EventTimes(공연 시간) 생성
-        for (EventTimes eventTimesRequest : requestDto.getEventTimeList()){
+        for (EventTimes eventTimesRequest : requestDto.getEventTimeList()) {
             EventTimes eventTimes = EventTimes.builder()
                     .eventStartTime(eventTimesRequest.getEventStartTime())
                     .eventEndTime(eventTimesRequest.getEventEndTime())
@@ -89,5 +96,11 @@ public class EventsService {
 
         return new EventsResponseDto(createEvent, places, reservationTimes, casts);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AllReadEventsResponseDto> allReadEvents(Pageable pageable) {
+        List<AllReadEventsResponseDto> allReadResponse = eventsRepository.AllReadEvents();
+        return new PageImpl<>(allReadResponse, pageable, allReadResponse.size());
     }
 }
