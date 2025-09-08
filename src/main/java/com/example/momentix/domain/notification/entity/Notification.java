@@ -15,11 +15,11 @@ public class Notification {
     @Column(name = "messsage")
     private String message;
 
-    @Column(name = "deliveryTime")
+    @Column(name = "delivery_time")
     @DateTimeFormat
     private LocalDateTime deliveryTime;
 
-    @Column(name = "reservationStatusType")
+    @Column(name = "reservation_status_type")
     @Enumerated(EnumType.STRING)
     private ReservationStatusType reservationStatusType;
 

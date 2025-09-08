@@ -16,13 +16,13 @@ public class PaymentHistory extends TimeStamped {
     @Column(name = "payer")
     private String payer;
 
-    @Column(name = "paymentMethod")
+    @Column(name = "payment_method")
     private String paymentMethod;
 
-    @Column(name = "paymentPrice")
+    @Column(name = "payment_price")
     private BigDecimal paymentPrice;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "paymentStatus")
+    @Column(name = "payment_status")
     private PaymentStatusType paymentStatusType;
 }
