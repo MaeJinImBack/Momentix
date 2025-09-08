@@ -19,11 +19,11 @@ public class EventPlace extends TimeStamped {
     private Long id;
 
     @ManyToOne()
-    @JoinColumn
+    @JoinColumn(name="events_id")
     private Events events;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name="places_id")
     private Places places;
 
     @Builder

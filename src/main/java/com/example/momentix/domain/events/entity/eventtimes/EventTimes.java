@@ -29,7 +29,7 @@ public class EventTimes extends TimeStamped {
 
     // 공연
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name="events_id", nullable = false)
     private Events events;
 
     @Builder

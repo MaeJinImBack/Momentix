@@ -55,7 +55,7 @@ public class EventsService {
         // ReservationTimes(예매 시간) 생성
         ReservationTimes reservationTimes = ReservationTimes.builder()
                 .reservationStartTime(requestDto.getReservationStartTime())
-                .reservationEndTime(requestDto.getReservationStartTime())
+                .reservationEndTime(requestDto.getReservationEndTime())
                 .events(createEvent)
                 .build();
 
