@@ -12,7 +12,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long notificationId;
 
-    @Column(name = "messsage")
+    @Column(name = "message")
     private String message;
 
     @Column(name = "delivery_time")
