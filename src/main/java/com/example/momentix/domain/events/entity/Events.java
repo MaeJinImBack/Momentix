@@ -69,18 +69,20 @@ public class Events extends TimeStamped {
     private boolean isDeleted;
 
 
-    public void addEventInfo(EventPlace eventPlace, EventTimes eventTime, ReservationTimes reservationTime, EventCast eventCast) {
+    public void addEventInfo(EventPlace eventPlace, ReservationTimes reservationTime, EventCast eventCast) {
         eventPlaceList.add(eventPlace);
         eventPlace.setEvents(this);
-
-        eventTimeList.add(eventTime);
-        eventTime.setEvents(this);
 
         reservationTimeList.add(reservationTime);
         reservationTime.setEvents(this);
 
         eventCastList.add(eventCast);
         eventPlace.setEvents(this);
+    }
+
+    public void addEventTime(EventTimes eventTimes) {
+        eventTimeList.add(eventTimes);
+        eventTimes.setEvents(this);
     }
 
 }
