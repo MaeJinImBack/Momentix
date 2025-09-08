@@ -18,6 +18,7 @@ Momentix는 '특별한 순간(Moment)'을 위한 '티켓(Tix)', 그리고 그 �
 ## 🔲 Wireframe
 
 ## 🗄 ERD
+<img width="1382" height="845" alt="Image" src="https://github.com/user-attachments/assets/834cd14e-c16c-46de-b4fa-627b4b5230a0" />
 
 ## 🧾 API명세서
 - [API 명세서](https://www.notion.so/teamsparta/API-2622dc3ef5148038969ddf25075059a1)
