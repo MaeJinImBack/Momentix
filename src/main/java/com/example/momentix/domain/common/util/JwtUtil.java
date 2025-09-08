@@ -29,7 +29,8 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .claim("role", role)
+                .claim("role", role.name()) //문자열로 저장
+                .claim("typ", "access") // 토큰 타입 명시해 주는 걸 권장한다고 함
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -40,6 +41,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject("refresh")
                 .claim("userId", userId)
+                .claim("typ", "refresh")
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
@@ -83,6 +85,10 @@ public class JwtUtil {
     // role 꺼내기
     public static String getRoleFromToken(String token) {
         return getClaims(token).get("role", String.class);
+    }
+
+    public static String getTokenType(String token) {
+        return getClaims(token).get("typ", String.class);
     }
 
     // 토큰만으로 Authentication 생성 (DB 조회 X)
