@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class EventTimes extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     // 공연 시작 시간
     @Column(nullable = false)

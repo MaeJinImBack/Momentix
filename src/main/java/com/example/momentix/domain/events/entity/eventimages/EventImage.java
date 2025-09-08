@@ -13,5 +13,5 @@ import lombok.Getter;
 public class EventImage extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 }
