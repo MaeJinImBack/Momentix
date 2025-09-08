@@ -27,8 +27,6 @@ public class SignUpService {
     private final PasswordEncoder passwordEncoder;
     private static final String HOST_PREFIX = "momentixHost";
     private static final DateTimeFormatter BIRTH_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final SecureRandom RND = new SecureRandom();
-
 
     @Transactional
     public Long signUpUser(SignUpRequest dto) {
