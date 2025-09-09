@@ -33,8 +33,8 @@ public class KaKaoOAuthService implements OAuthService {
     private String clientId;
     @Value("${kakao.client.secret}")
     private String clientSecret;
-    @Value("${kakao.redirect.url}")
-    private String redirectUrl;
+    @Value("${kakao.redirect.uri}")
+    private String redirectUri;
 
     @Transactional
     @Override
@@ -47,7 +47,7 @@ public class KaKaoOAuthService implements OAuthService {
                     "client_id", clientId,
                     "client_secret", clientSecret,
                     "code", code,
-                    "redirect_uri", redirectUrl
+                    "redirect_uri", redirectUri
             );
 
             JsonNode tokenJson = objectMapper.readTree(tokenResponse);

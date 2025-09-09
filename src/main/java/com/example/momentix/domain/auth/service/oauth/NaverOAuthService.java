@@ -38,8 +38,8 @@ public class NaverOAuthService implements OAuthService {
     private String clientId;
     @Value("${naver.client.secret}")
     private String clientSecret;
-    @Value("${naver.redirect.url}")
-    private String redirectUrl;
+    @Value("${naver.redirect.uri}")
+    private String redirectUri;
 
 // token 발급 요청 → 응답(JSON) → Access Token 추출
     @Transactional
@@ -55,7 +55,7 @@ public class NaverOAuthService implements OAuthService {
                     "client_secret", clientSecret, // 네이버 앱 Client Secret
                     "code", code,  // 네이버가 redirect_uri로 넘겨준 인증 코드
                     "state", state,   // 요청 때 보냈던 state (CSRF 방지)
-                    "redirect_uri", redirectUrl
+                    "redirect_uri", redirectUri
             );
 
             //Access Token 발급
