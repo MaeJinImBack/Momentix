@@ -2,6 +2,7 @@ package com.example.momentix.domain.events.service;
 
 import com.example.momentix.domain.events.dto.request.PlacesRequestDto;
 import com.example.momentix.domain.events.dto.request.SeatRequestDto;
+import com.example.momentix.domain.events.dto.response.BaseSeatResponseDto;
 import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.places.Places;
@@ -69,6 +70,42 @@ public class SeatService {
         } catch (IOException e) {
             return null;
         }
+
+    }
+
+
+    public List<BaseSeatResponseDto> createBaseSeat(MultipartFile baseSeatFile,
+                                                    PlacesRequestDto placeRequest){
+        // 공연장 존재 여부 확인
+        Places place = placesRepository.findByPlaceName(placeRequest.getPlaceName())
+                .orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
+        // 공연장 기본 좌석 배치도 유무 확인
+        if(!place.getSeatList().isEmpty()){
+            throw new IllegalIdentifierException("이미 기본 좌석 배치가 있습니다.");
+        }
+
+        try (Reader reader = new InputStreamReader(baseSeatFile.getInputStream())){
+            List<BaseSeatResponseDto> baseSeatList = new CsvToBeanBuilder<BaseSeatResponseDto>(reader)
+                    .withType(BaseSeatResponseDto.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+
+            List<Seats> seats = baseSeatList.stream()
+                    .map(baseSeat -> Seats.builder()
+                            .seatRow(baseSeat.getSeatRow())
+                            .seatCol(baseSeat.getSeatCol())
+                            .build())
+                    .toList();
+
+            seatsRepository.saveAll(seats);
+
+            return baseSeatList;
+
+        }catch (IOException e){
+            return null;
+        }
+
 
     }
 }
