@@ -2,6 +2,7 @@ package com.example.momentix.domain.events.entity.places;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
 import com.example.momentix.domain.events.entity.EventPlace;
+import com.example.momentix.domain.events.entity.seats.Seats;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,11 +26,19 @@ public class Places extends TimeStamped {
 
     // 공연
     @OneToMany(mappedBy = "places")
-    private List<EventPlace> eventPlace;
+    private List<EventPlace> eventPlaceList;
+
+    @OneToMany(mappedBy = "places", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Seats> seatList;
 
     @Builder
     public Places(String placeName, String placeAddress) {
         this.placeName = placeName;
         this.placeAddress = placeAddress;
+    }
+
+    public void addSeats(Seats seats) {
+        this.seatList.add(seats);
+        seats.setPlaces(this);
     }
 }
