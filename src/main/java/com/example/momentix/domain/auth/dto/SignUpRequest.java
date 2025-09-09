@@ -17,7 +17,7 @@ public class SignUpRequest {
 
     @NotBlank(groups = UserSignUp.class, message = "아이디(이메일)는 필수입니다.")
     @Email(groups = UserSignUp.class, message = "이메일 형식이어야 합니다.")
-    @Null(groups = HostSignUp.class,  message = "호스트 회원가입 시 아이디는 자동 생성되므로 입력하지 마세요.") // 호스트 회원강비 요청 시 이 필드가 있으면 에러라는 의미
+    @Null(groups = HostSignUp.class,  message = "호스트 회원가입 시 아이디는 자동 생성되므로 입력하지 마세요.") // 호스트 회원가입 요청 시 이 필드가 있으면 에러라는 의미
     private String username;
 
     @NotBlank(groups = UserSignUp.class,  message = "비밀번호는 필수입니다.")
