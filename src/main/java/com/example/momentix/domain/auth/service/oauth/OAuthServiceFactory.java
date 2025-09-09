@@ -10,13 +10,14 @@ import com.example.momentix.domain.auth.entity.OAuthProvider;
 @RequiredArgsConstructor
 public class OAuthServiceFactory {
     private final NaverOAuthService naverOAuthService;
+    private final KaKaoOAuthService kaKaoOAuthService;
     
     public OAuthService getOAuthService(OAuthProvider provider) {
         switch (provider){
             case  NAVER:
                 return naverOAuthService;
-//            case  KAKAO:
-//                return KaKaoOAuthService;
+            case  KAKAO:
+                return kaKaoOAuthService;
             default:
                 throw new IllegalArgumentException("지원하지 않는 프로바이더: "+ provider);
         }
