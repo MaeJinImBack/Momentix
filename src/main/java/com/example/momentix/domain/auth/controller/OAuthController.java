@@ -33,12 +33,13 @@ public class OAuthController {
 
     @GetMapping("/naver")
    public ResponseEntity<Void> naver(){
+        //url 조합
         String url = UriComponentsBuilder
-                .fromHttpUrl("https://nid.naver.com/oauth2.0/authorize")
-                .queryParam("response_type", "code")
-                .queryParam("client_id", clientId)
+                .fromHttpUrl("https://nid.naver.com/oauth2.0/authorize")// 네이버 로그인 인증 엔드포인트
+                .queryParam("response_type", "code") // OAuth2 표준: code 방식
+                .queryParam("client_id", clientId)// 네이버 애플리케이션 Client ID
                 .queryParam("redirect_uri", redirectUri) // 네이버 콘솔과 완전 동일해야 함 (인코딩 주의)
-                .queryParam("state", state)
+                .queryParam("state", state) // CSRF 방지용 state 값
                 .build(false) // redirect_uri에 이미 인코딩 되어 있으면 false
                 .toUriString();
         return ResponseEntity.status(302).location(URI.create(url)).build();
