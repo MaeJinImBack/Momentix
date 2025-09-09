@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class OAuthSignInResponse {
-    private final String access_token;
-    private final String refresh_token;
+    private final String accessToken;
+    private final String refreshToken;
     private final Long userId;
     private final String email;
     private final String nickname;
-    private final String provider;
+    private final String provider; //카카로 네이버
 }
