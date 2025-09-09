@@ -17,27 +17,33 @@ public class SignUpRequest {
 
     @NotBlank(groups = UserSignUp.class, message = "아이디(이메일)는 필수입니다.")
     @Email(groups = UserSignUp.class, message = "이메일 형식이어야 합니다.")
-    @Null(groups = HostSignUp.class,  message = "호스트 회원가입 시 username은 자동 생성되므로 입력하지 마세요.") // 호스트 회원강비 요청 시 이 필드가 있으면 에러라는 의미
+    @Null(groups = HostSignUp.class,  message = "호스트 회원가입 시 아이디는 자동 생성되므로 입력하지 마세요.") // 호스트 회원가입 요청 시 이 필드가 있으면 에러라는 의미
     private String username;
 
     @NotBlank(groups = UserSignUp.class,  message = "비밀번호는 필수입니다.")
+    @Null(groups = HostSignUp.class, message = "호스트 회원가입은 비밀번호를 입력하지 않습니다.")
     private String password;
 
     @NotBlank(groups = UserSignUp.class,  message = "비밀번호 확인은 필수입니다.")
+    @Null(groups = HostSignUp.class, message = "호스트 회원가입은 비밀번호를 입력하지 않습니다.")
     private String confirmPassword;
 
     @NotBlank(groups = UserSignUp.class, message = "닉네임은 3~10자리이어야 합니다.")
+    @Null(groups = HostSignUp.class, message = "호스트 회원가입은 닉네임을 입력하지 않습니다.")
     private String nickname;
 
     @NotBlank(groups = UserSignUp.class)
     @Pattern(regexp = "\\d{8}", message = "생년월일은 8자리여야 합니다.")
+    @Null(groups = HostSignUp.class, message = "호스트 회원가입은 생년월일을 입력하지 않습니다.")
     private String birthDate;
 
     @NotBlank(groups = UserSignUp.class)
-    @Pattern(regexp = "\\d{10,11}", message = "휴대폰번호는 11자리 숫자여야 합니다.")
+    @Pattern(groups = UserSignUp.class,regexp = "\\d{10,11}", message = "휴대폰번호는 11자리 숫자여야 합니다.")
+    @Null(groups = HostSignUp.class, message = "호스트 회원가입은 휴대폰번호를 입력하지 않습니다.")
     private String phoneNumber;
 
     @NotBlank(groups = HostSignUp.class)
-    @Pattern(regexp = "\\d{10}", message = "사업자번호는 10자리 숫자여야 합니다.")
+    @Pattern(groups = HostSignUp.class,regexp = "\\d{10}", message = "사업자번호는 10자리 숫자여야 합니다.")
+    @Null(groups = UserSignUp.class, message = "일반 회원가입은 사업자번호를 입력하지 않습니다.")
     private String businessNumber;
 }
