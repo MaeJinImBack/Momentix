@@ -44,8 +44,7 @@ public class KaKaoOAuthService implements OAuthService {
             String tokenResponse = oAuthClient.postForm(
                     TOKEN_URL,
                     "grant_type", "authorization_code",
-                    "client_id", clientId,
-                    "client_secret", clientSecret,
+                    "client_id", clientId,      // = REST API 키
                     "code", code,
                     "redirect_uri", redirectUri
             );

@@ -58,16 +58,17 @@ public class OAuthController {
         String state = UUID.randomUUID().toString();
         session.setAttribute("OAUTH_STATE_KAKAO", state);
 
-        String url=UriComponentsBuilder
+        URI uri = UriComponentsBuilder
                 .fromHttpUrl("https://kauth.kakao.com/oauth/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", kakaoClientId)
                 .queryParam("redirect_uri", kakaoRedirectUri)
                 .queryParam("state", state)
-                .queryParam("scope", "account_email profile_nickname profile_image")
-                .build(false)
-                .toUriString();
-        return ResponseEntity.status(302).location(URI.create(url)).build();
+                .encode()
+                .build()
+                .toUri();
+
+        return ResponseEntity.status(302).location(uri).build();
     }
 
     // auth/sign-in/oauth/callback/naver → code를 받아서 토큰 발급 요청 → 프로필 조회 → DB 저장 → JWT 리턴
@@ -79,7 +80,8 @@ public class OAuthController {
         OAuthService service = oAuthServiceFactory.getOAuthService(OAuthProvider.NAVER);
         return service.signIn(code, stateParam);
     }
-    @GetMapping("/kakao/callback")
+
+    @GetMapping("callback/kakao")
     public OAuthSignInResponse kakaoCallback(
             @RequestParam("code") String code,
             @RequestParam(value = "state", required = false) String stateParam,
@@ -93,5 +95,4 @@ public class OAuthController {
         OAuthService svc = oAuthServiceFactory.getOAuthService(OAuthProvider.KAKAO);
         return svc.signIn(code, stateParam); // null 가능
     }
-
 }
