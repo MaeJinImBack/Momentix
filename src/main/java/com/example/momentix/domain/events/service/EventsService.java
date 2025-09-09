@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.service;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
 import com.example.momentix.domain.events.entity.EventCast;
 import com.example.momentix.domain.events.entity.EventPlace;
@@ -15,8 +16,14 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimesReposi
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import com.example.momentix.domain.events.repository.reservationtimes.ReservationTimesRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +41,8 @@ public class EventsService {
                 .eventTitle(requestDto.getEventTitle())
                 .ageRatingType(requestDto.getAgeRating())
                 .eventCategoryType(requestDto.getEventCategory())
+                .eventStartDate(requestDto.getEventStartDate())
+                .eventEndDate(requestDto.getEventEndDate())
                 .build();
 
         // Places(공연장) 공연장 정보로 검색 or 생성
@@ -46,11 +55,13 @@ public class EventsService {
         placesRepository.save(places);
 
         // EventTimes(공연 시간) 생성
-        EventTimes eventTimes = EventTimes.builder()
-                .eventStartTime(requestDto.getEventStartTime())
-                .eventEndTime(requestDto.getEventEndTime())
-                .events(createEvent)
-                .build();
+        for (EventTimes eventTimesRequest : requestDto.getEventTimeList()) {
+            EventTimes eventTimes = EventTimes.builder()
+                    .eventStartTime(eventTimesRequest.getEventStartTime())
+                    .eventEndTime(eventTimesRequest.getEventEndTime())
+                    .build();
+            createEvent.addEventTime(eventTimes);
+        }
 
         // ReservationTimes(예매 시간) 생성
         ReservationTimes reservationTimes = ReservationTimes.builder()
@@ -74,7 +85,6 @@ public class EventsService {
                         .events(createEvent)
                         .places(places)
                         .build(),
-                eventTimes,
                 reservationTimes,
                 EventCast.builder()
                         .events(createEvent)
@@ -84,7 +94,13 @@ public class EventsService {
         // Events(공연) 저장
         eventsRepository.save(createEvent);
 
-        return new EventsResponseDto(createEvent, places, eventTimes, reservationTimes, casts);
+        return new EventsResponseDto(createEvent, places, reservationTimes, casts);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AllReadEventsResponseDto> allReadEvents(Pageable pageable) {
+        List<AllReadEventsResponseDto> allReadResponse = eventsRepository.AllReadEvents();
+        return new PageImpl<>(allReadResponse, pageable, allReadResponse.size());
     }
 }

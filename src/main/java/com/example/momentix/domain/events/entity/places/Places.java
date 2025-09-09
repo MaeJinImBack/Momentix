@@ -13,7 +13,7 @@ import java.util.List;
 public class Places extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     // 공연장 이름
     @Column(nullable = false)

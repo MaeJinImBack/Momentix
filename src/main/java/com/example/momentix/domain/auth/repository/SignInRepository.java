@@ -20,4 +20,13 @@ public interface SignInRepository extends JpaRepository<SignIn,Long> {
  @Query("select u.userId from SignIn s join s.users u where s.username = :username")
  Optional<Long> findUserIdByUsername(@Param("username") String username);
 
+    boolean existsByUsername(String username);
+
+    @Query("""
+    select s
+    from SignIn s
+    join fetch s.users u
+    where u.businessNumber = :businessNumber
+""")
+    Optional<SignIn> findWithUserByBusinessNumber(@Param("businessNumber") String businessNumber);
 }

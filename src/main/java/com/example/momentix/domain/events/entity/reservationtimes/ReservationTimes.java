@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class ReservationTimes extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     // 예매 시작 시간
     @Column(nullable = false)
