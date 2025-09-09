@@ -29,4 +29,6 @@ public interface SignInRepository extends JpaRepository<SignIn,Long> {
     where u.businessNumber = :businessNumber
 """)
     Optional<SignIn> findWithUserByBusinessNumber(@Param("businessNumber") String businessNumber);
+
+    Optional<SignIn> findByUsername(String email);
 }
