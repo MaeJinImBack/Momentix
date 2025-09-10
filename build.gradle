@@ -73,12 +73,6 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    // elastic search
-    // spring boot 바로 사용가능한 elasticsearch 기본적으로 사용
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0' // JSON ↔ Java 객체 변환 라이브러리
-
-
     // Starter-mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
