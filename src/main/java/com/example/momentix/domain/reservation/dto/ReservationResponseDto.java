@@ -1,0 +1,35 @@
+package com.example.momentix.domain.reservation.dto;
+
+import com.example.momentix.domain.reservation.entitiy.ReservationStatusType;
+import com.example.momentix.domain.reservation.entitiy.Reservations;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Getter;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+@Getter
+public class ReservationResponseDto {
+
+    private Long usersId;
+
+    private Long eventsId;
+
+    private Long eventTimeId;
+
+    private Long eventSeatId;
+
+    private ReservationStatusType reservationStatusType;
+
+
+    public static ReservationResponseDto from(Reservations r) {
+
+        return  ReservationResponseDto.builder()
+                .usersId(r.getUsers().getUserId())
+                .eventsId(r.getEvents().getId())
+                .eventTimeId(r.getEventTimes() == null ? null : r.getEventTimes().getId())
+                .eventSeatId(r.getEventSeat() == null ? null : r.getEventSeat().getId())
+                .reservationStatusType(r.getReservationStatusType())
+                .build();
+    }
+}
