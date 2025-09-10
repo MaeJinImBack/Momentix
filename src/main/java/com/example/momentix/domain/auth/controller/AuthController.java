@@ -59,12 +59,14 @@ public class AuthController {
 
     // 이후에 /auth/refresh, /auth/logout 추가 예정
 
+    // 다른 헤더로 보냄-필터가 JWT로 착각해서 에러 던짐
     @PostMapping("/sign-up/user")
     public ResponseEntity<SignUpResponse> signUpUser(
             @Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader(value = "X-Email-Verify-Token", required = false) String emailTokenHeader
+    ) {
 
-        String token = extractBearer(authHeader);
+        String token = extractBearer(emailTokenHeader);
         String email = emailVerificationService.consumerVerifiedToken(token); // Redis에서 email 복구
 
         Long userId = signUpService.signUpUser(email, req);

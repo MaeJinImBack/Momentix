@@ -68,7 +68,8 @@ public class EmailVerificationService {
 
     //최종 가입에서 토큰 소비 -> 이메일 복구(1회성)
     public String consumerVerifiedToken(String token){
-        String email=redisTemplate.opsForValue().getAndDelete(tokenKey(token));
+        String key = tokenKey(token);
+        String email = redisTemplate.opsForValue().get(key);
         if(email==null||email.isBlank()){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었거나 이미 사용되었습니다.");
         }
