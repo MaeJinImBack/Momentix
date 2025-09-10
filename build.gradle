@@ -78,6 +78,9 @@ dependencies {
     // sendgrid
     implementation 'com.sendgrid:sendgrid-java:4.9.3'
 
+    // openCSV
+    implementation 'com.opencsv:opencsv:5.12.0'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
