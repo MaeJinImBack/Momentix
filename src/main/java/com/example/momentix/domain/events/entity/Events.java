@@ -65,6 +65,10 @@ public class Events extends TimeStamped {
     @OneToMany(mappedBy = "events", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventCast> eventCastList = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "events", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventSeat> eventSeatList = new ArrayList<>();
+
     @Column(nullable = false)
     private boolean isDeleted;
 
@@ -83,6 +87,11 @@ public class Events extends TimeStamped {
     public void addEventTime(EventTimes eventTimes) {
         eventTimeList.add(eventTimes);
         eventTimes.setEvents(this);
+    }
+
+    public void addEventSeat(EventSeat eventSeat) {
+        eventSeatList.add(eventSeat);
+        eventSeat.setEvents(this);
     }
 
 }

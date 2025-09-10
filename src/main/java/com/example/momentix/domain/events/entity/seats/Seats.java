@@ -1,43 +1,40 @@
 package com.example.momentix.domain.events.entity.seats;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
-import com.example.momentix.domain.events.entity.enums.SeatGradeType;
-import com.example.momentix.domain.events.entity.enums.SeatPartType;
+import com.example.momentix.domain.events.entity.places.Places;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
-
-import java.math.BigDecimal;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@NoArgsConstructor
 // 공연 좌석
 public class Seats extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 좌석 등급
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SeatGradeType seatGradeType;
-
-    // 좌석 구역
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SeatPartType seatPartType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="places_id")
+    private Places places;
 
     // 좌석 행 열
     @Column(nullable = false)
-    private int x;
+    private int seatRow;
     @Column(nullable = false)
-    private int y;
+    private int seatCol;
 
-    // 좌석 가격
-    @Column(nullable = false)
-    private BigDecimal price;
 
-    @Column(nullable = false)
-    private boolean seatStatus;
+    @Builder
+    public Seats (int seatRow, int seatCol, boolean seatStatus) {
+        this.seatRow = seatRow;
+        this.seatCol = seatCol;
+    }
 
+    public void setPlaces(Places places) {
+        this.places = places;
+    }
 
 }
