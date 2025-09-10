@@ -16,4 +16,12 @@ public class AgeUtilTest {
         assertThat(result).isFalse();
     }
 
+    @Test
+    void 만19세이상_true(){
+        LocalDate birthDate = LocalDate.of(2000,2,19);
+        boolean result=AgeUtil.isOverAge(birthDate,19);
+        assertThat(result).isTrue();
+    }
+
+
 }
