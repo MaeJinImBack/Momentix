@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-
+                                .requestMatchers(HttpMethod.GET, "/redis/test").permitAll()
                         // host 공연등록 가능
                         .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
