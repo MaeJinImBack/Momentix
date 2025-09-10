@@ -90,15 +90,14 @@ public class SeatService {
                     .withIgnoreLeadingWhiteSpace(true)
                     .build()
                     .parse();
-
-            List<Seats> seats = baseSeatList.stream()
-                    .map(baseSeat -> Seats.builder()
-                            .seatRow(baseSeat.getSeatRow())
-                            .seatCol(baseSeat.getSeatCol())
-                            .build())
-                    .toList();
-
-            seatsRepository.saveAll(seats);
+            for (BaseSeatResponseDto baseSeatDto : baseSeatList) {
+                Seats placeSeat = Seats.builder()
+                        .seatRow(baseSeatDto.getSeatCol())
+                        .seatCol(baseSeatDto.getSeatCol())
+                        .build();
+                place.addSeats(placeSeat);
+            }
+            placesRepository.save(place);
 
             return baseSeatList;
 
