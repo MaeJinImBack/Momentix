@@ -6,6 +6,7 @@ import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.places.Places;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
+import com.example.momentix.domain.events.repository.EventSeatRepository;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import com.example.momentix.domain.events.repository.seats.SeatsRepository;
@@ -13,6 +14,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,7 +29,9 @@ public class SeatService {
     private final PlacesRepository placesRepository;
     private final EventPlaceRepository eventPlaceRepository;
     private final SeatsRepository seatsRepository;
+    private final EventSeatRepository eventSeatRepository;
 
+    @Transactional
     public List<SeatResponseDto> createSeat(MultipartFile seatFile,
                                             PlacesRequestDto placeRequest,
                                             Long eventId) {
@@ -41,7 +45,7 @@ public class SeatService {
         }
         // File을 문자열 형태로 받기
         if (!events.getEventSeatList().isEmpty()) {
-            eventsRepository.deleteEventSeatListById(eventId);
+            eventSeatRepository.deleteByEventsId(eventId);
         }
 
         try (Reader reader = new InputStreamReader(seatFile.getInputStream())) {
