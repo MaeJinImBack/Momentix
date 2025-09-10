@@ -94,7 +94,6 @@ public class NaverOAuthService implements OAuthService {
             //유저 DB 조회 후 없으면 생성
             Users user = userRepository.findBySignIn_Username(email).orElseGet(() -> {
                 Users users = new Users();
-                users.setEmail(email);
                 users.setNickname(nickname);
                 users.setRole(RoleType.CONSUMER);
                 users.setBirthDate(birthDate);

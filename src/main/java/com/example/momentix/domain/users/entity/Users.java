@@ -84,6 +84,5 @@ public class Users extends TimeStamped {
     public void setRole(RoleType role){ this.role = role; }
     public void setSignIn(SignIn signIn){ this.signIn = signIn; }
 
-    public void setEmail(String email) {
-    }
+
 }

@@ -74,7 +74,6 @@ public class KaKaoOAuthService implements OAuthService {
             // 3) 유저 조회/생성
             Users user = userRepository.findBySignIn_Username(email).orElseGet(() -> {
                 Users newUser = new Users();
-                newUser.setEmail(email);
                 newUser.setNickname(nickname);
                 newUser.setRole(RoleType.CONSUMER);
                 return userRepository.save(newUser);
