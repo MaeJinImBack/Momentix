@@ -83,4 +83,6 @@ public class Users extends TimeStamped {
     public void setBusinessNumber(String businessNumber){ this.businessNumber = businessNumber; }
     public void setRole(RoleType role){ this.role = role; }
     public void setSignIn(SignIn signIn){ this.signIn = signIn; }
+
+
 }
