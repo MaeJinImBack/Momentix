@@ -26,8 +26,8 @@ public class Users extends TimeStamped {
     @Column( length = 11)  // 01012345678
     private String phoneNumber;
 
-    @Column( length = 8)
-    private LocalDate birthDate;
+    @Column( nullable = true)
+    private LocalDate birthDate; //LocalDate는 length 의미없음
 
     @Column(length = 10)  // host만 입력 (사업자번호)
     private String businessNumber;
