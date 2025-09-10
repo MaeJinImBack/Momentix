@@ -28,7 +28,6 @@ public class SeatService {
     private final EventsRepository eventsRepository;
     private final PlacesRepository placesRepository;
     private final EventPlaceRepository eventPlaceRepository;
-    private final SeatsRepository seatsRepository;
     private final EventSeatRepository eventSeatRepository;
 
     @Transactional
