@@ -64,6 +64,18 @@ public class Users extends TimeStamped {
         return users;
     }
 
+    // 이메일을 외부에서 강제 주입해 username=email로 생성
+    public static Users createConsumer(String email, SignUpRequest dto, PasswordEncoder encoder) {
+        Users users = new Users();
+        users.setRole(RoleType.CONSUMER);
+        users.setNickname(dto.getNickname());
+        users.setPhoneNumber(dto.getPhoneNumber());
+        users.setBirthDate(LocalDate.parse(dto.getBirthDate()));
+        SignIn signIn = SignIn.create(email, dto.getPassword(), encoder, users);
+        users.setSignIn(signIn);
+        return users;
+    }
+
 
     // Host(호스트 회원) 회원가입 시 Users + SignIn 객체를 생성하는 정적 메서드
     public static Users createHost(String businessNumber, String username, String rawPassword, PasswordEncoder encoder) {
