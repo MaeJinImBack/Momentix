@@ -1,7 +1,7 @@
 package com.example.momentix.domain.events.controller;
 
 import com.example.momentix.domain.events.dto.request.PlacesRequestDto;
-import com.example.momentix.domain.events.dto.request.SeatRequestDto;
+import com.example.momentix.domain.events.dto.response.SeatResponseDto;
 import com.example.momentix.domain.events.service.SeatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class SeatController {
     private final SeatService seatService;
 
     @PostMapping("/{eventId}/seats")
-    public ResponseEntity<List<SeatRequestDto>> createSeat(
+    public ResponseEntity<List<SeatResponseDto>> createSeat(
             @RequestPart("file") MultipartFile seatFile,
             @RequestPart("request") PlacesRequestDto placeRequest,
             @PathVariable Long eventId) {

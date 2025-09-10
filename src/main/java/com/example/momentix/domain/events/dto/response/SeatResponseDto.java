@@ -1,15 +1,12 @@
-package com.example.momentix.domain.events.dto.request;
+package com.example.momentix.domain.events.dto.response;
 
-import com.opencsv.bean.AbstractBeanField;
-import com.opencsv.bean.ConverterNumber;
 import com.opencsv.bean.CsvBindByName;
 import lombok.Getter;
-import org.apache.commons.beanutils.converters.BigDecimalConverter;
 
 import java.math.BigDecimal;
 
 @Getter
-public class SeatRequestDto {
+public class SeatResponseDto {
     @CsvBindByName
     private String seatGradeType;
     @CsvBindByName(column = "seatPrice")
