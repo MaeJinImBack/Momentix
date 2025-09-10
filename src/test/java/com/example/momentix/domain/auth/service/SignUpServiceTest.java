@@ -49,7 +49,7 @@ public class SignUpServiceTest {
                 () -> signUpService.signUpUser("\"hansol1212@test.com\"",signUpRequest));
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-        assertEquals("400 BAD_REQUEST \"잘못된 요청(비밀번호 불일치)\"", ex.getMessage());
+        assertEquals("400 BAD_REQUEST \"비밀번호가 일치하지 않습니다.\"", ex.getMessage());
     }
 
     // 02. 중복 아이디409
@@ -70,7 +70,7 @@ public class SignUpServiceTest {
         //when&then
         ResponseStatusException ex =assertThrows(ResponseStatusException.class,()-> signUpService.signUpUser("user1",signUpRequest));
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-        assertEquals("409 CONFLICT \"이미 사용 중인 아이디입니다\"", ex.getMessage());
+        assertEquals("409 CONFLICT \"이미 가입된 이메일입니다.\"", ex.getMessage());
 
     }
     
