@@ -36,7 +36,6 @@ public class SignUpServiceTest {
     public void 회원가입비밀번호불일치에러발생(){
         //given
         SignUpRequest signUpRequest = new SignUpRequest(
-                "hansol1212@test.com",
                 "1233",
                 "4566",
                 "nickname",
@@ -59,7 +58,6 @@ public class SignUpServiceTest {
 
         // given
         SignUpRequest signUpRequest = new SignUpRequest(
-                "user1",
                 "1234",
                 "1234",
                 "nickname",
@@ -80,7 +78,6 @@ public class SignUpServiceTest {
     @Test
     public void 회원가입정상가입시userId반환(){
         SignUpRequest signUpRequest = new SignUpRequest(
-                "user1",
                 "1234",
                 "1234",
                 "nickname",
