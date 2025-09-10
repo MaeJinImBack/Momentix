@@ -33,11 +33,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                // 소셜 로그인 시작/콜백 모두 허용 (GET)
+                .requestMatchers("/auth/sign-in/**", "/auth/sign-in/callback/**").permitAll()
 
-                        // host 공연등록 가능
-                        .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
-                        .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
+
+                 // host 공연등록 가능
+                                 .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
+                                .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
 
                         //admin
                             // 이부분(리뷰 삭제 가능), 나중에 컨트롤러/서비스에서 본인 여부 검사 코드 넣어주셔야 합니다.
@@ -57,7 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/notifications/events/**").hasAnyRole("ADMIN","HOST")
 
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/auth/sign-in/oauth/**").permitAll()
+
                         // 특정 조건을 지정하지 않은 나머지 모든 API는 로그인만 했으면 호출 가능함
                         .anyRequest().authenticated() //문제점: host/admin도 가능해짐
 //                        .requestMatchers(HttpMethod.POST, "/reservations/**").hasRole("CONSUMER")

@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/auth/sign-in/oauth")
+@RequestMapping("/auth/sign-in")
 @RequiredArgsConstructor
 public class OAuthController {
     private final OAuthServiceFactory oAuthServiceFactory;
