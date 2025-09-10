@@ -1,8 +1,7 @@
 package com.example.momentix.domain.auth.controller;
 
 
-import com.example.momentix.domain.auth.dto.SignUpRequest;
-import com.example.momentix.domain.auth.dto.SignUpResponse;
+import com.example.momentix.domain.auth.dto.*;
 import com.example.momentix.domain.auth.service.EmailVerificationService;
 import com.example.momentix.domain.auth.service.SignInService;
 import com.example.momentix.domain.auth.service.SignUpService;
@@ -44,23 +43,31 @@ public class AuthController {
     //이메일 인증(회원가입 전 단계 - consumer)
     @PostMapping("/email-verification/sign-up")
     public ResponseEntity<Void> requestEmailCode(@RequestBody EmailVerifyRequest req) {
-        emailVerificationService.sendCode(req.email());
+        emailVerificationService.sendCode(req.getEmail());
         return ResponseEntity.ok().build();
     }
 
     // 코드확인 및 검증 토큰 발급
     @PostMapping("/email-verification/sign-up-verify")
-    public ResponseEntity<EmailVerifyConfirmRes> confirmEmailCode(@RequestBody EmailVerifyConfirm req) {
-        String token = emailVerificationService.confirmAndIssueToken(req.email(), req.code());
-        return ResponseEntity.ok(new EmailVerifyConfirmRes(token));
+    public ResponseEntity<EmailVerifyConfirmResponse> confirmEmailCode(
+            @RequestBody EmailVerifyConfirm req) {
+        // Lombok @Getter니까 req.getEmail(), req.getCode() 로 접근
+        String token = emailVerificationService.confirmAndIssueToken(req.getEmail(), req.getCode());
+        // 응답 DTO도 Lombok @AllArgsConstructor 쓰니까 바로 new 가능
+        return ResponseEntity.ok(new EmailVerifyConfirmResponse(token));
     }
-
 
     // 이후에 /auth/refresh, /auth/logout 추가 예정
 
     @PostMapping("/sign-up/user")
-    public ResponseEntity<SignUpResponse> signUpUser(@Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req) {
-        Long userId = signUpService.signUpUser(req);
+    public ResponseEntity<SignUpResponse> signUpUser(
+            @Validated(SignUpRequest.UserSignUp.class) @RequestBody SignUpRequest req,
+            @RequestHeader("Authorization") String authHeader) {
+
+        String token = extractBearer(authHeader);
+        String email = emailVerificationService.consumerVerifiedToken(token); // Redis에서 email 복구
+
+        Long userId = signUpService.signUpUser(email, req);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new SignUpResponse("회원가입 성공", userId));
     }
@@ -82,4 +89,13 @@ public class AuthController {
 
     public record SigninReq(String username, String password) {}
     public record TokenRes(String accessToken, String refreshToken) {}
+
+    private String extractBearer(String authHeader) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        throw new IllegalArgumentException("유효하지 않은 Authorization 헤더");
+    }
+
+
 }

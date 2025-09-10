@@ -16,9 +16,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationService {
-
-    private final StringRedisTemplate redis;
+    private final StringRedisTemplate redisTemplate;
     private final JavaMailSender mailSender;
+    String code = String.valueOf((int)(Math.random() * 900000) + 100000); //6자리
 
     @Value("${auth.email.code-ttl-sec:600}")    // 인증코드 10분
     private long codeTtlSec;
@@ -34,13 +34,13 @@ public class EmailVerificationService {
     //인증 코드 발송
     public void sendCode(String email) {
         //쿨다운
-        if(Boolean.TRUE.equals(redis.hasKey(cooldownKey(email)))){
+        if(Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey(email)))){
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후에 다시 시도해 주세요.");
         }
         // 코드 저장 (TTL)
-        redis.opsForValue().set(codeKey(email), code, Duration.ofSeconds(codeTtlSec));
+        redisTemplate.opsForValue().set(codeKey(email), code, Duration.ofSeconds(codeTtlSec));
         // 쿨다운 시작
-        redis.opsForValue().set(cooldownKey(email), "1", Duration.ofSeconds(cooldownSec));
+        redisTemplate.opsForValue().set(cooldownKey(email), "1", Duration.ofSeconds(cooldownSec));
 
         //간단 텍스트 메일 예시(운영 시 템플릿/발신자 도메인 구성 권장)
         SimpleMailMessage message = new SimpleMailMessage();
@@ -52,22 +52,22 @@ public class EmailVerificationService {
 
     // 코드확인/ 검증 토큰(UUID) 발급
     public String confirmAndIssueToken(String email, String code) {
-        String saved = redis.opsForValue().get(codeKey(email));
+        String saved = redisTemplate.opsForValue().get(codeKey(email));
         if (saved == null || !saved.equals(code)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증에 실패했습니다. 코드를 다시 요청해 주세요.");
         }
         // 코드 소모(선택)
-        redis.delete(codeKey(email));
+        redisTemplate.delete(codeKey(email));
 
         // 검증토큰 발급(짧은 TTL, 1회성)
         String token = UUID.randomUUID().toString();
-        redis.opsForValue().set(tokenKey(token), email, Duration.ofSeconds(tokenTtlSec));
+        redisTemplate.opsForValue().set(tokenKey(token), email, Duration.ofSeconds(tokenTtlSec));
         return token;
     }
 
     //최종 가입에서 토큰 소비 -> 이메일 복구(1회성)
     public String consumerVerifiedToken(String token){
-        String email=redis.opsForValue().getAndDelete(tokenKey(token));
+        String email=redisTemplate.opsForValue().getAndDelete(tokenKey(token));
         if(email==null||email.isBlank()){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었거나 이미 사용되었습니다.");
         }

@@ -47,7 +47,7 @@ public class SignUpServiceTest {
         // 아이디 중복 이런 거 없어서 스텁 필요없음
         // when & then
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> signUpService.signUpUser(signUpRequest));
+                () -> signUpService.signUpUser("\"hansol1212@test.com\"",signUpRequest));
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
         assertEquals("400 BAD_REQUEST \"잘못된 요청(비밀번호 불일치)\"", ex.getMessage());
@@ -70,7 +70,7 @@ public class SignUpServiceTest {
         given(signInRepository.existsByUsername("user1")).willReturn(true); //willReturn이란, 어떤 값을 돌려줘라~라고 가짜 객체의 동작을 지정할 때 쓰는 문법
 
         //when&then
-        ResponseStatusException ex =assertThrows(ResponseStatusException.class,()-> signUpService.signUpUser(signUpRequest));
+        ResponseStatusException ex =assertThrows(ResponseStatusException.class,()-> signUpService.signUpUser("user1",signUpRequest));
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
         assertEquals("409 CONFLICT \"이미 사용 중인 아이디입니다\"", ex.getMessage());
 
@@ -97,7 +97,7 @@ public class SignUpServiceTest {
         });
 
         //when
-        Long userId = signUpService.signUpUser(signUpRequest);
+        Long userId = signUpService.signUpUser("user1",signUpRequest);
 
         //then
         assertNotNull(userId);
