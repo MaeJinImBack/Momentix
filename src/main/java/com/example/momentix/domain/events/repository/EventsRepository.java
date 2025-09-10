@@ -23,5 +23,5 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
             "JOIN ep.places p ")
     List<AllReadEventsResponseDto> AllReadEvents();
 
-    void deleteEventSeatListById(Long eventId);
+
 }
