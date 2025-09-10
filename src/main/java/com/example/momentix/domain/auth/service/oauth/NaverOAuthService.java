@@ -150,7 +150,7 @@ public class NaverOAuthService implements OAuthService {
         if (digits.length() == 11 && digits.startsWith("010")) {
             return digits; // 01012345678 형태
         }
-        return digits.isEmpty() ? null : digits;//숫자 뽑아냈는데 아무것도 없으면 null : 숫자
+        return digits;
     }
 }
 
