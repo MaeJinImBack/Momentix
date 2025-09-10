@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -31,6 +32,10 @@ public class EventTimes extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="events_id", nullable = false)
     private Events events;
+
+    // 공연 시간별 좌석 예매 현황
+    @OneToMany(mappedBy = "eventTime", cascade =  CascadeType.ALL, orphanRemoval = true)
+    private List<EventTimeReservationSeat> eventTimeReservationSeatList;
 
     @Builder
     public EventTimes(LocalDateTime eventStartTime, LocalDateTime eventEndTime, Events events) {

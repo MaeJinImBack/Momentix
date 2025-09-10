@@ -3,6 +3,7 @@ package com.example.momentix.domain.events.entity;
 import com.example.momentix.domain.common.entity.TimeStamped;
 import com.example.momentix.domain.events.entity.enums.SeatGradeType;
 import com.example.momentix.domain.events.entity.enums.SeatPartType;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimeReservationSeat;
 import com.example.momentix.domain.events.entity.seats.Seats;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,9 +35,9 @@ public class EventSeat extends TimeStamped {
     @Column(nullable = false)
     private BigDecimal seatPrice;
 
-    @Column(nullable = false)
-    private boolean seatStatus = true;
-
+    // 좌석별 예매 현황 (같은 좌석이라도 다른 시간대가 있으므로 OneToMany)
+    @OneToMany(mappedBy = "eventSeat")
+    private List<EventTimeReservationSeat> eventTimeReservationSeatList;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "events_id")
