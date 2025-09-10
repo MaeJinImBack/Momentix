@@ -59,10 +59,16 @@ public class SeatService {
                     .parse();
 
             for (SeatResponseDto seatDto : seatList) {
+                Seats baseSeat = seatsRepository.findBySeatRowAndSeatColAndPlaces_Id(
+                        seatDto.getSeatRow(),
+                        seatDto.getSeatCol(),
+                        places.getId());
+
                 EventSeat eventSeat = EventSeat.builder()
                         .seatGradeType(seatDto.getSeatGradeType())
                         .seatPartType(seatDto.getSeatPartType())
                         .seatPrice(seatDto.getSeatPrice())
+                        .seat(baseSeat)
                         .build();
                 events.addEventSeat(eventSeat);
             }
