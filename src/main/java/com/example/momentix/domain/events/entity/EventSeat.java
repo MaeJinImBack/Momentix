@@ -34,7 +34,7 @@ public class EventSeat extends TimeStamped {
     private BigDecimal seatPrice;
 
     @Column(nullable = false)
-    private boolean seatStatus = false;
+    private boolean seatStatus = true;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
