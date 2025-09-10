@@ -45,6 +45,7 @@ public class SeatService {
         if (!eventPlaceRepository.existsByEventsAndPlaces(events, places)) {
             throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
         }
+
         // File을 문자열 형태로 받기
         if (!events.getEventSeatList().isEmpty()) {
             eventSeatRepository.deleteByEventsId(eventId);
@@ -59,10 +60,16 @@ public class SeatService {
                     .parse();
 
             for (SeatResponseDto seatDto : seatList) {
+                Seats baseSeat = seatsRepository.findBySeatRowAndSeatColAndPlaces_Id(
+                        seatDto.getSeatRow(),
+                        seatDto.getSeatCol(),
+                        places.getId());
+
                 EventSeat eventSeat = EventSeat.builder()
                         .seatGradeType(seatDto.getSeatGradeType())
                         .seatPartType(seatDto.getSeatPartType())
                         .seatPrice(seatDto.getSeatPrice())
+                        .seat(baseSeat)
                         .build();
                 events.addEventSeat(eventSeat);
             }
