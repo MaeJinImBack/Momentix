@@ -23,5 +23,10 @@ public class AgeUtilTest {
         assertThat(result).isTrue();
     }
 
+    @Test
+    void birthDate_null_false(){
+        boolean result= AgeUtil.isOverAge(null,19); //생년월일 정보 없으면 미성년으로 간주, 파마리터 2개라서 19넣음
+        assertThat(result).isFalse();
+    }
 
 }
