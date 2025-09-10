@@ -3,6 +3,7 @@ package com.example.momentix.domain.auth.controller;
 
 import com.example.momentix.domain.auth.dto.SignUpRequest;
 import com.example.momentix.domain.auth.dto.SignUpResponse;
+import com.example.momentix.domain.auth.service.EmailVerificationService;
 import com.example.momentix.domain.auth.service.SignInService;
 import com.example.momentix.domain.auth.service.SignUpService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class AuthController {
     private final SignInService signInService;
     private final SignUpService signUpService;
+    private final EmailVerificationService emailVerificationService;
 
     @PostMapping("/sign-in")
     public ResponseEntity<TokenRes> signIn(@RequestBody SigninReq req) {
@@ -38,6 +40,21 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(new TokenRes(tokens.getAccessToken(), null));// 바디엔 access만
     }
+
+    //이메일 인증(회원가입 전 단계 - consumer)
+    @PostMapping("/email-verification/sign-up")
+    public ResponseEntity<Void> requestEmailCode(@RequestBody EmailVerifyRequest req) {
+        emailVerificationService.sendCode(req.email());
+        return ResponseEntity.ok().build();
+    }
+
+    // 코드확인 및 검증 토큰 발급
+    @PostMapping("/email-verification/sign-up-verify")
+    public ResponseEntity<EmailVerifyConfirmRes> confirmEmailCode(@RequestBody EmailVerifyConfirm req) {
+        String token = emailVerificationService.confirmAndIssueToken(req.email(), req.code());
+        return ResponseEntity.ok(new EmailVerifyConfirmRes(token));
+    }
+
 
     // 이후에 /auth/refresh, /auth/logout 추가 예정
 
