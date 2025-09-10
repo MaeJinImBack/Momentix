@@ -22,4 +22,6 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
             "JOIN EventPlace ep ON e.id = ep.events.id " +
             "JOIN ep.places p ")
     List<AllReadEventsResponseDto> AllReadEvents();
+
+
 }
