@@ -18,13 +18,13 @@ import java.util.UUID;
 public class EmailVerificationService {
     private final StringRedisTemplate redisTemplate;
     private final JavaMailSender mailSender;
-    String code = String.valueOf((int)(Math.random() * 900000) + 100000); //6자리
 
-    @Value("${auth.email.code-ttl-sec:600}")    // 인증코드 10분
+
+    @Value("${auth.email.code-ttl-sec:600}")// 인증코드 10분
     private long codeTtlSec;
-    @Value("${auth.email.token-ttl-sec:900}")   // 검증토큰 15분
+    @Value("${auth.email.token-ttl-sec:900}")// 검증토큰 15분
     private long tokenTtlSec;
-    @Value("${auth.email.cooldown-sec:45}")     // 재전송 쿨다운 45초
+    @Value("${auth.email.cooldown-sec:45}")// 재전송 쿨다운 45초
     private long cooldownSec;
 
     private String codeKey(String email) { return "momentix:email:code:" + email; }
@@ -33,6 +33,7 @@ public class EmailVerificationService {
 
     //인증 코드 발송
     public void sendCode(String email) {
+        String code = String.valueOf((int)(Math.random() * 900000) + 100000); //6자리
         //쿨다운
         if(Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey(email)))){
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후에 다시 시도해 주세요.");
