@@ -92,7 +92,7 @@ public class SeatService {
                     .parse();
             for (BaseSeatResponseDto baseSeatDto : baseSeatList) {
                 Seats placeSeat = Seats.builder()
-                        .seatRow(baseSeatDto.getSeatCol())
+                        .seatRow(baseSeatDto.getSeatRow())
                         .seatCol(baseSeatDto.getSeatCol())
                         .build();
                 place.addSeats(placeSeat);
