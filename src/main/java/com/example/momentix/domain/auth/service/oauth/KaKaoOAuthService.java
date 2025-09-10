@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class KaKaoOAuthService implements OAuthService {
 
+    //code를 주고 access_token / refresh_token을 교환받는 URL.
     private static final String TOKEN_URL   = "https://kauth.kakao.com/oauth/token";
     private static final String PROFILE_URL = "https://kapi.kakao.com/v2/user/me";
 
@@ -43,13 +44,14 @@ public class KaKaoOAuthService implements OAuthService {
             // 1) 토큰 요청
             String tokenResponse = oAuthClient.postForm(
                     TOKEN_URL,
-                    "grant_type", "authorization_code",
-                    "client_id", clientId,      // = REST API 키
-                    "code", code,
+                    "grant_type", "authorization_code",// 토큰 발급 방식
+                    "client_id", clientId,// = REST API 키
+                    "code", code,// 로그인 성공 티켓(임시 번호=인가코드)
                     "redirect_uri", redirectUri,
                     "client_secret", clientSecret
             );
 
+            //소셜 토큰 발급
             JsonNode tokenJson = objectMapper.readTree(tokenResponse);
             String accessToken = tokenJson.get("access_token").asText(null);
             if (accessToken == null) {

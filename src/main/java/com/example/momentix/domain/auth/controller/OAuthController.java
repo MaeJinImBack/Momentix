@@ -59,21 +59,21 @@ public class OAuthController {
         session.setAttribute("OAUTH_STATE_KAKAO", state);
 
         URI uri = UriComponentsBuilder
-                .fromHttpUrl("https://kauth.kakao.com/oauth/authorize")
-                .queryParam("response_type", "code")
+                .fromHttpUrl("https://kauth.kakao.com/oauth/authorize")//카카오 로그인 인증 요청 URL (사용자가 로그인/동의창 보게 만드는 엔드포인트)
+                .queryParam("response_type", "code")//인가 코드(authorization code) 방식 쓰겠다 선언
                 .queryParam("client_id", kakaoClientId)
                 .queryParam("redirect_uri", kakaoRedirectUri)
                 .queryParam("state", state)
-                .queryParam("scope", "profile_nickname account_email")
-                .queryParam("prompt", "consent")
-                .encode()
+                .queryParam("scope", "profile_nickname account_email")//요청할 사용자 정보 범위
+//                .queryParam("prompt", "consent")//test용
+                .encode()//지금까지 만든 URL을 인코딩
                 .build()
                 .toUri();
 
         return ResponseEntity.status(302).location(uri).build();
     }
 
-    // auth/sign-in/oauth/callback/naver → code를 받아서 토큰 발급 요청 → 프로필 조회 → DB 저장 → JWT 리턴
+    // auth/sign-in/oauth/callback/provider → code를 받아서 토큰 발급 요청 → 프로필 조회 → DB 저장 → JWT 리턴
     @GetMapping("/callback/naver")
     public OAuthSignInResponse callback(
             @RequestParam("code") String code,
