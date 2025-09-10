@@ -64,6 +64,8 @@ public class OAuthController {
                 .queryParam("client_id", kakaoClientId)
                 .queryParam("redirect_uri", kakaoRedirectUri)
                 .queryParam("state", state)
+                .queryParam("scope", "profile_nickname account_email")
+                .queryParam("prompt", "consent")
                 .encode()
                 .build()
                 .toUri();
@@ -81,7 +83,7 @@ public class OAuthController {
         return service.signIn(code, stateParam);
     }
 
-    @GetMapping("callback/kakao")
+    @GetMapping("/callback/kakao")
     public OAuthSignInResponse kakaoCallback(
             @RequestParam("code") String code,
             @RequestParam(value = "state", required = false) String stateParam,

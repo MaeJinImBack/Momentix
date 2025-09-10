@@ -46,7 +46,8 @@ public class KaKaoOAuthService implements OAuthService {
                     "grant_type", "authorization_code",
                     "client_id", clientId,      // = REST API 키
                     "code", code,
-                    "redirect_uri", redirectUri
+                    "redirect_uri", redirectUri,
+                    "client_secret", clientSecret
             );
 
             JsonNode tokenJson = objectMapper.readTree(tokenResponse);
