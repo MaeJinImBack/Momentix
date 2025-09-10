@@ -107,4 +107,14 @@ public class SeatService {
 
 
     }
+
+//    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long eventTimeId){
+//
+//
+//    }
+//
+//    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long eventTimeId, Long zoneId){
+//
+//
+//    }
 }
