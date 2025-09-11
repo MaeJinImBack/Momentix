@@ -22,25 +22,17 @@ public class SignUpService {
     private final PasswordEncoder passwordEncoder;
     private static final String HOST_PREFIX = "momentixHost";
 
-    
-    // 일반 유저 회원가입
     @Transactional
-    public Long signUpUser(SignUpRequest signUpRequest) {
-
-        // 400: 비밀번호 확인 로직
-        if (!signUpRequest.getPassword().equals(signUpRequest.getConfirmPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청(비밀번호 불일치)");
+    public Long signUpUser(String email, SignUpRequest req) {
+        if(!req.getPassword().equals(req.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"비밀번호가 일치하지 않습니다.");
         }
-        // 409: 아이디 중복 확인
-        if (signInRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다");
+        if(signInRepository.existsByUsername(email)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 가입된 이메일입니다.");
         }
 
-        // DTO → Entity 변환 과정
-        Users users = Users.createConsumer(signUpRequest, passwordEncoder);
+        Users users = Users.createConsumer(email, req,passwordEncoder);
         userRepository.save(users);
-
-        // 저장
         return users.getUserId();
     }
 
