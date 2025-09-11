@@ -3,10 +3,12 @@ package com.example.momentix.domain.reservation.service;
 
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
 import com.example.momentix.domain.events.repository.EventSeatRepository;
 import com.example.momentix.domain.events.repository.EventsRepository;
+import com.example.momentix.domain.events.repository.eventtimes.EventTimeReserveSeatRepository;
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.ReservationStatusType;
@@ -16,8 +18,11 @@ import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +42,7 @@ public class ReservationService {
     private final EventPlaceRepository eventPlaceRepository;
 
     private final EventTimesRepository eventTimesRepository;
+    private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
 
     private final EventSeatRepository eventSeatRepository;
 
@@ -210,55 +216,63 @@ public class ReservationService {
     @Transactional
     public ReservationResponseDto selectEventSeat(Long userId, Long reservationId, Long eventSeatId) {
 
-        // 사용자 존재 검증
         if (!usersRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
-        // 예약 조회 + 소유자 검증
         Reservations r = reservationsRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
         if (!r.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
-        // 선행 단계 검증
         if (r.getEvents() == null)      throw new IllegalArgumentException("공연이 먼저 선택되어야 합니다.");
         if (r.getEventPlace() == null)  throw new IllegalArgumentException("공연 장소가 선택되지 않았습니다.");
         if (r.getEventTimes() == null)  throw new IllegalArgumentException("공연 시간이 선택되지 않았습니다.");
 
-        // 상태 검증: 좌석선택 가능한 상태만 허용
         switch (r.getReservationStatusType()) {
-            case SELECT_TIME, SELECT_SEAT -> {  }
+            case SELECT_TIME, SELECT_SEAT -> {}
             default -> throw new IllegalArgumentException("좌석 선택이 불가능한 상태입니다.");
         }
 
-        // 좌석 유효성(최소한 존재 여부)
         if (!eventSeatRepository.existsById(eventSeatId)) {
             throw new IllegalArgumentException("존재하지 않는 좌석입니다.");
         }
 
-        // 좌석 상태를 AVAILABLE -> HOLD 로 '락 없이'
         Long eventTimeId = r.getEventTimes().getId();
 
-            int updated = em.createNativeQuery("""
-                INSERT INTO event_time_reserve_seat(event_time_id, event_seat_id, seat_reserve_status)
-                VALUES (?1, ?2, ?3)
-                ON DUPLICATE KEY UPDATE
-                  seat_reserve_status =
-                    CASE WHEN seat_reserve_status = ?4 THEN VALUES(seat_reserve_status)
-                         ELSE seat_reserve_status END
-                """)
-                .setParameter(1, eventTimeId)
-                .setParameter(2, eventSeatId)
-                .setParameter(3, 1 /* HOLD */)
-                .setParameter(4, 0 /* AVAILABLE */)
-                .executeUpdate();
+        EventTimeReserveSeat row = eventTimeReserveSeatRepository
+                .findByEventTimes_Id(eventTimeId, eventSeatId)
+                .orElseGet(() -> {
+                    EventTimeReserveSeat created = EventTimeReserveSeat.builder()
+                            .eventTimes(eventTimesRepository.getReferenceById(eventTimeId))
+                            .eventSeat(eventSeatRepository.getReferenceById(eventSeatId))
+                            .seatReserveStatus(SeatStatusType.AVAILABLE)
+                            .build();
+                    try {
+                        return eventTimeReserveSeatRepository.saveAndFlush(created);
+                    } catch (DataIntegrityViolationException dup) {
+                        // 유니크 충돌 → 이미 누가 생성 → 다시 조회
+                        return eventTimeReserveSeatRepository
+                                .findByEventTimes_Id(eventTimeId, eventSeatId)
+                                .orElseThrow();
+                    }
+                });
 
-        if (updated == 0) {
+        // 2) CAS: AVAILABLE일 때만 HOLD로 전이
+        if (!row.isAvailable()) {
             throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
         }
-        // 좌석 세팅 + 상태 전이
+        row.hold();
+
+        try {
+            eventTimeReserveSeatRepository.saveAndFlush(row);
+        } catch (ObjectOptimisticLockingFailureException | OptimisticLockException e) {
+            // 경쟁에서 짐
+            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
+        }
+
+        // 3) 예매 객체에 좌석 반영
         var seatRef = eventSeatRepository.getReferenceById(eventSeatId);
         r.selectEventSeat(seatRef);
 

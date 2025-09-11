@@ -11,6 +11,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "event_time_reserve_seat",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_event_time_seat",
+                columnNames = {"event_time_id", "event_seat_id"}
+        )
+)
 public class EventTimeReserveSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +45,17 @@ public class EventTimeReserveSeat {
 
     public void setEventTimes(EventTimes eventTime) {
         this.eventTimes = eventTime;
+    }
+
+    public boolean isAvailable() {
+        return this.seatReserveStatus == SeatStatusType.AVAILABLE;
+    }
+
+    public void hold() {
+        if (!isAvailable()) {
+            throw new IllegalStateException("현재 상태(" + seatReserveStatus + ")에서는 HOLD 불가");
+        }
+        this.seatReserveStatus = SeatStatusType.HOLD;
     }
 
 }
