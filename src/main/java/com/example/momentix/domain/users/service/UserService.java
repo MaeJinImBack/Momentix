@@ -62,6 +62,17 @@ public class UserService {
             users.setNickname(req.getNickname());
             changed = true;
         }
+        // 휴대폰 (유효성은 400 유지)
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isBlank()
+                && !req.getPhoneNumber().equals(users.getPhoneNumber())) {
+            String p = req.getPhoneNumber();
+            if (!p.matches("^[0-9]{10,11}$")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "전화번호 형식이 올바르지 않습니다.");
+            }
+            users.setPhoneNumber(p);
+            changed = true;
+        }
+
 
 
         userRepository.save(users);
