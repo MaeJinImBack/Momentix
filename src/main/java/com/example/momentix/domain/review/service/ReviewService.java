@@ -72,7 +72,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
 
-        if (!review.getUsers().getUserId().equals(user.getUserId())) {
+        if (!(user.getRole().name().equals("ADMIN") ||review.getUsers().getUserId().equals(user.getUserId()))) {
             throw new AccessDeniedException("리뷰를 삭제할 권한이 없습니다.");
         }
 
