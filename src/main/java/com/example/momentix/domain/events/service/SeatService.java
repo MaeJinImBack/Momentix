@@ -3,10 +3,12 @@ package com.example.momentix.domain.events.service;
 import com.example.momentix.domain.events.dto.request.PlacesRequestDto;
 import com.example.momentix.domain.events.dto.request.SearchSeatRequestDto;
 import com.example.momentix.domain.events.dto.response.BaseSeatResponseDto;
+import com.example.momentix.domain.events.dto.response.PartRowColSeatResponseDto;
 import com.example.momentix.domain.events.dto.response.ReserveSeatResponseDto;
 import com.example.momentix.domain.events.dto.response.SeatResponseDto;
 import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.enums.SeatPartType;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.entity.places.Places;
@@ -24,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -141,7 +142,7 @@ public class SeatService {
     }
 
     @Transactional
-    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable){
+    public Page<ReserveSeatResponseDto> readSeatsAll(Long eventId, Long placeId, Long eventTimeId, Pageable pageable) {
         // 공연 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
         // 공연장 확인
@@ -160,10 +161,28 @@ public class SeatService {
         return responseSeat;
     }
 
-//    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Long zoneId){
-//
-//
-//    }
+    public Page<PartRowColSeatResponseDto> readSeatsPart(
+            Long eventId, Long placeId, Long eventTimeId,
+            Long partId, Long rowId, Long colId, Pageable pageable) {
+        // 공연 확인
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
+        // 공연장 확인
+        Places places = placesRepository.findById(placeId).orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
+        // 공연과 공연장 일치 확인
+        if (!eventPlaceRepository.existsByEventsAndPlaces(events, places)) {
+            throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
+        }
+        // 공연 시간 확인(회차)
+        EventTimes eventTime = eventTimesRepository.findById(eventTimeId).orElseThrow(() -> new IllegalIdentifierException("공연 시간 없음"));
+
+        SearchSeatRequestDto request = new SearchSeatRequestDto(
+                eventId, placeId, eventTimeId);
+        SeatPartType partType = SeatPartType.fromId(partId);
+        Page<PartRowColSeatResponseDto> responseSeat = eventTimeReserveSeatRepository.searchPartSeat(
+                request, partType, rowId, colId,pageable);
+
+        return responseSeat;
+    }
 
     @Transactional
     public void deleteSeat(MultipartFile seatFile, Long placeId) {
