@@ -50,5 +50,13 @@ public class ReviewController {
         reviewService.updateReview(reviewId, requestDto, userDetails.getUser());
         return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
     }
+    @DeleteMapping("/{reviewId}/events/{eventId}")
+    public ResponseEntity<String> deleteReview(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        reviewService.deleteReview(reviewId, userDetails.getUser());
+        return ResponseEntity.ok("리뷰가 성공적으로 삭제되었습니다.");
+    }
 
 }

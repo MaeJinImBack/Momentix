@@ -47,4 +47,8 @@ public class Review extends TimeStamped {
         this.contents = contents;
         this.rating = rating;
     }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
 }
