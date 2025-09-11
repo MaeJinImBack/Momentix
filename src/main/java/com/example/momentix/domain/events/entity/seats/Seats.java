@@ -22,13 +22,13 @@ public class Seats extends TimeStamped {
 
     // 좌석 행 열
     @Column(nullable = false)
-    private int seatRow;
+    private Long seatRow;
     @Column(nullable = false)
-    private int seatCol;
+    private Long seatCol;
 
 
     @Builder
-    public Seats(int seatRow, int seatCol, boolean seatStatus) {
+    public Seats(Long seatRow, Long seatCol) {
         this.seatRow = seatRow;
         this.seatCol = seatCol;
     }
