@@ -20,11 +20,11 @@ public class EmailVerificationService {
     private final JavaMailSender mailSender;
 
 
-    @Value("${auth.email.code-ttl-sec:600}")// 인증코드 10분
+    @Value("${auth.email.code-ttl-sec:300}")// 인증코드 5분(메일로 발송된 6자리 인증코드가 살아 있는 시간)
     private long codeTtlSec;
-    @Value("${auth.email.token-ttl-sec:900}")// 900=기본값
+    @Value("${auth.email.token-ttl-sec:900}")// 900=기본값(인증코드를 올바르게 입력했을 때 서버가 발급하는 “검증 토큰(임시 티켓)”의 유효 시간)
     private long tokenTtlSec;
-    @Value("${auth.email.cooldown-sec:45}")// 재전송 쿨다운 45초
+    @Value("${auth.email.cooldown-sec:45}")// 재전송 쿨다운 45초(이메일 주소로 인증코드 재발송을 요청할 때 기다려야 하는 최소 시간)
     private long cooldownSec;
 
     // 사용자가 이메일 인증코드 받을 때 저장할 redis key 생성
