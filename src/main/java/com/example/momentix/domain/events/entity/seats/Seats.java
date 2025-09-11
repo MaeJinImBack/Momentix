@@ -27,8 +27,11 @@ public class Seats extends TimeStamped {
     private int seatCol;
 
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     @Builder
-    public Seats(int seatRow, int seatCol, boolean seatStatus) {
+    public Seats(int seatRow, int seatCol) {
         this.seatRow = seatRow;
         this.seatCol = seatCol;
     }

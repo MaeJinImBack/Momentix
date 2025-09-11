@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -162,4 +163,29 @@ public class SeatService {
 //
 //
 //    }
+
+    @Transactional
+    public void deleteSeat(MultipartFile seatFile, Long placeId) {
+        // 공연장 존재 여부 확인
+        Places place = placesRepository.findById(placeId)
+                .orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
+        // 공연장 기본 좌석 배치도 유무 확인 있어야 삭제 가능
+        if (place.getSeatList().isEmpty()) {
+            throw new IllegalIdentifierException("기본 좌석 배치가 없습니다.");
+        }
+        try (Reader reader = new InputStreamReader(seatFile.getInputStream())) {
+            List<BaseSeatResponseDto> softDeleteSeatList = new CsvToBeanBuilder<BaseSeatResponseDto>(reader)
+                    .withType(BaseSeatResponseDto.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+
+            seatsRepository.softDeleteSeatByList(softDeleteSeatList);
+
+        } catch (IOException e) {
+            throw new IllegalIdentifierException("IO Exception");
+        }
+
+    }
+
 }
