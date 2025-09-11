@@ -11,9 +11,12 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimesReposi
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.ReservationStatusType;
 import com.example.momentix.domain.reservation.entity.Reservations;
+import com.example.momentix.domain.reservation.entity.SeatStatusType;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -36,6 +39,10 @@ public class ReservationService {
     private final EventTimesRepository eventTimesRepository;
 
     private final EventSeatRepository eventSeatRepository;
+
+
+    @PersistenceContext
+    private EntityManager em;
 
     //공연 선택
     @Transactional
@@ -199,7 +206,7 @@ public class ReservationService {
 
     }
 
-    // 좌석 선택
+    // 좌석 선택 (좌석 상태: AVAILABLE -> HOLD)
     @Transactional
     public ReservationResponseDto selectEventSeat(Long userId, Long reservationId, Long eventSeatId) {
 
@@ -222,7 +229,7 @@ public class ReservationService {
 
         // 상태 검증: 좌석선택 가능한 상태만 허용
         switch (r.getReservationStatusType()) {
-            case SELECT_TIME, SELECT_SEAT -> { /* 허용 (좌석 변경 허용 시 SELECT_SEAT도 허용) */ }
+            case SELECT_TIME, SELECT_SEAT -> {  }
             default -> throw new IllegalArgumentException("좌석 선택이 불가능한 상태입니다.");
         }
 
@@ -230,14 +237,31 @@ public class ReservationService {
         if (!eventSeatRepository.existsById(eventSeatId)) {
             throw new IllegalArgumentException("존재하지 않는 좌석입니다.");
         }
-        // TODO: 좌석이 해당 공연/장소/시간에 속하는지 검증 로직 추가
-        // 예: eventSeatRepository.existsByIdAndEventsId(eventSeatId, r.getEvents().getId())
 
+        // 좌석 상태를 AVAILABLE -> HOLD 로 '락 없이'
+        Long eventTimeId = r.getEventTimes().getId();
+
+            int updated = em.createNativeQuery("""
+                INSERT INTO event_time_reserve_seat(event_time_id, event_seat_id, seat_reserve_status)
+                VALUES (?1, ?2, ?3)
+                ON DUPLICATE KEY UPDATE
+                  seat_reserve_status =
+                    CASE WHEN seat_reserve_status = ?4 THEN VALUES(seat_reserve_status)
+                         ELSE seat_reserve_status END
+                """)
+                .setParameter(1, eventTimeId)
+                .setParameter(2, eventSeatId)
+                .setParameter(3, 1 /* HOLD */)
+                .setParameter(4, 0 /* AVAILABLE */)
+                .executeUpdate();
+
+        if (updated == 0) {
+            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
+        }
         // 좌석 세팅 + 상태 전이
         var seatRef = eventSeatRepository.getReferenceById(eventSeatId);
-        r.selectEventSeat(seatRef); // 아래 엔티티 메서드 추가
+        r.selectEventSeat(seatRef);
 
         return ReservationResponseDto.from(r);
     }
-
 }

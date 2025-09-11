@@ -52,7 +52,6 @@ public class ReservationController {
                 = reservationService.selectEventTime(userDetails.getUserId(), reservationId, eventTimeId);
 
         return new ResponseEntity<>(reservationResponseDto, HttpStatus.OK);
-
     }
 
     @DeleteMapping("/cancel/{reservationId}")

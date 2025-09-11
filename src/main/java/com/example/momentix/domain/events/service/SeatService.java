@@ -18,6 +18,7 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimeReserve
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import com.example.momentix.domain.events.repository.seats.SeatsRepository;
+import com.example.momentix.domain.reservation.entity.SeatStatusType;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
@@ -91,7 +92,7 @@ public class SeatService {
                     EventTimeReserveSeat etrSeat = EventTimeReserveSeat.builder()
                             .eventTimes(eventTimes)
                             .eventSeat(eventSeatDto)
-                            .seatReserveStatus(true)
+                            .seatReserveStatus(SeatStatusType.AVAILABLE)
                             .build();
                     eventTimes.addEventTimeReserveSeatList(etrSeat);
                 }
