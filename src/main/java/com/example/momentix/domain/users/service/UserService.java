@@ -2,6 +2,7 @@ package com.example.momentix.domain.users.service;
 
 import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.auth.repository.SignInRepository;
+import com.example.momentix.domain.users.dto.UserRequestDto;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,54 @@ public class UserService {
 
         // Users는 PII 제거 목적의 하드 삭제
         userRepository.delete(users);
+    }
+
+    // 닉넴/휴대폰/새 비번 한 번에 수정
+    @Transactional
+    public void updateUserInfo(String username, UserRequestDto req) {
+        SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자"));
+
+        Users users = signIn.getUser();
+        if (users == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
+        }
+        boolean changed = false;
+
+        // 닉네임
+        if (req.getNickname() != null && !req.getNickname().isBlank()
+                && !req.getNickname().equals(users.getNickname())) {
+            users.setNickname(req.getNickname());
+            changed = true;
+        }
+        // 휴대폰 (유효성은 400 유지)
+        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isBlank()
+                && !req.getPhoneNumber().equals(users.getPhoneNumber())) {
+            String p = req.getPhoneNumber();
+            if (!p.matches("^[0-9]{10,11}$")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "전화번호 형식이 올바르지 않습니다.");
+            }
+            users.setPhoneNumber(p);
+            changed = true;
+        }
+        // 새 비밀번호(둘 다 있을 때만 변경) → 비번 유효성 관련은 401
+        if (req.getNewPassword() != null || req.getNewConfirmPassword() != null) {
+            if (req.getNewPassword() == null || req.getNewConfirmPassword() == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 모두 필요합니다.");
+            }
+            if (!req.getNewPassword().equals(req.getNewConfirmPassword())) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 일치하지 않습니다.");
+            }
+            signIn.setPassword(passwordEncoder.encode(req.getNewPassword()));
+            changed = true;
+        }
+
+        // 변경사항 없음 → 401
+        if (!changed) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "잘못된 요청(변경사항 없음)");
+        }
+        userRepository.save(users);
+        signInRepository.save(signIn);
     }
 
 }
