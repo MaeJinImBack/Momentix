@@ -42,7 +42,9 @@ public class SecurityConfig {
                                  .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
                                 .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/redis/test").permitAll()
+
+//                                 Redis 연결 시 확인하기 위한 test url 접근 허락
+//                                .requestMatchers(HttpMethod.GET, "/redis/test").permitAll()
                         // host 공연등록 가능
                         .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
                         .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")

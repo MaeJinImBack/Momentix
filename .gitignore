@@ -8,7 +8,7 @@ build/
 ### env ###
 .env
 
-###redis 로컬 생성물###
+###redis 로컬 생성물 - 연결 시,ignore 되어야 할 것들###
 *.log
 *.rdb
 *.aof
