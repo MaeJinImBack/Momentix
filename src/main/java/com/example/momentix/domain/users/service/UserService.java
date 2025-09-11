@@ -29,13 +29,13 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다.");
         }
 
-        // 3) Users 하드 삭제 + SignIn tombstone
+        // 3) Users 하드 삭제 + SignIn tombstone(소프트딜리트)
         Users users = signIn.getUser();
         if (users == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
         }
 
-        // SignIn을 tombstone 상태로
+        // SignIn을 tombstone(소프트딜리트) 상태로
         signIn.markAsWithdrawn();
 
         // Users는 PII 제거 목적의 하드 삭제
