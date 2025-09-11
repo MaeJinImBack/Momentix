@@ -15,6 +15,7 @@ import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -174,7 +175,8 @@ public class ReservationService {
 
     }
 
-    @Transactional
+    //Reservation을 임시 테이블 처럼 사용하기 때문에, 티켓(예매 내역)이 생성되는 순간 제거 -> CreateTicket 에 RS.deleteReservation 추가
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteReservation(Long userId, Long reservationId) {
 
         if(!usersRepository.existsById(userId)){
