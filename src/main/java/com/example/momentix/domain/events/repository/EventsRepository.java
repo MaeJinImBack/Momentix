@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EventsRepository extends JpaRepository<Events, Long> {
+public interface EventsRepository extends JpaRepository<Events, Long>, EventsRepositoryCustom {
     @Query ("SELECT new com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto(" +
             "e.eventTitle," +
             "e.eventCategoryType," +
