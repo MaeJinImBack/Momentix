@@ -4,7 +4,9 @@ import com.example.momentix.domain.events.entity.seats.Seats;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface SeatsRepository extends JpaRepository<Seats, Long> {
-    Seats findBySeatRowAndSeatColAndPlaces_Id(int seatRow, int seatCol, Long id);
+    Optional<Seats> findBySeatRowAndSeatColAndPlaces_Id(int seatRow, int seatCol, Long id);
 }
