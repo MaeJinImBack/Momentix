@@ -89,7 +89,12 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 }
-
+tasks.withType(JavaCompile) {
+    options.annotationProcessorPath = configurations.annotationProcessor
+}
 tasks.named('test') {
     useJUnitPlatform()
+}
+clean {
+    delete file('src/main/generated')
 }
