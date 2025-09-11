@@ -103,4 +103,8 @@ public class Events extends TimeStamped {
         eventSeat.setEvents(this);
     }
 
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
 }
