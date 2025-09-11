@@ -26,13 +26,13 @@ public class UserService {
 
         // 2) 비밀번호 확인
         if (!passwordEncoder.matches(rawPassword, signIn.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다.");
         }
 
         // 3) Users 하드 삭제 + SignIn tombstone
         Users users = signIn.getUser();
         if (users == null) {
-            throw new ResponseStatusException(HttpStatus.GONE, "이미 탈퇴한 계정입니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
         }
 
         // SignIn을 tombstone 상태로
