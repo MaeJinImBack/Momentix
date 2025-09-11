@@ -5,6 +5,7 @@ import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
+import com.example.momentix.domain.events.repository.EventSeatRepository;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
@@ -34,6 +35,7 @@ public class ReservationService {
 
     private final EventTimesRepository eventTimesRepository;
 
+    private final EventSeatRepository eventSeatRepository;
 
     //공연 선택
     @Transactional
@@ -196,4 +198,46 @@ public class ReservationService {
         reservationsRepository.deleteById(reservationId);
 
     }
+
+    // 좌석 선택
+    @Transactional
+    public ReservationResponseDto selectEventSeat(Long userId, Long reservationId, Long eventSeatId) {
+
+        // 사용자 존재 검증
+        if (!usersRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        // 예약 조회 + 소유자 검증
+        Reservations r = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+        if (!r.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+        // 선행 단계 검증
+        if (r.getEvents() == null)      throw new IllegalArgumentException("공연이 먼저 선택되어야 합니다.");
+        if (r.getEventPlace() == null)  throw new IllegalArgumentException("공연 장소가 선택되지 않았습니다.");
+        if (r.getEventTimes() == null)  throw new IllegalArgumentException("공연 시간이 선택되지 않았습니다.");
+
+        // 상태 검증: 좌석선택 가능한 상태만 허용
+        switch (r.getReservationStatusType()) {
+            case SELECT_TIME, SELECT_SEAT -> { /* 허용 (좌석 변경 허용 시 SELECT_SEAT도 허용) */ }
+            default -> throw new IllegalArgumentException("좌석 선택이 불가능한 상태입니다.");
+        }
+
+        // 좌석 유효성(최소한 존재 여부)
+        if (!eventSeatRepository.existsById(eventSeatId)) {
+            throw new IllegalArgumentException("존재하지 않는 좌석입니다.");
+        }
+        // TODO: 좌석이 해당 공연/장소/시간에 속하는지 검증 로직 추가
+        // 예: eventSeatRepository.existsByIdAndEventsId(eventSeatId, r.getEvents().getId())
+
+        // 좌석 세팅 + 상태 전이
+        var seatRef = eventSeatRepository.getReferenceById(eventSeatId);
+        r.selectEventSeat(seatRef); // 아래 엔티티 메서드 추가
+
+        return ReservationResponseDto.from(r);
+    }
+
 }

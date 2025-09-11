@@ -22,7 +22,7 @@ public class ReservationController {
     //공연 선택
     @PostMapping("/events/{eventId}")
     public ResponseEntity<ReservationResponseDto> selectEvent(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                   @PathVariable Long eventId) {
+                                                              @PathVariable Long eventId) {
 
         ReservationResponseDto reservations = reservationService.selectEvent(userDetails.getUserId(), eventId);
 
@@ -34,9 +34,9 @@ public class ReservationController {
     @PostMapping("/{reservationId}/select-event-place/{eventPlaceId}")
     public ResponseEntity<ReservationResponseDto> selectEventPlace(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                    @PathVariable Long reservationId,
-                                                                   @PathVariable Long eventPlaceId){
+                                                                   @PathVariable Long eventPlaceId) {
         ReservationResponseDto reservationResponseDto
-               = reservationService.selectEventPlace(userDetails.getUserId(), reservationId, eventPlaceId);
+                = reservationService.selectEventPlace(userDetails.getUserId(), reservationId, eventPlaceId);
 
         return new ResponseEntity<>(reservationResponseDto, HttpStatus.OK);
     }
@@ -46,7 +46,7 @@ public class ReservationController {
     @PostMapping("/{reservationId}/select-event-time/{eventTimeId}")
     public ResponseEntity<ReservationResponseDto> selectEventTime(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                   @PathVariable Long reservationId,
-                                                                  @PathVariable Long eventTimeId){
+                                                                  @PathVariable Long eventTimeId) {
 
         ReservationResponseDto reservationResponseDto
                 = reservationService.selectEventTime(userDetails.getUserId(), reservationId, eventTimeId);
@@ -57,12 +57,25 @@ public class ReservationController {
 
     @DeleteMapping("/cancel/{reservationId}")
     public ResponseEntity<Void> deleteReservation(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                    @PathVariable Long reservationId) {
+                                                  @PathVariable Long reservationId) {
 
 
         reservationService.deleteReservation(userDetails.getUserId(), reservationId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    // 좌석 선택
+    @PostMapping("/{reservationId}/seat/{seatId}")
+    public ResponseEntity<ReservationResponseDto> selectSeat(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable("reservationId") Long reservationId,
+            @PathVariable("seatId") Long seatId
+    ) {
+        ReservationResponseDto dto =
+                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, seatId);
+        return ResponseEntity.ok(dto);
     }
 
 }

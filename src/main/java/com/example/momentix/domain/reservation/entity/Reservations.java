@@ -73,4 +73,10 @@ public class Reservations {
         this.reservationStatusType = ReservationStatusType.SELECT_TIME;
     }
 
+    //좌석 선택
+    public void selectEventSeat(EventSeat seat) {
+        this.eventSeat = seat;
+        this.reservationStatusType = ReservationStatusType.SELECT_SEAT;
+    }
+
 }
