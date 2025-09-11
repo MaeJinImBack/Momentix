@@ -2,6 +2,7 @@ package com.example.momentix.domain.users.service;
 
 import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.auth.repository.SignInRepository;
+import com.example.momentix.domain.users.dto.UserRequestDto;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,31 @@ public class UserService {
 
         // Users는 PII 제거 목적의 하드 삭제
         userRepository.delete(users);
+    }
+
+    // 닉넴/휴대폰/새 비번 한 번에 수정
+    @Transactional
+    public void updateUserInfo(String username, UserRequestDto req) {
+        SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자"));
+
+        Users users = signIn.getUser();
+        if (users == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
+        }
+
+        boolean changed = false;
+
+        // 닉네임
+        if (req.getNickname() != null && !req.getNickname().isBlank()
+                && !req.getNickname().equals(users.getNickname())) {
+            users.setNickname(req.getNickname());
+            changed = true;
+        }
+
+
+        userRepository.save(users);
+        signInRepository.save(signIn);
     }
 
 }
