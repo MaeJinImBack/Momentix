@@ -53,7 +53,6 @@ public class UserService {
         if (users == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
         }
-
         boolean changed = false;
 
         // 닉네임
@@ -72,9 +71,22 @@ public class UserService {
             users.setPhoneNumber(p);
             changed = true;
         }
+        // 새 비밀번호(둘 다 있을 때만 변경) → 비번 유효성 관련은 401
+        if (req.getNewPassword() != null || req.getNewConfirmPassword() != null) {
+            if (req.getNewPassword() == null || req.getNewConfirmPassword() == null) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 모두 필요합니다.");
+            }
+            if (!req.getNewPassword().equals(req.getNewConfirmPassword())) {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 일치하지 않습니다.");
+            }
+            signIn.setPassword(passwordEncoder.encode(req.getNewPassword()));
+            changed = true;
+        }
 
-
-
+        // 변경사항 없음 → 401
+        if (!changed) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "잘못된 요청(변경사항 없음)");
+        }
         userRepository.save(users);
         signInRepository.save(signIn);
     }
