@@ -42,7 +42,9 @@ public class Users extends TimeStamped {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
-    @OneToOne(mappedBy = "users", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //CascadeType.PERSIST: Users새로 저장 시 SignIn도 같이 저장
+    //CascadeType.MERGE: Users 수정 시 SignIn도 같이 수정
+    @OneToOne(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
     private SignIn signIn;
 
 

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+
 @Table(name="Signin")
 @Entity
 @NoArgsConstructor
@@ -19,9 +21,16 @@ public class SignIn {
     @Column(nullable = false)
     private String password;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false, unique = true)
+    // Users 하드 삭제 허용
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "userId", referencedColumnName = "userId", unique = true)
     private Users users;
+
+    //소프트 삭제용
+    @Column(nullable = false)
+    private boolean isDeleted=false;
+
+    private LocalDateTime withdrawnAt; //언제 탈퇴?
 
     //캡슐화, new+set을 안해도 되게 만듦
     public static SignIn create(String username, String rawPassword, PasswordEncoder encoder, Users users) {
@@ -33,7 +42,9 @@ public class SignIn {
         return signIn;
     }
 
-    public String getUsername() {return username;}
+    public String getUsername() {
+        return username;
+    }
 
     public String getPassword() {
         return password;
@@ -42,8 +53,21 @@ public class SignIn {
         return users;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public void setUsers(Users users) {
+        this.users = users;
+    }
 
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
-    public void setUsers(Users users) { this.users = users; }
+    // 탈퇴처리
+    public void markAsWithdrawn() {
+        this.isDeleted = true;
+        this.withdrawnAt = LocalDateTime.now();
+        this.password = "__DELETED__" + java.util.UUID.randomUUID(); // 로그인 불가화
+        this.users = null; // Users FK 끊기
+    }
 }
