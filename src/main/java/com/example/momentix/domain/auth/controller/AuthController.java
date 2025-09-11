@@ -5,6 +5,7 @@ import com.example.momentix.domain.auth.dto.*;
 import com.example.momentix.domain.auth.service.EmailVerificationService;
 import com.example.momentix.domain.auth.service.SignInService;
 import com.example.momentix.domain.auth.service.SignUpService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -57,7 +58,23 @@ public class AuthController {
         return ResponseEntity.ok(new EmailVerifyConfirmResponse(token));
     }
 
-    // 이후에 /auth/refresh, /auth/logout 추가 예정
+    // TODO: 이후에 /auth/refresh 추가 예정
+
+    @DeleteMapping("/sign-out")
+    @ResponseStatus(HttpStatus.NO_CONTENT)// 204 No Content 권장: 데이터가 없음(토큰 무효화)
+    public void signOut(HttpServletResponse res) {
+        ResponseCookie cookie=ResponseCookie.from("ACCESS_TOKEN","")
+                .path("/")
+                .sameSite("Strict") //CSRF방지
+                .secure(true) // HTTPS에서만
+                .httpOnly(true)
+                .maxAge(0)// 즉시 만료
+                .build();
+        res.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        
+        // 나중에 리프레시 엔드포인트 구현 시
+        //리프레시 토큰도 있다면 같이 무효화되는 메서드 추가해야 됨
+    }
 
     // 다른 헤더로 보냄-필터가 JWT로 착각해서 에러 던짐
     @PostMapping("/sign-up/user")
