@@ -8,6 +8,8 @@ import com.example.momentix.domain.review.entity.Review;
 import com.example.momentix.domain.review.repository.ReviewRepository;
 import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,12 @@ public class ReviewService {
 
         Review savedReview = reviewRepository.save(review);
 
-        // Controller의 통일성을 위해 Entity가 아닌 DTO를 반환
         return new ReviewResponseDto(savedReview);
+    }
+
+    public Page<ReviewResponseDto> getReviews(Long eventId, Pageable pageable) {
+
+        Page<Review> reviewPage = reviewRepository.findByEvents_Id(eventId, pageable);
+        return reviewPage.map(ReviewResponseDto::new);
     }
 }
