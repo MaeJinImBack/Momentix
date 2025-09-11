@@ -3,6 +3,7 @@ package com.example.momentix.domain.events.service;
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
+import com.example.momentix.domain.events.dto.response.ReadEventResponseDto;
 import com.example.momentix.domain.events.entity.EventCast;
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
@@ -97,10 +98,17 @@ public class EventsService {
         return new EventsResponseDto(createEvent, places, reservationTimes, casts);
 
     }
-
+    // 공연 전체 조회
     @Transactional(readOnly = true)
     public Page<AllReadEventsResponseDto> allReadEvents(Pageable pageable) {
         List<AllReadEventsResponseDto> allReadResponse = eventsRepository.AllReadEvents();
         return new PageImpl<>(allReadResponse, pageable, allReadResponse.size());
+    }
+
+    // 공연 단건 조회
+    @Transactional(readOnly = true)
+    public ReadEventResponseDto readEvent(Long eventId, Long placeId){
+        ReadEventResponseDto readResponse = eventsRepository.searchEventById(eventId, placeId);
+        return readResponse;
     }
 }
