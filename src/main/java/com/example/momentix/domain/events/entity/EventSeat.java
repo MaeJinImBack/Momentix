@@ -33,10 +33,6 @@ public class EventSeat extends TimeStamped {
     @Column(nullable = false)
     private BigDecimal seatPrice;
 
-    @Column(nullable = false)
-    private boolean seatStatus = false;
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "events_id")
     private Events events;

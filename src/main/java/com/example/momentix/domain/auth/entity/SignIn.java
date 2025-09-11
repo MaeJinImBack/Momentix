@@ -14,7 +14,7 @@ public class SignIn {
     private Long signInId;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String username; // 로그인 ID(컨슈머는 이메일)
 
     @Column(nullable = false)
     private String password;
