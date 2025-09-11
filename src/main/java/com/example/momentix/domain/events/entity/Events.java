@@ -23,7 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Events extends TimeStamped {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     // 공연 제목

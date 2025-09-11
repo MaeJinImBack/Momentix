@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.entity.eventtimes;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
+import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -32,6 +34,10 @@ public class EventTimes extends TimeStamped {
     @JoinColumn(name="events_id", nullable = false)
     private Events events;
 
+    // 공연 시간별 좌석 예매 현황
+    @OneToMany(mappedBy = "eventTimes", cascade =  CascadeType.ALL, orphanRemoval = true)
+    private List<EventTimeReserveSeat> eventTimeReserveSeatList;
+
     @Builder
     public EventTimes(LocalDateTime eventStartTime, LocalDateTime eventEndTime, Events events) {
         this.eventStartTime = eventStartTime;
@@ -43,5 +49,8 @@ public class EventTimes extends TimeStamped {
         this.events = events;
     }
 
-
+    public void addEventTimeReserveSeatList(EventTimeReserveSeat eventTimeReserveSeat) {
+        eventTimeReserveSeatList.add(eventTimeReserveSeat);
+        eventTimeReserveSeat.setEventTimes(this);
+    }
 }
