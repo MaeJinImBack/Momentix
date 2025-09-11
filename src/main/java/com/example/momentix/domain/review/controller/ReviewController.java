@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,8 @@ public class ReviewController {
         reviewService.updateReview(reviewId, requestDto, userDetails.getUser());
         return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN','CONSUMER')")
     @DeleteMapping("/{reviewId}/events/{eventId}")
     public ResponseEntity<String> deleteReview(
             @PathVariable Long reviewId,
