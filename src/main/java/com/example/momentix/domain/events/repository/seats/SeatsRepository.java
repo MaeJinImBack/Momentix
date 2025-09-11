@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SeatsRepository extends JpaRepository<Seats, Long> {
+public interface SeatsRepository extends
+        JpaRepository<Seats, Long>,SeatsRepositoryCustom{
     Optional<Seats> findBySeatRowAndSeatColAndPlaces_Id(int seatRow, int seatCol, Long id);
 }
