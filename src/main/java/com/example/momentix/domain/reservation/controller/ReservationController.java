@@ -27,6 +27,18 @@ public class ReservationController {
         return new ResponseEntity<>(reservations, HttpStatus.CREATED);
     }
 
+
+    @PostMapping("/{reservationId}/select-event-place/{eventPlaceId}")
+    public ResponseEntity<ReservationResponseDto> selectEventPlace(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                   @PathVariable Long reservationId,
+                                                                   @PathVariable Long eventPlaceId){
+        ReservationResponseDto reservationResponseDto
+               = reservationService.selectEventPlace(userDetails.getUserId(), reservationId, eventPlaceId);
+
+        return new ResponseEntity<>(reservationResponseDto, HttpStatus.OK);
+    }
+
+
     @PostMapping("/{reservationId}/select-event-time/{eventTimeId}")
     public ResponseEntity<ReservationResponseDto> selectEventTime(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                   @PathVariable Long reservationId,

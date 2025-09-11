@@ -1,6 +1,7 @@
 package com.example.momentix.domain.reservation.entitiy;
 
 
+import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
@@ -33,6 +34,10 @@ public class Reservations {
     private Events events;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_place_id")
+    private EventPlace eventPlace;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_time_id")
     private EventTimes eventTimes;
 
@@ -42,7 +47,7 @@ public class Reservations {
     private EventSeat eventSeat;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "reservation_status_type", nullable = false)
+    @Column(name = "reservation_status_type", nullable = false,length = 20)
     private ReservationStatusType reservationStatusType;
 
     @Builder
@@ -52,6 +57,12 @@ public class Reservations {
         this.reservationStatusType =reservationStatusType;
     }
 
+    public void selectEventPlace(EventPlace eventPlace){
+        this.eventPlace = eventPlace;
+        this.eventTimes = null;
+        this.eventSeat = null;
+        this.reservationStatusType = ReservationStatusType.SELECT_PLACE;
+    }
 
     public void selectEventTime(EventTimes eventTimes) {
         this.eventTimes =eventTimes;

@@ -1,7 +1,6 @@
 package com.example.momentix.domain.reservation.repository;
 
 
-import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.reservation.entitiy.ReservationStatusType;
 import com.example.momentix.domain.reservation.entitiy.Reservations;
 import org.springframework.data.jpa.repository.JpaRepository;

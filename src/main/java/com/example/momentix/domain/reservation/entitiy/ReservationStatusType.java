@@ -3,6 +3,7 @@ package com.example.momentix.domain.reservation.entitiy;
 public enum ReservationStatusType {
 
     DRAFT, //생성
+    SELECT_PLACE, // 공연 장소 선택 중
     SELECT_TIME, // 시간 선택 중
     SELECT_SEAT, // 좌석 선택 중
     WAIT_PAYMENT, // 결제 대기
