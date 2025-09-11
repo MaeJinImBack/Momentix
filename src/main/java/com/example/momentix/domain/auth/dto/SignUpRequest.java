@@ -1,6 +1,5 @@
 package com.example.momentix.domain.auth.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Pattern;
@@ -14,11 +13,6 @@ import lombok.NoArgsConstructor;
 public class SignUpRequest {
     public interface UserSignUp {}
     public interface HostSignUp {}
-
-    @NotBlank(groups = UserSignUp.class, message = "아이디(이메일)는 필수입니다.")
-    @Email(groups = UserSignUp.class, message = "이메일 형식이어야 합니다.")
-    @Null(groups = HostSignUp.class,  message = "호스트 회원가입 시 아이디는 자동 생성되므로 입력하지 마세요.") // 호스트 회원가입 요청 시 이 필드가 있으면 에러라는 의미
-    private String username;
 
     @NotBlank(groups = UserSignUp.class,  message = "비밀번호는 필수입니다.")
     @Null(groups = HostSignUp.class, message = "호스트 회원가입은 비밀번호를 입력하지 않습니다.")

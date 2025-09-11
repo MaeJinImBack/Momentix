@@ -36,7 +36,6 @@ public class SignUpServiceTest {
     public void 회원가입비밀번호불일치에러발생(){
         //given
         SignUpRequest signUpRequest = new SignUpRequest(
-                "hansol1212@test.com",
                 "1233",
                 "4566",
                 "nickname",
@@ -47,10 +46,10 @@ public class SignUpServiceTest {
         // 아이디 중복 이런 거 없어서 스텁 필요없음
         // when & then
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> signUpService.signUpUser(signUpRequest));
+                () -> signUpService.signUpUser("\"hansol1212@test.com\"",signUpRequest));
 
         assertEquals(HttpStatus.BAD_REQUEST, ex.getStatusCode());
-        assertEquals("400 BAD_REQUEST \"잘못된 요청(비밀번호 불일치)\"", ex.getMessage());
+        assertEquals("400 BAD_REQUEST \"비밀번호가 일치하지 않습니다.\"", ex.getMessage());
     }
 
     // 02. 중복 아이디409
@@ -59,7 +58,6 @@ public class SignUpServiceTest {
 
         // given
         SignUpRequest signUpRequest = new SignUpRequest(
-                "user1",
                 "1234",
                 "1234",
                 "nickname",
@@ -70,9 +68,9 @@ public class SignUpServiceTest {
         given(signInRepository.existsByUsername("user1")).willReturn(true); //willReturn이란, 어떤 값을 돌려줘라~라고 가짜 객체의 동작을 지정할 때 쓰는 문법
 
         //when&then
-        ResponseStatusException ex =assertThrows(ResponseStatusException.class,()-> signUpService.signUpUser(signUpRequest));
+        ResponseStatusException ex =assertThrows(ResponseStatusException.class,()-> signUpService.signUpUser("user1",signUpRequest));
         assertEquals(HttpStatus.CONFLICT, ex.getStatusCode());
-        assertEquals("409 CONFLICT \"이미 사용 중인 아이디입니다\"", ex.getMessage());
+        assertEquals("409 CONFLICT \"이미 가입된 이메일입니다.\"", ex.getMessage());
 
     }
     
@@ -80,7 +78,6 @@ public class SignUpServiceTest {
     @Test
     public void 회원가입정상가입시userId반환(){
         SignUpRequest signUpRequest = new SignUpRequest(
-                "user1",
                 "1234",
                 "1234",
                 "nickname",
@@ -97,7 +94,7 @@ public class SignUpServiceTest {
         });
 
         //when
-        Long userId = signUpService.signUpUser(signUpRequest);
+        Long userId = signUpService.signUpUser("user1",signUpRequest);
 
         //then
         assertNotNull(userId);
