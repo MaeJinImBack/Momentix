@@ -27,6 +27,9 @@ public class Seats extends TimeStamped {
     private Long seatCol;
 
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     @Builder
     public Seats(Long seatRow, Long seatCol) {
         this.seatRow = seatRow;
