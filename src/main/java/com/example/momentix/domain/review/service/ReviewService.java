@@ -26,6 +26,8 @@ public class ReviewService {
     @Transactional
     public ReviewResponseDto createReview(Long eventId, CreateReviewRequestDto requestDto, Users users) {
 
+        validateRating(requestDto.getRating());
+
         Events event = eventsRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 공연을 찾을 수 없습니다."));
 
@@ -52,6 +54,8 @@ public class ReviewService {
     @Transactional
     public void updateReview(Long reviewId, UpdateReviewRequestDto requestDto, Users user) {
 
+        validateRating(requestDto.getRating());
+
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
 
@@ -72,5 +76,12 @@ public class ReviewService {
         }
 
         review.softDelete(); // Review 엔티티에 softDelete() 메소드 추가 필요
+    }
+
+    private void validateRating(Double rating) {
+        // rating을 0.5로 나눈 나머지가 0이 아니면 (즉, 0.5 단위가 아니면)
+        if (rating % 0.5 != 0) {
+            throw new IllegalArgumentException("별점은 0.5 단위로만 입력할 수 있습니다.");
+        }
     }
 }
