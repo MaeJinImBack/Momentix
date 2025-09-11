@@ -174,5 +174,22 @@ public class ReservationService {
 
     }
 
+    @Transactional
+    public void deleteReservation(Long userId, Long reservationId) {
 
+        if(!usersRepository.existsById(userId)){
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        Reservations reservations = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+
+        if(!reservations.getUsers().getUserId().equals(userId)){
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+
+        reservationsRepository.deleteById(reservationId);
+
+    }
 }
