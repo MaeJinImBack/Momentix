@@ -6,12 +6,14 @@ import com.example.momentix.domain.events.entity.places.Places;
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PlaceService {
     private final PlacesRepository placesRepository;
 
+    @Transactional
     public PlaceResponseDto createPlace(PlacesRequestDto placesRequest) {
         Places place = placesRepository.findByPlaceName(placesRequest.getPlaceName()).orElseGet(() -> Places.builder()
                 .placeName(placesRequest.getPlaceName())

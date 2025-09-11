@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.service;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.request.UpdateBaseEventRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
 import com.example.momentix.domain.events.entity.EventCast;
@@ -34,7 +35,8 @@ public class EventsService {
     private final ReservationTimesRepository reservationTimesRepository;
     private final CastsRepository castsRepository;
 
-    public EventsResponseDto createEvent(@RequestBody CreateEventsRequestDto requestDto) {
+    @Transactional
+    public EventsResponseDto createEvent(CreateEventsRequestDto requestDto) {
 
         // Events(공연) 테이블 기본 정보로 생성
         Events createEvent = Events.builder()
@@ -102,5 +104,19 @@ public class EventsService {
     public Page<AllReadEventsResponseDto> allReadEvents(Pageable pageable) {
         List<AllReadEventsResponseDto> allReadResponse = eventsRepository.AllReadEvents();
         return new PageImpl<>(allReadResponse, pageable, allReadResponse.size());
+    }
+
+    // 공연에 관련된 기본적인 내용들 한번에 수정
+    @Transactional
+    public void updateEvent(Long eventId, UpdateBaseEventRequestDto requestDto) {
+        Events updateEvent = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalArgumentException("없는 공연"));
+
+        updateEvent.setEvent(
+                requestDto.getEventTitle(),
+                requestDto.getAgeRating(),
+                requestDto.getEventCategory(),
+                requestDto.getEventStartDate(),
+                requestDto.getEventEndDate());
+        eventsRepository.save(updateEvent);
     }
 }
