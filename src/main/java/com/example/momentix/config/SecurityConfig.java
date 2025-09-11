@@ -41,6 +41,13 @@ public class SecurityConfig {
                  // host 공연등록 가능
                                  .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
                                 .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+
+//                                 Redis 연결 시 확인하기 위한 test url 접근 허락
+//                                .requestMatchers(HttpMethod.GET, "/redis/test").permitAll()
+                        // host 공연등록 가능
+                        .requestMatchers(HttpMethod.POST, "/events").hasRole("HOST")
+                        .requestMatchers(HttpMethod.POST, "/seats/**").hasRole("HOST")
 
                         //admin
                             // 이부분(리뷰 삭제 가능), 나중에 컨트롤러/서비스에서 본인 여부 검사 코드 넣어주셔야 합니다.
@@ -60,7 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/notifications/events/**").hasAnyRole("ADMIN","HOST")
 
                         .requestMatchers("/error").permitAll()
-
+                        
                         // 특정 조건을 지정하지 않은 나머지 모든 API는 로그인만 했으면 호출 가능함
                         .anyRequest().authenticated() //문제점: host/admin도 가능해짐
 //                        .requestMatchers(HttpMethod.POST, "/reservations/**").hasRole("CONSUMER")
