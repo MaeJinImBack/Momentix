@@ -53,4 +53,10 @@ public class Reservations {
     }
 
 
+    public void selectEventTime(EventTimes eventTimes) {
+        this.eventTimes =eventTimes;
+        this.eventSeat = null;
+        this.reservationStatusType = ReservationStatusType.SELECT_TIME;
+    }
+
 }

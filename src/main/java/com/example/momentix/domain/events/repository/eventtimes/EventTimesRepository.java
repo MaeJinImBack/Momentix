@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EventTimesRepository extends JpaRepository<EventTimes, Long> {
+
+
+    boolean existsByIdAndEventsId(Long id, Long eventsId);
 }
