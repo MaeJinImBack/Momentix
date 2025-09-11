@@ -29,7 +29,7 @@ public class ReservationResponseDto {
         return  ReservationResponseDto.builder()
                 .usersId(r.getUsers().getUserId())
                 .eventsId(r.getEvents().getId())
-                .eventPlaceId(r.getEventPlace().getId())
+                .eventPlaceId(r.getEventPlace() == null ? null : r.getEventPlace().getId())
                 .eventTimeId(r.getEventTimes() == null ? null : r.getEventTimes().getId())
                 .eventSeatId(r.getEventSeat() == null ? null : r.getEventSeat().getId())
                 .reservationStatusType(r.getReservationStatusType())
