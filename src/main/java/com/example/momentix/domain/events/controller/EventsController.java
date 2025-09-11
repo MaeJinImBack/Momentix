@@ -45,4 +45,10 @@ public class EventsController {
         ReadEventResponseDto response = eventsService.readEvent(eventId, placeId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
+        eventsService.deleteEvent(eventId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

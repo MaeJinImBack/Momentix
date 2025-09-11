@@ -20,7 +20,8 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "p.placeName) " +
             "FROM Events e " +
             "JOIN EventPlace ep ON e.id = ep.events.id " +
-            "JOIN ep.places p ")
+            "JOIN ep.places p " +
+            "WHERE e.isDeleted != true")
     List<AllReadEventsResponseDto> AllReadEvents();
 
 

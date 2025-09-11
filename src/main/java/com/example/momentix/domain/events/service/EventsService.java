@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -123,7 +122,7 @@ public class EventsService {
         eventsRepository.save(updateEvent);
     }
 
-
+    @Transactional
     public void deleteEvent(Long eventId) {
         Events deleteEvent = eventsRepository.findById(eventId).orElseThrow(()->new IllegalIdentifierException("없는공연"));
         deleteEvent.setDeleted(true);
