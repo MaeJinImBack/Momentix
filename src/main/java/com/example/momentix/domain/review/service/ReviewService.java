@@ -47,7 +47,8 @@ public class ReviewService {
 
     public Page<ReviewResponseDto> getReviews(Long eventId, Pageable pageable) {
 
-        Page<Review> reviewPage = reviewRepository.findByEvents_Id(eventId, pageable);
+        Page<Review> reviewPage = reviewRepository.findByEvents_IdAndIsDeletedFalse(eventId, pageable);
+
         return reviewPage.map(ReviewResponseDto::new);
     }
 
