@@ -103,7 +103,7 @@ public class SeatService {
         }
     }
 
-
+    @Transactional
     public List<BaseSeatResponseDto> createBaseSeat(MultipartFile baseSeatFile,
                                                     PlacesRequestDto placeRequest) {
         // 공연장 존재 여부 확인
@@ -138,6 +138,7 @@ public class SeatService {
 
     }
 
+    @Transactional
     public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable){
         // 공연 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
