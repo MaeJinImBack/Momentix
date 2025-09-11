@@ -4,13 +4,14 @@ import com.example.momentix.domain.common.entity.TimeStamped;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "Reviews")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends TimeStamped {
 
     @Id

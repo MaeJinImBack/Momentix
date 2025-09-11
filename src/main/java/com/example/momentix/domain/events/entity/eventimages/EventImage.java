@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Table(name = "EventImages")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 
 // 공연 관련 이미지
 public class EventImage extends TimeStamped {
