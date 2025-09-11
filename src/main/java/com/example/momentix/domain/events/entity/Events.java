@@ -72,6 +72,15 @@ public class Events extends TimeStamped {
     @Column(nullable = false)
     private boolean isDeleted;
 
+    public void setEvent(String eventTitle, AgeRatingType ageRatingType, EventCategoryType eventCategoryType, LocalDate eventStartDate, LocalDate eventEndDate)
+    {
+        this.eventTitle = eventTitle;
+        this.ageRatingType = ageRatingType;
+        this.eventCategoryType = eventCategoryType;
+        this.eventStartDate = eventStartDate;
+        this.eventEndDate = eventEndDate;
+
+    }
 
     public void addEventInfo(EventPlace eventPlace, ReservationTimes reservationTime, EventCast eventCast) {
         eventPlaceList.add(eventPlace);
@@ -92,6 +101,10 @@ public class Events extends TimeStamped {
     public void addEventSeat(EventSeat eventSeat) {
         eventSeatList.add(eventSeat);
         eventSeat.setEvents(this);
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
 }

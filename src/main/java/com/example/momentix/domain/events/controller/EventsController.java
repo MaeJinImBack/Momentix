@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.controller;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.request.UpdateBaseEventRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
 import com.example.momentix.domain.events.dto.response.ReadEventResponseDto;
@@ -29,11 +30,16 @@ public class EventsController {
     }
 
     @GetMapping()
-    public ResponseEntity<Page<AllReadEventsResponseDto>> readAllEvents(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<AllReadEventsResponseDto>> readAllEvents(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
         Page<AllReadEventsResponseDto> response = eventsService.allReadEvents(pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping("/{eventId}")
+    public ResponseEntity<Void> updateBaseEvent(@PathVariable Long eventId, @RequestBody UpdateBaseEventRequestDto requestDto) {
+        eventsService.updateEvent(eventId, requestDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @GetMapping("/{eventId}/{placeId}")
     public ResponseEntity<ReadEventResponseDto> readEvent(@PathVariable Long eventId, @PathVariable Long placeId) {
         ReadEventResponseDto response = eventsService.readEvent(eventId, placeId);

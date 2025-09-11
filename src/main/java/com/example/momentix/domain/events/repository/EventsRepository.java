@@ -7,9 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventsRepository extends JpaRepository<Events, Long>, EventsRepositoryCustom {
+    @Query("SELECT new com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto(" +
+public interface EventsRepository extends JpaRepository<Events, Long> {
     @Query("SELECT new com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto(" +
             "e.eventTitle," +
             "e.eventCategoryType," +
@@ -22,4 +25,5 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     List<AllReadEventsResponseDto> AllReadEvents();
 
 
+    Optional<Events> findById(Long id);
 }

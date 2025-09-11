@@ -54,4 +54,15 @@ public class ReservationController {
         return new ResponseEntity<>(reservationResponseDto, HttpStatus.OK);
 
     }
+
+    @DeleteMapping("/cancel/{reservationId}")
+    public ResponseEntity<Void> deleteReservation(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                    @PathVariable Long reservationId) {
+
+
+        reservationService.deleteReservation(userDetails.getUserId(), reservationId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -41,7 +41,6 @@ public class SeatService {
     private final EventSeatRepository eventSeatRepository;
     private final SeatsRepository seatsRepository;
     private final EventTimesRepository eventTimesRepository;
-    private final EventTimeReserveSeatRepository etrseatRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
 
     @Transactional
@@ -104,7 +103,7 @@ public class SeatService {
         }
     }
 
-
+    @Transactional
     public List<BaseSeatResponseDto> createBaseSeat(MultipartFile baseSeatFile,
                                                     PlacesRequestDto placeRequest) {
         // 공연장 존재 여부 확인
@@ -139,7 +138,8 @@ public class SeatService {
 
     }
 
-    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable) {
+    @Transactional
+    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable){
         // 공연 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
         // 공연장 확인
