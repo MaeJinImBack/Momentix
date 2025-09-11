@@ -30,8 +30,9 @@ public class Casts extends TimeStamped {
     private List<EventCast> eventCastList;
 
     @Builder
-    public Casts(String castName) {
+    public Casts(String castName, String castImageUrl) {
         this.castName = castName;
+        this.castImageUrl = castImageUrl;
     }
 
 }
