@@ -1,6 +1,6 @@
 package com.example.momentix.domain.users.controller;
 
-import com.example.momentix.domain.users.dto.UserDeleteRquestDto;
+import com.example.momentix.domain.users.dto.UserRequestDto;
 import com.example.momentix.domain.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,11 +19,23 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void withdrawMe(
             @AuthenticationPrincipal UserDetails principal,
-            @RequestBody UserDeleteRquestDto userDeleteRquestDto
+            @RequestBody UserRequestDto userDeleteRquestDto
     ) {
         if (principal == null) {
             throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 필요");
         }
         userService.withdrawSelf(principal.getUsername(), userDeleteRquestDto.getPassword());
+    }
+
+    //유저 개인정보 수정
+    @PutMapping("/user-info")
+    public void updateUserInfo(
+            @AuthenticationPrincipal UserDetails principal,
+            @RequestBody UserRequestDto userRquestDto
+    ){
+        if (principal == null) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 필요");
+        }
+        userService.updateUserInfo(principal.getUsername(), userRquestDto);
     }
 }
