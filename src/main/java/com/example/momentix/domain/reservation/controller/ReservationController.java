@@ -18,6 +18,8 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
+
+    //공연 선택
     @PostMapping("/events/{eventId}")
     public ResponseEntity<ReservationResponseDto> selectEvent(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                    @PathVariable Long eventId) {
@@ -28,6 +30,7 @@ public class ReservationController {
     }
 
 
+    //공연 장소 선택
     @PostMapping("/{reservationId}/select-event-place/{eventPlaceId}")
     public ResponseEntity<ReservationResponseDto> selectEventPlace(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                    @PathVariable Long reservationId,
@@ -39,6 +42,7 @@ public class ReservationController {
     }
 
 
+    //공연 시간 선택
     @PostMapping("/{reservationId}/select-event-time/{eventTimeId}")
     public ResponseEntity<ReservationResponseDto> selectEventTime(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                   @PathVariable Long reservationId,

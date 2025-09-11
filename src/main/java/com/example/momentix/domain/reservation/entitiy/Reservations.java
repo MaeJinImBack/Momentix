@@ -14,6 +14,7 @@ import lombok.*;
 @Entity
 @Table(
         name = "reservations",
+        //공연 시간과 좌석을 unique 처리 -> 해당 공연 시간의 좌석은 1개
         uniqueConstraints = {
             @UniqueConstraint(name = "unique_reservation_event_time_event_seat",
             columnNames = {"event_time_id","event_seat_id"}) }
@@ -57,6 +58,7 @@ public class Reservations {
         this.reservationStatusType =reservationStatusType;
     }
 
+    //장소 선택 시
     public void selectEventPlace(EventPlace eventPlace){
         this.eventPlace = eventPlace;
         this.eventTimes = null;
@@ -64,6 +66,7 @@ public class Reservations {
         this.reservationStatusType = ReservationStatusType.SELECT_PLACE;
     }
 
+    //시간 선택 시
     public void selectEventTime(EventTimes eventTimes) {
         this.eventTimes =eventTimes;
         this.eventSeat = null;
