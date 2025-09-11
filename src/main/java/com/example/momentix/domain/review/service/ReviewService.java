@@ -3,6 +3,7 @@ package com.example.momentix.domain.review.service;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.review.dto.request.CreateReviewRequestDto;
+import com.example.momentix.domain.review.dto.request.UpdateReviewRequestDto;
 import com.example.momentix.domain.review.dto.response.ReviewResponseDto;
 import com.example.momentix.domain.review.entity.Review;
 import com.example.momentix.domain.review.repository.ReviewRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -45,5 +47,17 @@ public class ReviewService {
 
         Page<Review> reviewPage = reviewRepository.findByEvents_Id(eventId, pageable);
         return reviewPage.map(ReviewResponseDto::new);
+    }
+
+    @Transactional
+    public void updateReview(Long reviewId, UpdateReviewRequestDto requestDto, Users user) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
+
+        if (!review.getUsers().getUserId().equals(user.getUserId())) {
+            throw new AccessDeniedException("리뷰를 수정할 권한이 없습니다.");
+        }
+        review.update(requestDto.getContents(), requestDto.getRating());
     }
 }

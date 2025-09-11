@@ -2,8 +2,10 @@ package com.example.momentix.domain.review.controller;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.review.dto.request.CreateReviewRequestDto;
+import com.example.momentix.domain.review.dto.request.UpdateReviewRequestDto;
 import com.example.momentix.domain.review.dto.response.ReviewResponseDto;
 import com.example.momentix.domain.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,4 +40,15 @@ public class ReviewController {
         Page<ReviewResponseDto> response = reviewService.getReviews(eventId, pageable);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{reviewId}/events/{eventId}")
+    public ResponseEntity<String> updateReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody UpdateReviewRequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        reviewService.updateReview(reviewId, requestDto, userDetails.getUser());
+        return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
+    }
+
 }
