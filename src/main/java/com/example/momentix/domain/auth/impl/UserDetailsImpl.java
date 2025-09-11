@@ -2,6 +2,7 @@ package com.example.momentix.domain.auth.impl;
 
 import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.entity.SignIn;
+import com.example.momentix.domain.users.entity.Users;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -45,6 +46,8 @@ public class UserDetailsImpl implements UserDetails {
         return signIn.getUser().getRole().name();
     }
 
+    public Users getUser() { return this.signIn.getUser(); }
+    
     @Override
     public String getPassword() {
         return signIn.getPassword();

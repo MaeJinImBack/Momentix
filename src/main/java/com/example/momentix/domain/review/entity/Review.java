@@ -1,13 +1,45 @@
 package com.example.momentix.domain.review.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.momentix.domain.common.entity.TimeStamped;
+import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.users.entity.Users;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-public class Review {
+@Getter
+@Table(name = "Reviews")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Review extends TimeStamped {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "eventId", nullable = false)
+    private Events events;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId", nullable = false)
+    private Users users;
+
+    @Column(nullable = false, length = 500)
+    private String contents;
+
+    @Column(nullable = false)
+    private Double rating;
+
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    //== 생성자 ==//
+    public Review(Events events, Users users, String contents, Double rating) {
+        this.events = events;
+        this.users = users;
+        this.contents = contents;
+        this.rating = rating;
+    }
 }
