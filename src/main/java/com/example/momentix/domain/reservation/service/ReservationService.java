@@ -176,6 +176,8 @@ public class ReservationService {
     }
 
     //Reservation을 임시 테이블 처럼 사용하기 때문에, 티켓(예매 내역)이 생성되는 순간 제거 -> CreateTicket 에 RS.deleteReservation 추가
+
+    //Propagation.REQUIRED 가 default 지만, 티켓 생성 트랜잭션에 사용할 예정이라 명시
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteReservation(Long userId, Long reservationId) {
 
