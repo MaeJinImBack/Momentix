@@ -109,7 +109,7 @@ public class EventsService {
     // 공연에 관련된 기본적인 내용들 한번에 수정
     @Transactional
     public void updateEvent(Long eventId, UpdateBaseEventRequestDto requestDto) {
-        Events updateEvent = eventsRepository.findById(eventId).orElseThrow(()->new IllegalArgumentException("없는 공연"));
+        Events updateEvent = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalArgumentException("없는 공연"));
 
         updateEvent.setEvent(
                 requestDto.getEventTitle(),
@@ -117,5 +117,6 @@ public class EventsService {
                 requestDto.getEventCategory(),
                 requestDto.getEventStartDate(),
                 requestDto.getEventEndDate());
+        eventsRepository.save(updateEvent);
     }
 }
