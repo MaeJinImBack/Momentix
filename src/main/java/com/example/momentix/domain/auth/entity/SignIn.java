@@ -52,13 +52,6 @@ public class SignIn {
     public Users getUser() {
         return users;
     }
-    public boolean isDeleted() {
-        return isDeleted;
-    }
-
-    public LocalDateTime getWithdrawnAt() {
-        return withdrawnAt;
-    }
 
     public void setUsername(String username) {
         this.username = username;

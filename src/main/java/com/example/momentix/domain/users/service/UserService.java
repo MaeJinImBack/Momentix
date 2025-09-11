@@ -20,7 +20,7 @@ public class UserService {
 
     @Transactional
     public void withdrawSelf(String username, String rawPassword) {
-        // 1) 활성 계정 조회 (isDeleted=false)
+        // 1) 계정 조회 (isDeleted=false)
         SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "계정을 찾을 수 없습니다."));
 
