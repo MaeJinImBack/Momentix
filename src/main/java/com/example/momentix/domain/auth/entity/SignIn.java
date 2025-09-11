@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
+
 @Table(name="Signin")
 @Entity
 @NoArgsConstructor
@@ -22,6 +24,12 @@ public class SignIn {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "userId", referencedColumnName = "userId", nullable = false, unique = true)
     private Users users;
+
+    //소프트 삭제용
+    @Column(nullable = false)
+    private boolean isDeleted=false;
+
+    private LocalDateTime withdrawnAt; //언제 탈퇴?
 
     //캡슐화, new+set을 안해도 되게 만듦
     public static SignIn create(String username, String rawPassword, PasswordEncoder encoder, Users users) {
