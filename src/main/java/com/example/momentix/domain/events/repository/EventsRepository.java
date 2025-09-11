@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+public interface EventsRepository extends JpaRepository<Events, Long>, EventsRepositoryCustom {
+    @Query("SELECT new com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto(" +
 public interface EventsRepository extends JpaRepository<Events, Long> {
     @Query("SELECT new com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto(" +
             "e.eventTitle," +

@@ -13,6 +13,7 @@ public enum AgeRatingType {
     private final int age;
     // 나이별 관람 제한 설명
     private final String description;
+
     AgeRatingType(int age, String description) {
         this.age = age;
         this.description = description;

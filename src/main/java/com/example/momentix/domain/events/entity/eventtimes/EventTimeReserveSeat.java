@@ -33,6 +33,8 @@ public class EventTimeReserveSeat {
         this.seatReserveStatus = seatReserveStatus;
     }
 
-    public void setEventTimes(EventTimes eventTime) {this.eventTimes = eventTime;}
+    public void setEventTimes(EventTimes eventTime) {
+        this.eventTimes = eventTime;
+    }
 
 }

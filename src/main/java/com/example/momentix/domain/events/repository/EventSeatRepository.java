@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EventSeatRepository extends JpaRepository<EventSeat, Long>{
+public interface EventSeatRepository extends JpaRepository<EventSeat, Long> {
     @Modifying
     @Query("DELETE " +
             "FROM EventSeat es " +

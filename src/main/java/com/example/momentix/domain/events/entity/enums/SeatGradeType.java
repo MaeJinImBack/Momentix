@@ -8,7 +8,7 @@ public enum SeatGradeType {
 
     private String seatGrade;
 
-    SeatGradeType(String seatGrade){
+    SeatGradeType(String seatGrade) {
         this.seatGrade = seatGrade;
     }
 }

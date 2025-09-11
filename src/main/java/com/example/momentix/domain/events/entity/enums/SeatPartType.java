@@ -8,7 +8,8 @@ public enum SeatPartType {
     E("E구역");
 
     private String seatPart;
-    SeatPartType (String seatPart){
+
+    SeatPartType(String seatPart) {
         this.seatPart = seatPart;
     }
 }

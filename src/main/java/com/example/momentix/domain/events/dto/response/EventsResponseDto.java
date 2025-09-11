@@ -40,7 +40,7 @@ public class EventsResponseDto {
 
         this.placeName = places.getPlaceName();
         this.eventTimesList = events.getEventTimeList().stream()
-                .map(eventTimes -> new EventTimeResponseDto (
+                .map(eventTimes -> new EventTimeResponseDto(
                         eventTimes.getEventStartTime(),
                         eventTimes.getEventEndTime()
                 ))

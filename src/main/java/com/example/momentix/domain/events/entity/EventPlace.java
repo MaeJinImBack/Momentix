@@ -19,11 +19,11 @@ public class EventPlace extends TimeStamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="events_id")
+    @JoinColumn(name = "events_id")
     private Events events;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="places_id")
+    @JoinColumn(name = "places_id")
     private Places places;
 
     @Builder
@@ -32,7 +32,7 @@ public class EventPlace extends TimeStamped {
         this.places = places;
     }
 
-    public void setEvents(Events events){
+    public void setEvents(Events events) {
         this.events = events;
     }
 }

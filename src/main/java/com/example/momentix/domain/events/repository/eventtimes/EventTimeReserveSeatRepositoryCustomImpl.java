@@ -3,10 +3,8 @@ package com.example.momentix.domain.events.repository.eventtimes;
 import com.example.momentix.domain.events.dto.request.SearchSeatRequestDto;
 import com.example.momentix.domain.events.dto.response.ReserveSeatResponseDto;
 import com.example.momentix.domain.events.entity.QEventSeat;
-import com.example.momentix.domain.events.entity.QEvents;
 import com.example.momentix.domain.events.entity.eventtimes.QEventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.QEventTimes;
-import com.example.momentix.domain.events.entity.places.QPlaces;
 import com.example.momentix.domain.events.entity.seats.QSeats;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -52,7 +50,6 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
                 .offset(pageable.getOffset())   // (2) 페이지 번호
                 .limit(pageable.getPageSize())  // (3) 페이지 사이즈
                 .fetch();
-
 
 
         return new PageImpl<>(seatResponse, pageable, seatResponse.size());
