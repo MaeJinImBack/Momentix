@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,5 +44,13 @@ public class SeatController {
 //            return new ResponseEntity<>(seatService.readSeatsZone(eventId, placeId, eventTimeId, zoneId, pageable), HttpStatus.OK);
 //        }
 
+    }
+    @PreAuthorize("hasAnyRole('ADMIN','HOST')")
+    @DeleteMapping("/{placeId}/seats")
+    public ResponseEntity<Void> softDeleteSeats(
+            @RequestPart("file") MultipartFile deleteFile,
+            @PathVariable Long placeId) {
+        seatService.deleteSeat(deleteFile, placeId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
