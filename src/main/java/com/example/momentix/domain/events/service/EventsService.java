@@ -106,6 +106,7 @@ public class EventsService {
         return new PageImpl<>(allReadResponse, pageable, allReadResponse.size());
     }
 
+    // 공연에 관련된 기본적인 내용들 한번에 수정
     @Transactional
     public void updateEvent(Long eventId, UpdateBaseEventRequestDto requestDto) {
         Events updateEvent = eventsRepository.findById(eventId).orElseThrow(()->new IllegalArgumentException("없는 공연"));

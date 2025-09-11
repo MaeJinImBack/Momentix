@@ -1,6 +1,7 @@
 package com.example.momentix.domain.events.controller;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.request.UpdateBaseEventRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
 import com.example.momentix.domain.events.service.EventsService;
@@ -34,4 +35,9 @@ public class EventsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping("/{eventId}")
+    public ResponseEntity<Void> updateBaseEvent(@PathVariable Long eventId, @RequestBody UpdateBaseEventRequestDto requestDto) {
+        eventsService.updateEvent(eventId, requestDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
