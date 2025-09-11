@@ -108,7 +108,7 @@ public class EventsService {
 
     @Transactional
     public void updateEvent(Long eventId, UpdateBaseEventRequestDto requestDto) {
-        Events updateEvent = eventsRepository.findbyId(eventId).orElseThrow(()->new IllegalArgumentException("없는 공연"));
+        Events updateEvent = eventsRepository.findById(eventId).orElseThrow(()->new IllegalArgumentException("없는 공연"));
 
         updateEvent.setEvent(
                 requestDto.getEventTitle(),
