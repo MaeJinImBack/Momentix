@@ -1,4 +1,4 @@
-package com.example.momentix.domain.reservation.entitiy;
+package com.example.momentix.domain.reservation.entity;
 
 public enum ReservationStatusType {
 

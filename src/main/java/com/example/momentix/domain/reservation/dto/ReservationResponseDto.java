@@ -1,7 +1,7 @@
 package com.example.momentix.domain.reservation.dto;
 
-import com.example.momentix.domain.reservation.entitiy.ReservationStatusType;
-import com.example.momentix.domain.reservation.entitiy.Reservations;
+import com.example.momentix.domain.reservation.entity.ReservationStatusType;
+import com.example.momentix.domain.reservation.entity.Reservations;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;

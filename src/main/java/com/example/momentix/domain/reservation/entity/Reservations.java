@@ -1,4 +1,4 @@
-package com.example.momentix.domain.reservation.entitiy;
+package com.example.momentix.domain.reservation.entity;
 
 
 import com.example.momentix.domain.events.entity.EventPlace;
