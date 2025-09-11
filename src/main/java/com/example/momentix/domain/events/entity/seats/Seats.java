@@ -17,7 +17,7 @@ public class Seats extends TimeStamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name ="places_id")
+    @JoinColumn(name = "places_id")
     private Places places;
 
     // 좌석 행 열
@@ -28,7 +28,7 @@ public class Seats extends TimeStamped {
 
 
     @Builder
-    public Seats (int seatRow, int seatCol, boolean seatStatus) {
+    public Seats(int seatRow, int seatCol, boolean seatStatus) {
         this.seatRow = seatRow;
         this.seatCol = seatCol;
     }

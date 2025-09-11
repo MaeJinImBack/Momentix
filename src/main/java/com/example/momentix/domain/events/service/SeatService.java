@@ -74,7 +74,8 @@ public class SeatService {
                 Seats baseSeat = seatsRepository.findBySeatRowAndSeatColAndPlaces_Id(
                         seatDto.getSeatRow(),
                         seatDto.getSeatCol(),
-                        places.getId()).orElseThrow(() -> new IllegalIdentifierException("기본 좌석 없음"));;
+                        places.getId()).orElseThrow(() -> new IllegalIdentifierException("기본 좌석 없음"));
+                ;
                 // EventSeat 테이블에 CSV 파일 내부 데이터 + 기본 좌석 id 저장
                 EventSeat eventSeat = EventSeat.builder()
                         .seatGradeType(seatDto.getSeatGradeType())
@@ -86,8 +87,8 @@ public class SeatService {
             }
             eventsRepository.save(events);
             // 저장된 EventTime(공연 회차)당  좌석별 예매상태 매칭 테이블 생성
-            for (EventTimes eventTimes: events.getEventTimeList()){ // event에 저장된 eventTime
-                for (EventSeat eventSeatDto: events.getEventSeatList()) { // event에 저장된 eventSeat 데이터를 eventTime에 매칭
+            for (EventTimes eventTimes : events.getEventTimeList()) { // event에 저장된 eventTime
+                for (EventSeat eventSeatDto : events.getEventSeatList()) { // event에 저장된 eventSeat 데이터를 eventTime에 매칭
                     EventTimeReserveSeat etrSeat = EventTimeReserveSeat.builder()
                             .eventTimes(eventTimes)
                             .eventSeat(eventSeatDto)
@@ -138,7 +139,7 @@ public class SeatService {
 
     }
 
-    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable){
+    public Page<ReserveSeatResponseDto> readSeatsZone(Long eventId, Long placeId, Long eventTimeId, Pageable pageable) {
         // 공연 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
         // 공연장 확인
@@ -148,10 +149,10 @@ public class SeatService {
             throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
         }
         // 공연 시간 확인(회차)
-        EventTimes eventTime = eventTimesRepository.findById(eventTimeId).orElseThrow(()-> new IllegalIdentifierException("공연 시간 없음"));
+        EventTimes eventTime = eventTimesRepository.findById(eventTimeId).orElseThrow(() -> new IllegalIdentifierException("공연 시간 없음"));
 
         SearchSeatRequestDto request = new SearchSeatRequestDto(
-                eventId,placeId,eventTimeId);
+                eventId, placeId, eventTimeId);
 
         Page<ReserveSeatResponseDto> responseSeat = eventTimeReserveSeatRepository.searchAllSeat(request, pageable);
         return responseSeat;

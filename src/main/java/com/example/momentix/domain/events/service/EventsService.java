@@ -98,6 +98,7 @@ public class EventsService {
         return new EventsResponseDto(createEvent, places, reservationTimes, casts);
 
     }
+
     // 공연 전체 조회
     @Transactional(readOnly = true)
     public Page<AllReadEventsResponseDto> allReadEvents(Pageable pageable) {
@@ -107,7 +108,7 @@ public class EventsService {
 
     // 공연 단건 조회
     @Transactional(readOnly = true)
-    public ReadEventResponseDto readEvent(Long eventId, Long placeId){
+    public ReadEventResponseDto readEvent(Long eventId, Long placeId) {
         ReadEventResponseDto readResponse = eventsRepository.searchEventById(eventId, placeId);
         return readResponse;
     }

@@ -17,11 +17,11 @@ public class EventCast extends TimeStamped {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="events_id")
+    @JoinColumn(name = "events_id")
     private Events events;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="casts_id")
+    @JoinColumn(name = "casts_id")
     private Casts casts;
 
     @Builder

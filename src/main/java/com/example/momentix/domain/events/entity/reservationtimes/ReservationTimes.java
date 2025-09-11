@@ -29,7 +29,7 @@ public class ReservationTimes extends TimeStamped {
 
     // 공연
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="events_id", nullable = false)
+    @JoinColumn(name = "events_id", nullable = false)
     private Events events;
 
     @Builder
@@ -39,7 +39,7 @@ public class ReservationTimes extends TimeStamped {
         this.events = events;
     }
 
-    public void setEvents(Events events){
+    public void setEvents(Events events) {
         this.events = events;
     }
 

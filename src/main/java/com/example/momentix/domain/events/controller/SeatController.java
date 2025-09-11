@@ -36,9 +36,9 @@ public class SeatController {
             @PathVariable Long placeId,
             @PathVariable Long eventTimeId,
             @RequestParam(required = false) Long zoneId,
-            @PageableDefault Pageable pageable){
+            @PageableDefault Pageable pageable) {
 //        if(zoneId == null){
-            return new ResponseEntity<>(seatService.readSeatsZone(eventId, placeId, eventTimeId, pageable), HttpStatus.OK);
+        return new ResponseEntity<>(seatService.readSeatsZone(eventId, placeId, eventTimeId, pageable), HttpStatus.OK);
 //        } else{
 //            return new ResponseEntity<>(seatService.readSeatsZone(eventId, placeId, eventTimeId, zoneId, pageable), HttpStatus.OK);
 //        }
