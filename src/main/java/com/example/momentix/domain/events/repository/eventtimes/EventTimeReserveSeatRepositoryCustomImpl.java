@@ -24,44 +24,8 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
         this.queryFactory = queryFactory;
     }
 
-
-    @Override
-    public Page<ReserveSeatResponseDto> searchAllSeat(SearchSeatRequestDto requestDto, Pageable pageable) {
-        QSeats s = QSeats.seats;
-        QEventTimeReserveSeat etrs = QEventTimeReserveSeat.eventTimeReserveSeat;
-        QEventSeat es = QEventSeat.eventSeat;
-        QEventTimes et = QEventTimes.eventTimes;
-
-        List<ReserveSeatResponseDto> seatResponse = queryFactory
-                .select(Projections.constructor(ReserveSeatResponseDto.class,
-                        s.id,
-                        es.seatGradeType,
-                        es.seatPartType,
-                        es.seatPrice,
-                        etrs.seatReserveStatus
-                ))
-                .from(etrs)
-                .join(etrs.eventSeat, es)
-                .join(es.seats, s)
-                .join(etrs.eventTimes, et)
-                .where(
-                        etrs.eventTimes.id.eq(requestDto.getEventTimeId()),
-                        et.events.id.eq(requestDto.getEventId()),
-                        es.events.id.eq(requestDto.getEventId()),
-                        s.places.id.eq(requestDto.getPlaceId()),
-                        es.seats.id.eq(s.id)
-                )
-                .offset(pageable.getOffset())   // (2) 페이지 번호
-                .limit(pageable.getPageSize())  // (3) 페이지 사이즈
-                .fetch();
-
-
-        return new PageImpl<>(seatResponse, pageable, seatResponse.size());
-
-    }
-
-    private BooleanExpression partEq(SeatPartType partType){
-        return partType != null ? QEventSeat.eventSeat.seatPartType.eq(partType) : null;
+    private BooleanExpression partEq(Long partId){
+        return partId != null ? QEventSeat.eventSeat.seatPartType.eq(SeatPartType.fromId(partId)) : null;
     }
     private BooleanExpression rowEq(Long rowId){
         return rowId != null ? QSeats.seats.seatRow.eq(rowId) : null;
@@ -71,9 +35,9 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
         return colId != null ? QSeats.seats.seatCol.eq(colId) : null;
     }
     @Override
-    public Page<PartRowColSeatResponseDto> searchPartSeat(
+    public Page<PartRowColSeatResponseDto> searchSeat(
             SearchSeatRequestDto requestDto,
-            SeatPartType partType,
+            Long partId,
             Long rowId,
             Long colId,
             Pageable pageable) {
@@ -106,7 +70,7 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
                         es.events.id.eq(requestDto.getEventId()),
                         s.places.id.eq(requestDto.getPlaceId()),
                         es.seats.id.eq(s.id),
-                        partEq(partType),
+                        partEq(partId),
                         rowEq(rowId),
                         colEq(colId)
                 )
