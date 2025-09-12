@@ -33,6 +33,10 @@ public class Tickets extends TimeStamped {
     @Column(nullable = false)
     private TicketStatusType ticketStatusType;
 
+    //추후에 수정 가능성 있음
+    @Column
+    private Long eventId;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private Users users;
@@ -66,4 +70,5 @@ public class Tickets extends TimeStamped {
     public void softDelete() {
         this.isDeleted = true;
     }
+
 }
