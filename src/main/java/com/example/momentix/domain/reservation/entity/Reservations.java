@@ -87,5 +87,10 @@ public class Reservations {
         this.eventSeat = null;
         this.reservationStatusType = ReservationStatusType.DRAFT;
     }
+
+    // 티켓 발부가 완료되었음을 나타내는 상태 변경 메소드 (티켓 결제 완료 시 reservation에서 소프트 딜리트)
+    public void completeTicketIssuance() {
+        this.reservationStatusType = ReservationStatusType.COMPLETED_TICKET;
+    }
 }
 
