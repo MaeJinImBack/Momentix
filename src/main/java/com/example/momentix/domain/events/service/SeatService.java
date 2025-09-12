@@ -19,7 +19,6 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimeReserve
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
 import com.example.momentix.domain.events.repository.places.PlacesRepository;
 import com.example.momentix.domain.events.repository.seats.SeatsRepository;
-import com.example.momentix.domain.reservation.entity.SeatStatusType;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;

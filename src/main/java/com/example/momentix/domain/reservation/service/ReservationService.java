@@ -3,6 +3,7 @@ package com.example.momentix.domain.reservation.service;
 
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
@@ -13,13 +14,10 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimesReposi
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.ReservationStatusType;
 import com.example.momentix.domain.reservation.entity.Reservations;
-import com.example.momentix.domain.reservation.entity.SeatStatusType;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.OptimisticLockException;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -265,57 +263,56 @@ public class ReservationService {
 
         Long currentSeatId = (r.getEventSeat() != null) ? r.getEventSeat().getId() : null;
         if (currentSeatId != null) {
-            // 같은 좌석을 다시 선택하면 그대로 반환
             if (currentSeatId.equals(eventSeatId)) {
+                // 같은 좌석이면 그대로 반환
                 return ReservationResponseDto.from(r);
             }
-
-            eventTimeReserveSeatRepository.findByEventTimes_Id(eventTimeId, currentSeatId)
-                    .ifPresent(prev -> {
-                        // HOLD 중이면 AVAILABLE로 해제 (엔티티에 release()가 있다고 가정)
-                        if (!prev.isAvailable()) {
-                            prev.release();
-                            eventTimeReserveSeatRepository.saveAndFlush(prev);
-                        }
-                    });
+            // ★ 엔티티 조회 없이 이전 좌석 AVAILABLE로 해제
+            eventTimeReserveSeatRepository
+                    .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, currentSeatId)
+                    .ifPresent(prevId ->
+                            eventTimeReserveSeatRepository.forceUpdateStatus(prevId, SeatStatusType.AVAILABLE));
         }
 
-        //새 좌석 HOLD 시도 (AVAILABLE일 때만)
-        EventTimeReserveSeat row = eventTimeReserveSeatRepository
-                .findByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
-                .orElseGet(() -> {
-                    EventTimeReserveSeat created = EventTimeReserveSeat.builder()
-                            .eventTimes(eventTimesRepository.getReferenceById(eventTimeId))
-                            .eventSeat(eventSeatRepository.getReferenceById(eventSeatId))
-                            .seatReserveStatus(SeatStatusType.AVAILABLE)
-                            .build();
-                    try {
-                        return eventTimeReserveSeatRepository.saveAndFlush(created);
-                    } catch (DataIntegrityViolationException dup) {
-                        return eventTimeReserveSeatRepository
-                                .findByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
-                                .orElseThrow();
-                    }
-                });
+        // ★ 여기서도 엔티티를 읽지 말고 ID만 본다
+        Long rowId = eventTimeReserveSeatRepository
+                .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
+                .orElse(null);
 
+        if (rowId == null) {
+            // 없으면 생성 시도 (AVAILABLE로)
+            EventTimeReserveSeat created = EventTimeReserveSeat.builder()
+                    .eventTimes(eventTimesRepository.getReferenceById(eventTimeId))
+                    .eventSeat(eventSeatRepository.getReferenceById(eventSeatId))
+                    .seatReserveStatus(SeatStatusType.AVAILABLE)
+                    .build();
+            try {
+                created = eventTimeReserveSeatRepository.saveAndFlush(created);
+                rowId = created.getId();
+            } catch (DataIntegrityViolationException dup) {
+                // 동시 생성 충돌 시 ID만 다시 조회
+                rowId = eventTimeReserveSeatRepository
+                        .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
+                        .orElseThrow();
+            }
+        } else {
+            // 기존 행인데 seat_reserve_status가 ''/NULL이면 한 번 정규화
+            eventTimeReserveSeatRepository.normalizeIfBlank(eventTimeId, eventSeatId);
+        }
 
-        // 2) CAS: AVAILABLE일 때만 HOLD로 전이
-        if (!row.isAvailable()) {
+        // AVAILABLE -> HOLD CAS 전이 (원자적 체크)
+        int updated = eventTimeReserveSeatRepository
+                .casUpdateStatus(rowId, SeatStatusType.AVAILABLE, SeatStatusType.HOLD);
+
+        if (updated == 0) {
             throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
         }
-        row.hold();
 
-        try {
-            eventTimeReserveSeatRepository.saveAndFlush(row);
-        } catch (ObjectOptimisticLockingFailureException | OptimisticLockException e) {
-            // 경쟁에서 짐
-            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
-        }
-
-        // 3) 예매 객체에 좌석 반영
+        // 예매 객체에 좌석 반영
         var seatRef = eventSeatRepository.getReferenceById(eventSeatId);
         r.selectEventSeat(seatRef);
 
         return ReservationResponseDto.from(r);
     }
+
 }

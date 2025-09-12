@@ -32,7 +32,9 @@ public class EventTimeReserveSeat {
     private EventSeat eventSeat;
 
     // 좌석 예약 상태 true일때 예약 가능
-    private SeatStatusType seatReserveStatus = SeatStatusType.AVAILABLE;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_reserve_status", nullable = false, length = 32)
+    private SeatStatusType seatReserveStatus;
 
     @Builder
     public EventTimeReserveSeat(EventTimes eventTimes, EventSeat eventSeat, SeatStatusType seatReserveStatus) {

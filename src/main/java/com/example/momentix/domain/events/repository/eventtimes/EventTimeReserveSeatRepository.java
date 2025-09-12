@@ -1,10 +1,12 @@
 package com.example.momentix.domain.events.repository.eventtimes;
 
+import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
-import com.example.momentix.domain.reservation.entity.SeatStatusType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -43,4 +45,50 @@ public interface EventTimeReserveSeatRepository
     Optional<EventTimeReserveSeat>
     findByEventTimes_IdAndEventSeat_IdAndSeatReserveStatus(
             Long eventTimeId, Long eventSeatId, SeatStatusType status);
+
+
+    // enum 매핑 피해서 "ID만" 뽑기(스칼라 조회라 매핑 예외 안 남)
+    @Query("""
+        select r.id
+        from EventTimeReserveSeat r
+        where r.eventTimes.id = :eventTimeId
+          and r.eventSeat.id = :eventSeatId
+        """)
+    Optional<Long> findIdOnlyByEventTimes_IdAndEventSeat_Id(
+            @Param("eventTimeId") Long eventTimeId,
+            @Param("eventSeatId") Long eventSeatId);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        update EventTimeReserveSeat r
+           set r.seatReserveStatus = :next
+         where r.id = :id
+           and r.seatReserveStatus = :expected
+        """)
+    int casUpdateStatus(@Param("id") Long id,
+                        @Param("expected") SeatStatusType expected,
+                        @Param("next") SeatStatusType next);
+
+    @Modifying
+    @Transactional
+    @Query("""
+        update EventTimeReserveSeat r
+           set r.seatReserveStatus = :next
+         where r.id = :id
+        """)
+    int forceUpdateStatus(@Param("id") Long id,
+                          @Param("next") SeatStatusType next);
+
+    @Modifying(clearAutomatically = false, flushAutomatically = true)
+    @Transactional
+    @Query(value = """
+        update event_time_reserve_seat
+           set seat_reserve_status = 'AVAILABLE'
+         where (seat_reserve_status is null or seat_reserve_status = '')
+           and event_time_id = :eventTimeId
+           and event_seat_id = :eventSeatId
+        """, nativeQuery = true)
+    int normalizeIfBlank(@Param("eventTimeId") Long eventTimeId,
+                         @Param("eventSeatId") Long eventSeatId);
 }
