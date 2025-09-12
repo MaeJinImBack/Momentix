@@ -8,10 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface EventTimeReserveSeatRepositoryCustom {
-    Page<ReserveSeatResponseDto> searchAllSeat(SearchSeatRequestDto requestDto, Pageable pageable);
-    Page<PartRowColSeatResponseDto> searchPartSeat(
+
+    Page<PartRowColSeatResponseDto> searchSeat(
             SearchSeatRequestDto requestDto,
-            SeatPartType partType,
+            Long partId,
             Long rowId,
             Long colId,
             Pageable pageable);

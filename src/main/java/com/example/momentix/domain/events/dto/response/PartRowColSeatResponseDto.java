@@ -2,6 +2,7 @@ package com.example.momentix.domain.events.dto.response;
 
 import com.example.momentix.domain.events.entity.enums.SeatGradeType;
 import com.example.momentix.domain.events.entity.enums.SeatPartType;
+import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public class PartRowColSeatResponseDto {
     private SeatPartType seatPartType;
     private BigDecimal seatPrice;
     // true가 예매 가능한 상태
-    private boolean seatReserveStatus;
+    private SeatStatusType seatReserveStatus;
     private Long seatRow;
     private Long seatCol;
 }
