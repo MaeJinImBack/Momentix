@@ -72,7 +72,7 @@ public class ReservationService {
         if(! reservationsList.isEmpty()){
             return ReservationResponseDto.from(reservationsList.get(0));
         }
-
+//push test
         //없을 시, 생성
         Reservations reservation = Reservations.builder()
                 .users(user)
