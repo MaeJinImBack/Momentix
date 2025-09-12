@@ -63,7 +63,7 @@ public class Tickets extends TimeStamped {
         this.seat = seat;
         this.eventTime = eventTime;
         this.ticketNumber = ticketNumber;
-        this.ticketStatusType = TicketStatusType.WAITING_PAYMENT;
+        this.ticketStatusType = TicketStatusType.COMPLETED_PAYMENT;
     }
 
     //== 상태 변경 메소드 (Soft Delete 용) ==//

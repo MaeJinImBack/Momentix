@@ -37,9 +37,10 @@ public class TicketService {
                 ticketNumber
         );
 
-        // 4. Ticket 저장 및 Reservation 삭제
+        // 4. Ticket 저장 및 Reservation 삭제 (소프트딜리트)
         Tickets savedTicket = ticketRepository.save(ticket);
-        reservationRepository.delete(reservation);
+
+        reservation.completeTicketIssuance();
 
         return new TicketResponseDto(savedTicket);
     }
