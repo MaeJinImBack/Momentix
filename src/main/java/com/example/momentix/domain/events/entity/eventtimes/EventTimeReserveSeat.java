@@ -1,7 +1,7 @@
 package com.example.momentix.domain.events.entity.eventtimes;
 
 import com.example.momentix.domain.events.entity.EventSeat;
-import com.example.momentix.domain.reservation.entity.SeatStatusType;
+import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,8 +32,6 @@ public class EventTimeReserveSeat {
     private EventSeat eventSeat;
 
     // 좌석 예약 상태 true일때 예약 가능
-    @Enumerated(EnumType.STRING)
-    @Column(name = "seat_reserve_status", nullable = false, length = 16)
     private SeatStatusType seatReserveStatus = SeatStatusType.AVAILABLE;
 
     @Builder
