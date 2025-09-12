@@ -9,8 +9,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @Getter
+@Entity
 @Table(name = "tickets",
         uniqueConstraints = {
                 @UniqueConstraint(name = "event_time_user", columnNames = {"event_time_id", "user_id"}), // 1인 1매
@@ -27,6 +28,7 @@ public class Tickets extends TimeStamped {
     @Column(nullable = false, unique = true, length = 50)
     private String ticketNumber;
 
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TicketStatusType ticketStatusType;
@@ -39,11 +41,12 @@ public class Tickets extends TimeStamped {
     @JoinColumn(name = "event_time_id")
     private EventTimes eventTime;
 
+    //전시는 구현 전이라 optional = false
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name =  "seat_id")
     private Seats seat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "history_id")
     private PaymentHistory paymentHistory;
 

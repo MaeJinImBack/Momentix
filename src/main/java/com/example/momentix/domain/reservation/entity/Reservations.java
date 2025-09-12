@@ -48,18 +48,18 @@ public class Reservations {
     private EventSeat eventSeat;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "reservation_status_type", nullable = false,length = 20)
+    @Column(name = "reservation_status_type", nullable = false, length = 20)
     private ReservationStatusType reservationStatusType;
 
     @Builder
-    public Reservations(Users users, Events events, ReservationStatusType reservationStatusType){
+    public Reservations(Users users, Events events, ReservationStatusType reservationStatusType) {
         this.users = users;
-        this.events= events;
-        this.reservationStatusType =reservationStatusType;
+        this.events = events;
+        this.reservationStatusType = reservationStatusType;
     }
 
     //장소 선택 시
-    public void selectEventPlace(EventPlace eventPlace){
+    public void selectEventPlace(EventPlace eventPlace) {
         this.eventPlace = eventPlace;
         this.eventTimes = null;
         this.eventSeat = null;
@@ -68,9 +68,24 @@ public class Reservations {
 
     //시간 선택 시
     public void selectEventTime(EventTimes eventTimes) {
-        this.eventTimes =eventTimes;
+        this.eventTimes = eventTimes;
         this.eventSeat = null;
         this.reservationStatusType = ReservationStatusType.SELECT_TIME;
     }
 
+    //좌석 선택
+    public void selectEventSeat(EventSeat seat) {
+        this.eventSeat = seat;
+        this.reservationStatusType = ReservationStatusType.SELECT_SEAT;
+    }
+
+    // 공연 재선택 관련
+    public void setEvents(Events events) {
+        this.events = events;
+        this.eventPlace = null;
+        this.eventTimes = null;
+        this.eventSeat = null;
+        this.reservationStatusType = ReservationStatusType.DRAFT;
+    }
 }
+

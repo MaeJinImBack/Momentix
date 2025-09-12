@@ -11,6 +11,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(
+        name = "event_time_reserve_seat",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_event_time_seat",
+                columnNames = {"event_time_id", "event_seat_id"}
+        )
+)
 public class EventTimeReserveSeat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +32,9 @@ public class EventTimeReserveSeat {
     private EventSeat eventSeat;
 
     // 좌석 예약 상태 true일때 예약 가능
-    private SeatStatusType seatReserveStatus = SeatStatusType.AVAILABLE;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_reserve_status", nullable = false, length = 32)
+    private SeatStatusType seatReserveStatus;
 
     @Builder
     public EventTimeReserveSeat(EventTimes eventTimes, EventSeat eventSeat, SeatStatusType seatReserveStatus) {
@@ -38,4 +47,21 @@ public class EventTimeReserveSeat {
         this.eventTimes = eventTime;
     }
 
+    public boolean isAvailable() {
+        return this.seatReserveStatus == SeatStatusType.AVAILABLE;
+    }
+
+    public void hold() {
+        if (!isAvailable()) {
+            throw new IllegalStateException("현재 상태(" + seatReserveStatus + ")에서는 HOLD 불가");
+        }
+        this.seatReserveStatus = SeatStatusType.HOLD;
+    }
+
+    public void release() {
+        if (this.seatReserveStatus != SeatStatusType.HOLD) {
+            throw new IllegalStateException("HOLD 상태가 아니라 해제 불가");
+        }
+        this.seatReserveStatus = SeatStatusType.AVAILABLE;
+    }
 }

@@ -4,6 +4,7 @@ import com.example.momentix.domain.common.entity.TimeStamped;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.nio.file.FileStore;
 
 
 @Entity
@@ -25,4 +26,12 @@ public class PaymentHistory extends TimeStamped {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
     private PaymentStatusType paymentStatusType;
+
+    public BigDecimal getPaymentPrice() {
+        return paymentPrice;
+    }
+
+    public PaymentStatusType  getPaymentStatus() {
+        return paymentStatusType;
+    }
 }
