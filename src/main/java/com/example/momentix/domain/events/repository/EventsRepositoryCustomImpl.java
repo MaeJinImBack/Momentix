@@ -49,7 +49,8 @@ public class EventsRepositoryCustomImpl implements EventsRepositoryCustom {
                 .join(eventPlace.places, places)
                 .where(
                         events.id.eq(eventId)
-                                .and(places.id.eq(placeId)))
+                                .and(places.id.eq(placeId))
+                                .and(events.isDeleted.eq(false)))
                 .fetchOne();
 
         List<EventTimeResponseDto> eventTimeDtoList = queryFactory
