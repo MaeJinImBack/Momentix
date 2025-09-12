@@ -34,4 +34,13 @@ public interface EventTimeReserveSeatRepository
             @Param("eventSeatId") Long eventSeatId,
             @Param("status") SeatStatusType status
     );
+
+    // (event_time_id, event_seat_id) 조합으로 조회
+    Optional<EventTimeReserveSeat>
+    findByEventTimes_IdAndEventSeat_Id(Long eventTimeId, Long eventSeatId);
+
+    // 상태까지 조건에 포함해 조회 (필요할 때만 사용)
+    Optional<EventTimeReserveSeat>
+    findByEventTimes_IdAndEventSeat_IdAndSeatReserveStatus(
+            Long eventTimeId, Long eventSeatId, SeatStatusType status);
 }

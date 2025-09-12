@@ -58,4 +58,10 @@ public class EventTimeReserveSeat {
         this.seatReserveStatus = SeatStatusType.HOLD;
     }
 
+    public void release() {
+        if (this.seatReserveStatus != SeatStatusType.HOLD) {
+            throw new IllegalStateException("HOLD 상태가 아니라 해제 불가");
+        }
+        this.seatReserveStatus = SeatStatusType.AVAILABLE;
+    }
 }
