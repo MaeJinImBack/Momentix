@@ -47,9 +47,6 @@ public class ReservationService {
     private final EventSeatRepository eventSeatRepository;
 
 
-    @PersistenceContext
-    private EntityManager em;
-
     //공연 선택
     @Transactional
     public ReservationResponseDto selectEvent(Long userId, Long eventId) {
@@ -86,6 +83,36 @@ public class ReservationService {
         reservationsRepository.save(reservation);
 
         return ReservationResponseDto.from(reservation);
+    }
+
+    // 장소 재선택 - 따로 뺀 이유 : 재선택 하려면 어느 예약을 바꿀지 reservationId가 필요
+    @Transactional
+    public ReservationResponseDto reselectEvent(Long userId, Long reservationId, Long eventId) {
+
+        if (!usersRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        Reservations reservations = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+
+        if (!reservations.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+        // 허용 상태만 재선택 가능 (최소한의 체크)
+        switch (reservations.getReservationStatusType()) {
+            case DRAFT, SELECT_PLACE, SELECT_TIME, SELECT_SEAT -> {}
+            default -> throw new IllegalArgumentException("공연 선택이 불가능합니다.");
+        }
+
+        Events event = eventsRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공연입니다."));
+
+        // 최소 변경만 적용 (엔티티에 전용 메서드가 있으면 그걸 사용)
+        reservations.setEvents(event);
+
+        return ReservationResponseDto.from(reservations);
     }
 
 
