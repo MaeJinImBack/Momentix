@@ -6,7 +6,10 @@ import com.example.momentix.domain.events.entity.seats.Seats;
 import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
+import lombok.Getter;
 
+
+@Getter
 @Entity
 @Table(name = "tickets",
     uniqueConstraints = {
