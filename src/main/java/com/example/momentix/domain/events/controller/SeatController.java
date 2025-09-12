@@ -42,7 +42,7 @@ public class SeatController {
     }
 
 
-    @GetMapping("/{eventId}/{placeId}/event-time/{eventTimeId}/seats")
+    @GetMapping("/{eventId}/{placeId}/event-time/{eventTimeId}")
     public ResponseEntity<Page<PartRowColSeatResponseDto>> readPartSeats(
             @PathVariable Long eventId,
             @PathVariable Long placeId,

@@ -169,9 +169,9 @@ public class ReservationService {
 
         //해당 상태에는 시간 선택이 불가능 -> 추후 상태 관리를 정확히 명시하여, if(==null) 로 처리하던 부분 상태로 변경
         switch (reservations.getReservationStatusType()) {
-
-            case DRAFT,SELECT_SEAT, WAIT_PAYMENT, CANCELED ,COMPLETED_TICKET
-                    -> throw new IllegalArgumentException("시간 선택이 불가능합니다.");
+            //SElECT_TIME 일 때는 CREATE , SELECT_SEAT 일 때는 UPDATE
+            case SELECT_TIME, SELECT_SEAT -> {}
+            default -> throw new IllegalArgumentException("시간 선택이 불가능합니다.");
         }
 
         Long eventsId = reservations.getEvents().getId();
