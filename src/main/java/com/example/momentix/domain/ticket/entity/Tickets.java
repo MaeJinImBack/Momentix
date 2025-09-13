@@ -50,8 +50,8 @@ public class Tickets extends TimeStamped {
     @JoinColumn(name =  "seat_id")
     private Seats seat;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "payment_history_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "payment_history_id", nullable = true)
     private PaymentHistory paymentHistory;
 
     @Column(nullable = false)
