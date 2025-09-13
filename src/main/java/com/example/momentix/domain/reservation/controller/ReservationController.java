@@ -72,14 +72,14 @@ public class ReservationController {
 
 
     // 좌석 선택
-    @PostMapping("/{reservationId}/seat/{seatId}")
+    @PostMapping("/{reservationId}/seat/{eventTimeReserveSeatId}")
     public ResponseEntity<ReservationResponseDto> selectSeat(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("reservationId") Long reservationId,
-            @PathVariable("eventId") Long seatId
+            @PathVariable("eventTimeReserveSeatId") Long eventTimeReserveSeatId
     ) {
         ReservationResponseDto dto =
-                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, seatId);
+                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, eventTimeReserveSeatId);
         return ResponseEntity.ok(dto);
     }
 
