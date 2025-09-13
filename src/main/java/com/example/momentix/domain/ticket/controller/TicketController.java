@@ -55,7 +55,6 @@ public class TicketController {
         return ResponseEntity.ok("예매 상태가 성공적으로 변경되었습니다.");
     }
 
-    @PreAuthorize("hasRole('ADMIN')") // 'ADMIN' 역할을 가진 사용자만 호출 가능
     @DeleteMapping("/tickets/{ticketId}")
     public ResponseEntity<Void> deleteTicket(
             @PathVariable Long ticketId,
