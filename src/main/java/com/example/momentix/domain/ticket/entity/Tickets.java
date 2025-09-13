@@ -66,7 +66,12 @@ public class Tickets extends TimeStamped {
         this.ticketStatusType = TicketStatusType.COMPLETED_PAYMENT;
     }
 
-    //== 상태 변경 메소드 (Soft Delete 용) ==//
+    //== 상태 변경 메소드, 티켓 결제 취소 (Soft Delete 사용자용) ==//
+    public void updateStatus(TicketStatusType status) {
+        this.ticketStatusType = status;
+    }
+
+    //== 상태 변경 메소드, 티켓 내역 삭제 (Soft Delete 관리자용) ==//
     public void softDelete() {
         this.isDeleted = true;
     }
