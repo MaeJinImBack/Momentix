@@ -4,6 +4,7 @@ package com.example.momentix.domain.reservation.entity;
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import lombok.*;
         //공연 시간과 좌석을 unique 처리 -> 해당 공연 시간의 좌석은 1개
         uniqueConstraints = {
             @UniqueConstraint(name = "unique_reservation_event_time_event_seat",
-            columnNames = {"event_time_id","event_seat_id"}) }
+            columnNames = {"event_time_id","event_time_reserve_seat_id"}) }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservations {
@@ -44,8 +45,8 @@ public class Reservations {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_seat_id")
-    private EventSeat eventSeat;
+    @JoinColumn(name = "event_time_reserve_seat_id")
+    private EventTimeReserveSeat eventTimeReserveSeat;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_status_type", nullable = false, length = 20)
@@ -62,20 +63,20 @@ public class Reservations {
     public void selectEventPlace(EventPlace eventPlace) {
         this.eventPlace = eventPlace;
         this.eventTimes = null;
-        this.eventSeat = null;
+        this.eventTimeReserveSeat = null;
         this.reservationStatusType = ReservationStatusType.SELECT_PLACE;
     }
 
     //시간 선택 시
     public void selectEventTime(EventTimes eventTimes) {
         this.eventTimes = eventTimes;
-        this.eventSeat = null;
+        this.eventTimeReserveSeat = null;
         this.reservationStatusType = ReservationStatusType.SELECT_TIME;
     }
 
     //좌석 선택
-    public void selectEventSeat(EventSeat seat) {
-        this.eventSeat = seat;
+    public void selectEventSeat(EventTimeReserveSeat seat) {
+        this.eventTimeReserveSeat = seat;
         this.reservationStatusType = ReservationStatusType.SELECT_SEAT;
     }
 
@@ -84,7 +85,7 @@ public class Reservations {
         this.events = events;
         this.eventPlace = null;
         this.eventTimes = null;
-        this.eventSeat = null;
+        this.eventTimeReserveSeat = null;
         this.reservationStatusType = ReservationStatusType.DRAFT;
     }
 
