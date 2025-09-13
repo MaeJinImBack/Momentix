@@ -2,7 +2,6 @@ package com.example.momentix.domain.events.repository.eventtimes;
 
 import com.example.momentix.domain.events.dto.request.SearchSeatRequestDto;
 import com.example.momentix.domain.events.dto.response.PartRowColSeatResponseDto;
-import com.example.momentix.domain.events.dto.response.ReserveSeatResponseDto;
 import com.example.momentix.domain.events.entity.QEventSeat;
 import com.example.momentix.domain.events.entity.enums.SeatPartType;
 import com.example.momentix.domain.events.entity.eventtimes.QEventTimeReserveSeat;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserveSeatRepositoryCustom {
     private final JPAQueryFactory queryFactory;
@@ -24,16 +24,18 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
         this.queryFactory = queryFactory;
     }
 
-    private BooleanExpression partEq(Long partId){
+    private BooleanExpression partEq(Long partId) {
         return partId != null ? QEventSeat.eventSeat.seatPartType.eq(SeatPartType.fromId(partId)) : null;
     }
-    private BooleanExpression rowEq(Long rowId){
+
+    private BooleanExpression rowEq(Long rowId) {
         return rowId != null ? QSeats.seats.seatRow.eq(rowId) : null;
     }
 
-    private BooleanExpression colEq(Long colId){
+    private BooleanExpression colEq(Long colId) {
         return colId != null ? QSeats.seats.seatCol.eq(colId) : null;
     }
+
     @Override
     public Page<PartRowColSeatResponseDto> searchSeat(
             SearchSeatRequestDto requestDto,
@@ -47,7 +49,6 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
         QEventTimeReserveSeat etrs = QEventTimeReserveSeat.eventTimeReserveSeat;
         QEventSeat es = QEventSeat.eventSeat;
         QEventTimes et = QEventTimes.eventTimes;
-
 
 
         List<PartRowColSeatResponseDto> seatResponse = queryFactory
@@ -77,8 +78,24 @@ public class EventTimeReserveSeatRepositoryCustomImpl implements EventTimeReserv
                 .offset(pageable.getOffset())   // (2) 페이지 번호
                 .limit(pageable.getPageSize())  // (3) 페이지 사이즈
                 .fetch();
+        long total = Optional.ofNullable(queryFactory
+                .select(etrs.count())
+                .from(etrs)
+                .join(etrs.eventSeat, es)
+                .join(es.seats, s)
+                .join(etrs.eventTimes, et)
+                .where(
+                        etrs.eventTimes.id.eq(requestDto.getEventTimeId()),
+                        et.events.id.eq(requestDto.getEventId()),
+                        es.events.id.eq(requestDto.getEventId()),
+                        s.places.id.eq(requestDto.getPlaceId()),
+                        es.seats.id.eq(s.id),
+                        partEq(partId),
+                        rowEq(rowId),
+                        colEq(colId)
+                )
+                .fetchOne()).orElse(0L);
 
-
-        return new PageImpl<>(seatResponse, pageable, seatResponse.size());
+        return new PageImpl<>(seatResponse, pageable, total);
     }
 }
