@@ -6,9 +6,13 @@ import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
 import com.example.momentix.domain.ticket.dto.response.TicketResponseDto;
 import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
+import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.UUID;
 
@@ -43,5 +47,27 @@ public class TicketService {
         reservation.completeTicketIssuance();
 
         return new TicketResponseDto(savedTicket);
+    }
+
+    // 내 티켓 내역 전체 조회
+    public Page<TicketResponseDto> getMyTickets(Users user, Pageable pageable) {
+
+        Page<Tickets> ticketPage = ticketRepository.findByUsersAndIsDeletedFalse(user, pageable);
+
+        return ticketPage.map(TicketResponseDto::new);
+    }
+
+    // 내 티켓 내역 단건 조회
+    public TicketResponseDto getTicket(Long ticketId, Users user) {
+
+        Tickets ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+
+        // 찾은 티켓의 주인과 현재 로그인한 유저가 같은지 확인
+        if (!ticket.getUsers().getUserId().equals(user.getUserId())) {
+            throw new AccessDeniedException("조회 권한이 없습니다.");
+        }
+
+        return new TicketResponseDto(ticket);
     }
 }
