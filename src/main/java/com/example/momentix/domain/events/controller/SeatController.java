@@ -45,7 +45,14 @@ public class SeatController {
                 eventId, placeId, eventTimeId, partId, rowId, colId, pageable), HttpStatus.OK);
     }
 
-
+    @PatchMapping("/{eventId}/{placeId}/seats")
+    public ResponseEntity<Void> updateSeat(
+            @RequestPart("fild") MultipartFile seatFile,
+            @PathVariable Long eventId,
+            @PathVariable Long placeId){
+        seatService.updateSeat(seatFile, eventId, placeId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 
     @DeleteMapping("/{placeId}/seats")
