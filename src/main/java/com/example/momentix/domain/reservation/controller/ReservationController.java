@@ -76,7 +76,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponseDto> selectSeat(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("reservationId") Long reservationId,
-            @PathVariable("seatId") Long seatId
+            @PathVariable("eventId") Long seatId
     ) {
         ReservationResponseDto dto =
                 reservationService.selectEventSeat(userDetails.getUserId(), reservationId, seatId);
@@ -91,8 +91,10 @@ public class ReservationController {
 
     // 예매내역 단건 조회
     @GetMapping("/{ticketId}")
-    public ReservationDetailResponse getMyReservation(@AuthenticationPrincipal UserDetailsImpl user,
-                                                      @PathVariable Long ticketId) {
+    public ReservationDetailResponse getMyReservation(
+            @AuthenticationPrincipal UserDetailsImpl user,
+            @PathVariable Long ticketId
+    ) {
         return reservationReadService.getMyReservationDetail(user.getUserId(), ticketId);
     }
 
