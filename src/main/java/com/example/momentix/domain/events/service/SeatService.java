@@ -46,19 +46,15 @@ public class SeatService {
 
     @Transactional
     public List<SeatResponseDto> createSeat(MultipartFile seatFile,
-                                            PlacesRequestDto placeRequest,
+                                            Long placeId,
                                             Long eventId) {
         // 좌석 등급 설정할 공연이 맞는지 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
         // 좌석 등급 설정할 공연장 확인
-        Places places = placesRepository.findByPlaceName(placeRequest.getPlaceName()).orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
+        Places places = placesRepository.findById(placeId).orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
         // 공연과 공연장 일치 확인
         if (!eventPlaceRepository.existsByEventsAndPlaces(events, places)) {
             throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
-        }
-        // File을 문자열 형태로 받기
-        if (!events.getEventSeatList().isEmpty()) {
-            eventSeatRepository.deleteByEventsId(eventId);
         }
 
         try (Reader reader = new InputStreamReader(seatFile.getInputStream())) {
@@ -139,6 +135,7 @@ public class SeatService {
 
     }
 
+    @Transactional(readOnly = true)
     public Page<PartRowColSeatResponseDto> readSeatsPart(
             Long eventId, Long placeId, Long eventTimeId,
             Long partId, Long rowId, Long colId, Pageable pageable) {
@@ -157,10 +154,34 @@ public class SeatService {
                 eventId, placeId, eventTimeId);
 
         Page<PartRowColSeatResponseDto> responseSeat = eventTimeReserveSeatRepository.searchSeat(
-                request, partId, rowId, colId,pageable);
+                request, partId, rowId, colId, pageable);
 
         return responseSeat;
     }
+
+    @Transactional
+    public void updateSeat(MultipartFile updateFile, Long placeId, Long eventId) {
+        // 좌석 등급 설정할 공연이 맞는지 확인
+        Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
+        // 좌석 등급 설정할 공연장 확인
+        Places places = placesRepository.findById(placeId).orElseThrow(() -> new IllegalIdentifierException("공연장 없음"));
+        // 공연과 공연장 일치 확인
+        if (!eventPlaceRepository.existsByEventsAndPlaces(events, places)) {
+            throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
+        }
+        try (Reader reader = new InputStreamReader(updateFile.getInputStream())) {
+            // csv 파일을 List <Dto> 형태로 반환
+            List<SeatResponseDto> seatList = new CsvToBeanBuilder<SeatResponseDto>(reader)
+                    .withType(SeatResponseDto.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+            // List를 반복문으로 하나씩 데이터 저장
+            eventSeatRepository.updateEventSeatListByEventsIdAndPlaceId(eventId, placeId, seatList);
+        } catch (IOException e) {
+        }
+    }
+
 
     @Transactional
     public void deleteSeat(MultipartFile seatFile, Long placeId) {
