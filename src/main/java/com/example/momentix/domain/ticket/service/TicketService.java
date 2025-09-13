@@ -3,7 +3,9 @@ package com.example.momentix.domain.ticket.service;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
+import com.example.momentix.domain.ticket.dto.request.UpdateTicketStatusRequestDto;
 import com.example.momentix.domain.ticket.dto.response.TicketResponseDto;
+import com.example.momentix.domain.ticket.entity.TicketStatusType;
 import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
 import com.example.momentix.domain.users.entity.Users;
@@ -69,5 +71,24 @@ public class TicketService {
         }
 
         return new TicketResponseDto(ticket);
+    }
+
+    // 티켓 결제 취소
+    @Transactional
+    public void updateTicketStatus(Long ticketId, UpdateTicketStatusRequestDto requestDto, Users user) {
+
+        Tickets ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+
+        if (!ticket.getUsers().getUserId().equals(user.getUserId())) {
+            throw new AccessDeniedException("예매 상태를 변경할 권한이 없습니다.");
+        }
+
+        // 요청된 상태가 'CANCEL_TICKET'이 맞는지 확인합니다.
+        if (requestDto.getTicketStatus() != TicketStatusType.CANCEL_TICKET) {
+            throw new IllegalArgumentException("잘못된 상태 값입니다.");
+        }
+
+        ticket.updateStatus(requestDto.getTicketStatus());
     }
 }

@@ -2,6 +2,7 @@ package com.example.momentix.domain.ticket.controller;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
+import com.example.momentix.domain.ticket.dto.request.UpdateTicketStatusRequestDto;
 import com.example.momentix.domain.ticket.dto.response.TicketResponseDto;
 import com.example.momentix.domain.ticket.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,16 @@ public class TicketController {
     ) {
         TicketResponseDto response = ticketService.getTicket(ticketId, userDetails.getUser());
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/tickets/{ticketId}")
+    public ResponseEntity<String> updateTicketStatus(
+            @PathVariable Long ticketId,
+            @RequestBody UpdateTicketStatusRequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        ticketService.updateTicketStatus(ticketId, requestDto, userDetails.getUser());
+        return ResponseEntity.ok("예매 상태가 성공적으로 변경되었습니다.");
     }
 
 }
