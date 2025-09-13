@@ -22,12 +22,12 @@ import java.util.List;
 public class SeatController {
     private final SeatService seatService;
 
-    @PostMapping("/{eventId}/seats")
+    @PostMapping("/{eventId}/{placeId}/seats")
     public ResponseEntity<List<SeatResponseDto>> createSeat(
             @RequestPart("file") MultipartFile seatFile,
-            @RequestPart("request") PlacesRequestDto placeRequest,
+            @PathVariable Long placeId,
             @PathVariable Long eventId) {
-        return new ResponseEntity<>(seatService.createSeat(seatFile, placeRequest, eventId), HttpStatus.CREATED);
+        return new ResponseEntity<>(seatService.createSeat(seatFile, placeId, eventId), HttpStatus.CREATED);
     }
 
 
@@ -45,8 +45,16 @@ public class SeatController {
                 eventId, placeId, eventTimeId, partId, rowId, colId, pageable), HttpStatus.OK);
     }
 
+    @PatchMapping("/{eventId}/{placeId}/seats")
+    public ResponseEntity<Void> updateSeat(
+            @RequestPart("fild") MultipartFile seatFile,
+            @PathVariable Long eventId,
+            @PathVariable Long placeId){
+        seatService.updateSeat(seatFile, eventId, placeId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
-    @PreAuthorize("hasAnyRole('ADMIN','HOST')")
+
     @DeleteMapping("/{placeId}/seats")
     public ResponseEntity<Void> softDeleteSeats(
             @RequestPart("file") MultipartFile deleteFile,

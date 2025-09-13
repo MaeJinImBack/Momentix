@@ -14,8 +14,8 @@ public class SeatResponseDto {
     @CsvBindByName
     private String seatPartType;
     @CsvBindByName
-    private int seatRow;
+    private Long seatRow;
     @CsvBindByName
-    private int seatCol;
+    private Long seatCol;
 
 }
