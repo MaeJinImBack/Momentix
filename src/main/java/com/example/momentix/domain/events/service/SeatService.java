@@ -46,7 +46,7 @@ public class SeatService {
 
     @Transactional
     public List<SeatResponseDto> createSeat(MultipartFile seatFile,
-                                           Long placeId,
+                                            Long placeId,
                                             Long eventId) {
         // 좌석 등급 설정할 공연이 맞는지 확인
         Events events = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("event 없음"));
@@ -168,6 +168,17 @@ public class SeatService {
         // 공연과 공연장 일치 확인
         if (!eventPlaceRepository.existsByEventsAndPlaces(events, places)) {
             throw new IllegalIdentifierException("공연과 공연장이 일치하지 않음");
+        }
+        try (Reader reader = new InputStreamReader(updateFile.getInputStream())) {
+            // csv 파일을 List <Dto> 형태로 반환
+            List<SeatResponseDto> seatList = new CsvToBeanBuilder<SeatResponseDto>(reader)
+                    .withType(SeatResponseDto.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+            // List를 반복문으로 하나씩 데이터 저장
+            eventSeatRepository.updateEventSeatListByEventsIdAndPlaceId(eventId, placeId, seatList);
+        } catch (IOException e) {
         }
     }
 
