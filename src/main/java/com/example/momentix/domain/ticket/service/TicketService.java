@@ -1,5 +1,6 @@
 package com.example.momentix.domain.ticket.service;
 
+import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
@@ -90,5 +91,20 @@ public class TicketService {
         }
 
         ticket.updateStatus(requestDto.getTicketStatus());
+    }
+
+    // 티켓 내역 삭제
+    @Transactional
+    public void softDeleteTicketByAdmin(Long ticketId, Users adminUser) {
+
+        // 요청한 사용자가 ADMIN인지 확인
+        if (adminUser.getRole() != RoleType.ADMIN) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        Tickets ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+
+        ticket.softDelete();
     }
 }
