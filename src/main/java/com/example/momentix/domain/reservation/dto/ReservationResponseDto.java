@@ -40,7 +40,7 @@ public class ReservationResponseDto {
                 .eventsId(r.getEvents().getId())
                 .eventPlaceId(r.getEventPlace() == null ? null : r.getEventPlace().getId())
                 .eventTimeId(r.getEventTimes() == null ? null : r.getEventTimes().getId())
-                .eventSeatId(r.getEventSeat() == null ? null : r.getEventSeat().getId())
+                .eventSeatId(r.getEventTimeReserveSeat() == null ? null : r.getEventTimeReserveSeat().getId())
                 .reservationStatusType(r.getReservationStatusType())
 
                 .eventTitle(e.getEventTitle())
@@ -59,7 +59,7 @@ public class ReservationResponseDto {
                 .eventsId(e.getId())
                 .eventPlaceId(r.getEventPlace() == null ? null : r.getEventPlace().getId())
                 .eventTimeId(r.getEventTimes() == null ? null : r.getEventTimes().getId())
-                .eventSeatId(r.getEventSeat() == null ? null : r.getEventSeat().getId())
+                .eventSeatId(r.getEventTimeReserveSeat() == null ? null : r.getEventTimeReserveSeat().getId())
                 .reservationStatusType(r.getReservationStatusType())
                 .eventTitle(e.getEventTitle())
                 .eventCategoryType(e.getEventCategoryType() == null ? null : e.getEventCategoryType().name())
