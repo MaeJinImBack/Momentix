@@ -52,7 +52,6 @@ public class ReviewController {
         return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','CONSUMER')")
     @DeleteMapping("/{reviewId}/events/{eventId}")
     public ResponseEntity<String> deleteReview(
             @PathVariable Long reviewId,

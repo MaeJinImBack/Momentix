@@ -54,4 +54,13 @@ public class TicketController {
         return ResponseEntity.ok("예매 상태가 성공적으로 변경되었습니다.");
     }
 
+    @DeleteMapping("/tickets/{ticketId}")
+    public ResponseEntity<Void> deleteTicket(
+            @PathVariable Long ticketId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        ticketService.softDeleteTicketByAdmin(ticketId, userDetails.getUser());
+        return ResponseEntity.noContent().build();
+    }
+
 }

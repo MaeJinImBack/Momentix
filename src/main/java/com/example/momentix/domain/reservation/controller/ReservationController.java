@@ -72,30 +72,30 @@ public class ReservationController {
 
 
     // 좌석 선택
-    @PostMapping("/{reservationId}/seat/{seatId}")
+    @PostMapping("/{reservationId}/seat/{eventTimeReserveSeatId}")
     public ResponseEntity<ReservationResponseDto> selectSeat(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable("reservationId") Long reservationId,
-            @PathVariable("eventId") Long seatId
+            @PathVariable("eventTimeReserveSeatId") Long eventTimeReserveSeatId
     ) {
         ReservationResponseDto dto =
-                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, seatId);
+                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, eventTimeReserveSeatId);
         return ResponseEntity.ok(dto);
     }
 
-    // 예매내역 전체 조회
-    @GetMapping
-    public List<ReservationListItemResponse> getMyReservations(@AuthenticationPrincipal UserDetailsImpl user) {
-        return reservationReadService.getMyReservations(user.getUserId());
-    }
+//    // 예매내역 전체 조회
+//    @GetMapping
+//    public List<ReservationListItemResponse> getMyReservations(@AuthenticationPrincipal UserDetailsImpl user) {
+//        return reservationReadService.getMyReservations(user.getUserId());
+//    }
 
     // 예매내역 단건 조회
-    @GetMapping("/{ticketId}")
+    @GetMapping("/{reservationId}")
     public ReservationDetailResponse getMyReservation(
             @AuthenticationPrincipal UserDetailsImpl user,
-            @PathVariable Long ticketId
+            @PathVariable Long reservationId
     ) {
-        return reservationReadService.getMyReservationDetail(user.getUserId(), ticketId);
+        return reservationReadService.getMyReservationDetail(user.getUserId(), reservationId);
     }
 
 }

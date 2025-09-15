@@ -58,6 +58,9 @@ public class SecurityConfig {
                         // ADMIN 공연삭제
                         .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
 
+                        // ADMIN 공연삭제
+                        .requestMatchers(HttpMethod.DELETE, "/tickets/**").hasRole("ADMIN")
+
                         //블랙리스트 차단 ADMIN API ADD
 
                         // 알림
