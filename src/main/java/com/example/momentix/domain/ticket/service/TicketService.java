@@ -39,7 +39,7 @@ public class TicketService {
         // 3. 임시 예매 정보를 바탕으로 최종 티켓(Tickets) 엔티티를 생성합니다.
         Tickets ticket = new Tickets(
                 reservation.getUsers(),
-                reservation.getEventSeat().getSeats(),
+                reservation.getEventTimeReserveSeat().getEventSeat().getSeats(),
                 reservation.getEventTimes(),
                 ticketNumber
         );
