@@ -49,14 +49,14 @@ public class AuthController {
     }
 
     //이메일 인증(회원가입 전 단계 - consumer)
-    @PostMapping("/email-verification/sign-up")
+    @PostMapping("/sign-up/email-verification")
     public ResponseEntity<Void> requestEmailCode(@RequestBody EmailVerifyRequest req) {
         emailVerificationService.sendCode(req.getEmail());
         return ResponseEntity.ok().build();
     }
 
     // 코드확인 및 검증 토큰 발급
-    @PostMapping("/email-verification/sign-up-verify")
+    @PostMapping("/sign-up-verify/email-verification")
     public ResponseEntity<EmailVerifyConfirmResponse> confirmEmailCode(
             @RequestBody EmailVerifyConfirm req) {
         // Lombok @Getter니까 req.getEmail(), req.getCode() 로 접근
@@ -98,7 +98,7 @@ public class AuthController {
         return ResponseEntity.ok(new TokenRes(newAccessToken, null));
     }
 
-    @DeleteMapping("/sign-out")
+    @PostMapping("/sign-out")
     @ResponseStatus(HttpStatus.NO_CONTENT)// 204 No Content 권장: 데이터가 없음(토큰 무효화)
     public void signOut(HttpServletResponse res) {
         ResponseCookie cookie=ResponseCookie.from("ACCESS_TOKEN","")
