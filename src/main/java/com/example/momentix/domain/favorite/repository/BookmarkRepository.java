@@ -1,0 +1,13 @@
+package com.example.momentix.domain.favorite.repository;
+
+import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.favorite.entity.Bookmark;
+import com.example.momentix.domain.users.entity.Users;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+    // User와 Event로 기존 즐겨찾기 정보가 있는지 조회
+    Optional<Bookmark> findByUsersAndEvents(Users user, Events event);
+}
