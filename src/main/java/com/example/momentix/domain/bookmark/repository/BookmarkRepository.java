@@ -1,7 +1,7 @@
-package com.example.momentix.domain.favorite.repository;
+package com.example.momentix.domain.bookmark.repository;
 
 import com.example.momentix.domain.events.entity.Events;
-import com.example.momentix.domain.favorite.entity.Bookmark;
+import com.example.momentix.domain.bookmark.entity.Bookmark;
 import com.example.momentix.domain.users.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 

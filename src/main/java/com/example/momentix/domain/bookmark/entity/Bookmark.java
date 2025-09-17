@@ -1,4 +1,4 @@
-package com.example.momentix.domain.favorite.entity;
+package com.example.momentix.domain.bookmark.entity;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
 import com.example.momentix.domain.events.entity.Events;

@@ -1,7 +1,7 @@
-package com.example.momentix.domain.favorite.controller;
+package com.example.momentix.domain.bookmark.controller;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
-import com.example.momentix.domain.favorite.service.BookmarkService;
+import com.example.momentix.domain.bookmark.service.BookmarkService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

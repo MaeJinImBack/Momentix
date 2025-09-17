@@ -1,9 +1,9 @@
-package com.example.momentix.domain.favorite.service;
+package com.example.momentix.domain.bookmark.service;
 
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.repository.EventsRepository;
-import com.example.momentix.domain.favorite.entity.Bookmark;
-import com.example.momentix.domain.favorite.repository.BookmarkRepository;
+import com.example.momentix.domain.bookmark.entity.Bookmark;
+import com.example.momentix.domain.bookmark.repository.BookmarkRepository;
 import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
