@@ -18,4 +18,6 @@ public class SearchService {
     public Page<SearchResponseDto> searchEvent(SearchRequestDto searchRequestdto, Pageable pageable) {
         return eventsRepository.searchEventByParam(searchRequestdto, pageable);
     }
+
+    //
 }
