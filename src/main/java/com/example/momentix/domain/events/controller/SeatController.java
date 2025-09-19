@@ -62,4 +62,14 @@ public class SeatController {
         seatService.deleteSeat(deleteFile, placeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    // 좌석 선점을 위한 API 엔드포인트
+    @PostMapping("/event-times/{eventTimeId}/seats/{eventSeatId}/select")
+    public ResponseEntity<String> selectSeat(
+            @PathVariable Long eventTimeId,
+            @PathVariable Long eventSeatId) {
+
+        seatService.selectSeatWithOptimisticLock(eventTimeId, eventSeatId);
+        return ResponseEntity.ok("좌석 선점에 성공했습니다.");
+    }
 }

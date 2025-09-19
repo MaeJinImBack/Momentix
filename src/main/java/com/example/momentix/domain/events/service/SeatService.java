@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -205,6 +206,25 @@ public class SeatService {
             throw new IllegalIdentifierException("IO Exception");
         }
 
+    }
+    // 낙관적 락을 사용한 좌석 선점 메서드
+    @Transactional
+    public void selectSeatWithOptimisticLock(Long eventTimeId, Long eventSeatId) {
+        try {
+            // 1. Locking 메서드로 좌석 정보를 조회합니다.
+            EventTimeReserveSeat seat = eventTimeReserveSeatRepository
+                    .findByEventTimeIdAndEventSeatIdWithLock(eventTimeId, eventSeatId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당 좌석 정보를 찾을 수 없습니다."));
+
+            // 2. 좌석 상태를 HOLD로 변경합니다. (기존 hold() 메서드 활용)
+            seat.hold();
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // 3. 버전 충돌이 발생하면 이 예외가 던져집니다
+            // 이 예외를 잡아서 사용자 친화적인 메시지로 변환해 다시 던져줍니다.
+            System.out.println("### 낙관적 락 충돌 발생! ###");
+            throw new RuntimeException("이미 다른 사용자가 선택한 좌석입니다.");
+        }
     }
 
 }
