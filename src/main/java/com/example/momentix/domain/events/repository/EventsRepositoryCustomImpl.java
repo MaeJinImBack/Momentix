@@ -124,6 +124,15 @@ public class EventsRepositoryCustomImpl implements EventsRepositoryCustom {
         }
     }
 
+    // 키워드 필터: 제목/장소명/주소 매칭
+    private BooleanExpression keyword(String q) {
+        if (q == null || q.isBlank()) return null;
+        String like = "%" + q.trim() + "%";
+        return QEvents.events.eventTitle.likeIgnoreCase(like)
+                .or(QPlaces.places.placeName.likeIgnoreCase(like))
+                .or(QPlaces.places.placeAddress.likeIgnoreCase(like));
+    }
+
     public Page<SearchResponseDto> searchEventByParam(SearchRequestDto searchRequestDto, Pageable pageable) {
         QEvents events = QEvents.events;
         QPlaces places = QPlaces.places;
@@ -143,7 +152,8 @@ public class EventsRepositoryCustomImpl implements EventsRepositoryCustom {
                         categoryType(searchRequestDto.getEventCategory()),
                         regionAddress(searchRequestDto.getRegion()),
                         title(searchRequestDto.getEventTitle()),
-                        period(searchRequestDto.getSearchStartDate(), searchRequestDto.getSearchEndDate())
+                        period(searchRequestDto.getSearchStartDate(), searchRequestDto.getSearchEndDate()),
+                        keyword(searchRequestDto.getQuery())
                 )
                 .offset(pageable.getOffset())   // (2) 페이지 번호
                 .limit(pageable.getPageSize())  // (3) 페이지 사이즈
@@ -161,7 +171,8 @@ public class EventsRepositoryCustomImpl implements EventsRepositoryCustom {
                         categoryType(searchRequestDto.getEventCategory()),
                         regionAddress(searchRequestDto.getRegion()),
                         title(searchRequestDto.getEventTitle()),
-                        period(searchRequestDto.getSearchStartDate(), searchRequestDto.getSearchEndDate())
+                        period(searchRequestDto.getSearchStartDate(), searchRequestDto.getSearchEndDate()),
+                        keyword(searchRequestDto.getQuery())
                 )
                 .fetchOne()).orElse(0L);
 
