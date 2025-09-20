@@ -1,7 +1,7 @@
 package com.example.momentix.domain.search.dto;
 
 
-// 자동완성/인기검색어 공통으로 쓰는 응답 형태
+//  "권지용" 검색하면 → suggestion = "권지용", count = 123
 public class AutocompleteResponse {
     private String suggestion;//추천 단어
     private long count;//해당 단어 몇 번 나왔는지(인기검색어용)
