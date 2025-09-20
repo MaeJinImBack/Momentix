@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EventDoc {
-    // 기본 검색 필드
+    // 검색/필터용 기본 정보
     private final String eventId;
     private final String eventTitle;
     private final String eventCategory;
@@ -48,6 +48,7 @@ public class EventDoc {
         this.placeNameSuggest = placeNameSuggest;
     }
 
+    // 자동완성에 들어갈 값들
     @Getter
     public static class SuggestField {
         private final List<String> input;
