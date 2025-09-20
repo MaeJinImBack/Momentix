@@ -15,4 +15,6 @@ public class SearchRequestDto {
     private LocalDate searchEndDate;
     private String region;
 
+    private String query; // 사용자가 입력한 검색어
+
 }
