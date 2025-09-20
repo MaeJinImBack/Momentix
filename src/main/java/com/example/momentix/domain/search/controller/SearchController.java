@@ -72,7 +72,7 @@ public class SearchController {
     // 인기검색어
     @GetMapping("/popular-queries")
     public List<AutocompleteResponse> popularQueries(
-            @RequestParam(value = "hours", defaultValue = "24") int hours,
+            @RequestParam(value = "hours", defaultValue = "1") int hours,
             @RequestParam(value = "size", defaultValue = "10") int size) {
         return searchService.popularQueries(hours, size);
     }
@@ -81,7 +81,7 @@ public class SearchController {
     // 시간대별 건수
     @GetMapping("/hourly-counts")
     public List<HourlyCountBucket> hourlyCounts(
-            @RequestParam(value = "hours", defaultValue = "24") int hours) {
+            @RequestParam(value = "hours", defaultValue = "1") int hours) {
         return searchService.hourlyCounts(hours);
     }
 }

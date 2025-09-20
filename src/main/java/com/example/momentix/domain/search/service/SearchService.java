@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -21,6 +23,11 @@ public class SearchService {
 
     private final SuggestRepository suggestRepository;
     private final AnalyticsRepository analyticsRepository;
+
+    // 인기 검색어 캐시 (1시간 단위 랭킹 고정 노출)
+    private volatile List<AutocompleteResponse> cachedPopular = null;
+    private volatile long popularCacheExpireAtMillis = 0L; // 캐시 만료 시각(밀리초)
+
 
     public SearchService(
             EventsRepository eventsRepository,
@@ -38,12 +45,15 @@ public class SearchService {
     }
 
     //엘라스틱서치
+    
+    // 자동완성
     @Transactional(readOnly = true)
     public List<AutocompleteResponse> autocomplete(String input, int size) {
         int limit = size > 0 ? size : IndexNames.DEFAULT_SUGGEST_SIZE;
         return suggestRepository.suggest(input, limit);
     }
 
+    // 시간대별 검색 수 집계
     @Transactional(readOnly = true)
     public List<HourlyCountBucket> hourlyCounts(int hours) {
         return analyticsRepository.countPerHour(hours);
@@ -51,15 +61,37 @@ public class SearchService {
 
     @Transactional(readOnly = true)
     public List<AutocompleteResponse> popularQueries(int hours, int size) {
-        return analyticsRepository.popularQueries(hours, size);
+        final int topN = (size > 0) ? size : 10;
+        final long now = System.currentTimeMillis();
+
+        // 1) 캐시 유효하면 그대로 반환 (ES 재조회 막기)
+        List<AutocompleteResponse> local = cachedPopular; // volatile 읽기
+        if (local != null && now < popularCacheExpireAtMillis) {
+            return (local.size() > topN) ? local.subList(0, topN) : local;
+        }
+
+        // 2) 캐시 만료/미존재 → 동기화 블록에서 한 번만 갱신
+        synchronized (this) {
+            // 들어오는 동안 이미 갱신됐을 수 있으니 재확인
+            if (cachedPopular != null && System.currentTimeMillis() < popularCacheExpireAtMillis) {
+                return (cachedPopular.size() > topN) ? cachedPopular.subList(0, topN) : cachedPopular;
+            }
+
+            // 기획 고정: 최근 1시간 집계만 사용
+            List<AutocompleteResponse> fresh = analyticsRepository.popularQueries(1, topN);
+
+            // 캐시에 저장 + 만료시각을 다음 정각으로 설정 (랭킹 1시간 단위 고정 노출)
+            cachedPopular = (fresh == null) ? List.of() : fresh;
+            popularCacheExpireAtMillis = nextTopOfHourMillis();
+
+            return cachedPopular;
+        }
     }
 
-
-    // 인기 검색어 로그 집계
+    // 검색 로그 비동기 적재 (인기검색어 집계의 원천 데이터)
     @Async
     public void logSearchAsync(SearchRequestDto req, String userId, String ip) {
-        if (req == null || req.getQuery() == null || req.getQuery().isBlank())
-            return;
+        if (req == null || req.getQuery() == null || req.getQuery().isBlank()) return;
 
         String category = (req.getEventCategory() == null) ? null : req.getEventCategory().name();
         String start = (req.getSearchStartDate() == null) ? null : req.getSearchStartDate().toString();
@@ -74,7 +106,14 @@ public class SearchService {
                 ip,
                 Instant.now().toEpochMilli()
         );
-
         analyticsRepository.indexSearchLog(doc);
+    }
+
+    // 다음 정각(Asia/Seoul)까지 → 랭킹을 딱 1시간 간격으로 갱신
+    private long nextTopOfHourMillis() {
+        ZonedDateTime nextHour = ZonedDateTime.now(ZoneId.of(IndexNames.TIME_ZONE_SEOUL))
+                .withMinute(0).withSecond(0).withNano(0)
+                .plusHours(1);
+        return nextHour.toInstant().toEpochMilli();
     }
 }
