@@ -14,7 +14,9 @@ import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
 import com.example.momentix.domain.ticket.service.TicketService;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -151,6 +153,23 @@ public class PaymentHistoryService {
 
         // FAILED
         ph.markCancel();
+        return PaymentResponse.of(ph);
+    }
+
+    //단건조회
+    @Transactional
+    public PaymentResponse getOne(Long userId, Long paymentId) {
+        PaymentHistory ph = paymentHistoryRepository.findById(paymentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "결제 내역이 없습니다."));
+
+        // 결제 -> 예약 -> 사용자 소유 확인
+        Reservations r = reservationRepository.findById(ph.getReservationId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다."));
+
+        if (!r.getUsers().getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 결제가 아닙니다.");
+        }
+
         return PaymentResponse.of(ph);
     }
 }

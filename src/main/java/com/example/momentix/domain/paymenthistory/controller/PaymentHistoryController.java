@@ -36,9 +36,15 @@ public class PaymentHistoryController {
     ) {
         return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId, paymentConfirmReq));
     }
-    // 결제 수정 =???
 
-    //결제 조회 =/payments/{paymentId}
+    //결제 조회
+    @GetMapping("/{paymentId}")
+    public ResponseEntity<PaymentResponse> getOne(
+            @AuthenticationPrincipal UserDetailsImpl user,
+            @PathVariable Long paymentId
+    ) {
+        return ResponseEntity.ok(paymentHistoryService.getOne(user.getUserId(), paymentId));
+    }
 
     //결제 삭제
     @PostMapping("/{paymentId}/cancel")
