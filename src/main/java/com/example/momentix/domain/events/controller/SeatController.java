@@ -82,4 +82,14 @@ public class SeatController {
         seatService.selectSeatWithRedisLock(eventTimeId, eventSeatId);
         return ResponseEntity.ok("좌석 선점에 성공했습니다. (Redis Lock)");
     }
+
+    // 분산 락 + 낙관적 락 API 엔드포인트
+    @PostMapping("/redis-optimistic/event-times/{eventTimeId}/seats/{eventSeatId}/select")
+    public ResponseEntity<String> selectSeatWithRedisAndOptimistic(
+            @PathVariable Long eventTimeId,
+            @PathVariable Long eventSeatId) {
+
+        seatService.selectSeatWithRedisAndOptimisticLock(eventTimeId, eventSeatId);
+        return ResponseEntity.ok("좌석 선점에 성공했습니다. (Redis + Optimistic Lock)");
+    }
 }

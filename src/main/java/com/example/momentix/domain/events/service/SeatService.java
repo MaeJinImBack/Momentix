@@ -262,4 +262,36 @@ public class SeatService {
         }
     }
 
+    // Redis 분산 락과 DB 낙관적 락을 함께 사용
+    @Transactional
+    public void selectSeatWithRedisAndOptimisticLock(Long eventTimeId, Long eventSeatId) {
+        String lockKey = "seat_lock:" + eventTimeId + ":" + eventSeatId;
+
+        // 1. Redis로 1차 락을 시도합니다.
+        Boolean isLocked = redisTemplate.opsForValue()
+                .setIfAbsent(lockKey, "locked", Duration.ofMinutes(5));
+
+        if (isLocked == null || !isLocked) {
+            // Redis 락 획득 실패 (이미 시도 중인 요청이 있음)
+            throw new RuntimeException("이미 다른 사용자가 선택한 좌석입니다.");
+        }
+
+        try {
+            // 2. Redis 락 성공! 이제 DB 작업을 진행하며 2차 락(낙관적 락)을 검증합니다.
+            EventTimeReserveSeat seat = eventTimeReserveSeatRepository
+                    .findByEventTimeIdAndEventSeatIdWithLock(eventTimeId, eventSeatId) // @Lock 어노테이션이 붙은 메서드 사용
+                    .orElseThrow(() -> new IllegalArgumentException("해당 좌석 정보를 찾을 수 없습니다."));
+
+            seat.hold(); // 상태 변경
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Redis 락은 통과했지만, 아주 짧은 시간차로 DB에서 버전 충돌이 발생한 경우
+            System.out.println("### DB 낙관적 락 충돌 발생! ###");
+            throw new RuntimeException("이미 다른 사용자가 선택한 좌석입니다.");
+        } finally {
+            // 3. 모든 DB 작업이 끝나면 Redis 락을 반드시 해제합니다.
+            redisTemplate.delete(lockKey);
+        }
+    }
+
 }
