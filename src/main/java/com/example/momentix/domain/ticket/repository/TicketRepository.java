@@ -1,5 +1,6 @@
 package com.example.momentix.domain.ticket.repository;
 
+import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.users.entity.Users;
 import org.springframework.data.domain.Page;
@@ -47,11 +48,11 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
     // 결제 확정 시, 티켓에 결제ID 세팅 (FK 주인: 티켓)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-           update Tickets ticke
-              set ticke.paymentHistory.paymentHistoryId = :paymentHistoryId
-            where ticke.ticketId = :ticketId
-              and (ticke.paymentHistory is null or ticke.paymentHistory.paymentHistoryId is null)
-           """)
+       update Tickets ticke
+          set ticke.paymentHistory = :paymentHistory
+        where ticke.ticketId = :ticketId
+          and ticke.paymentHistory is null
+       """)
     int linkPayment(@Param("ticketId") Long ticketId,
-                    @Param("paymentHistoryId") Long paymentHistoryId);
+                    @Param("paymentHistory") PaymentHistory paymentHistory);
 }

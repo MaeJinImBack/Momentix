@@ -96,7 +96,7 @@ public class PaymentHistoryService {
         TicketResponseDto ticket = ticketService.createTicket(ticketReq);
 
         // 티켓에 결제ID 링크 (FK 주인: 티켓)
-        int updated = ticketRepository.linkPayment(ticket.getTicketId(), paymentHistory.getPaymentHistoryId());
+        int updated = ticketRepository.linkPayment(ticket.getTicketId(), paymentHistory);
         if (updated == 0) {
             throw new IllegalStateException("티켓 결제 연결 실패");
         }
