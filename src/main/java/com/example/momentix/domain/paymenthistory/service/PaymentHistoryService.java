@@ -112,26 +112,26 @@ public class PaymentHistoryService {
     // 결제 취소
     @Transactional
     public PaymentResponse cancel(Long userId, Long paymentId) {
-        PaymentHistory ph = paymentHistoryRepository.findById(paymentId)
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("결제 내역이 없습니다."));
 
         // 본인 예약 여부 체크
-        Reservations r = reservationRepository.findById(ph.getReservationId())
+        Reservations reservations = reservationRepository.findById(paymentHistory.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
-        if (!r.getUsers().getUserId().equals(userId)) {
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
-        if (ph.getPaymentStatusType() == PaymentStatusType.CANCEL) {
-            return PaymentResponse.of(ph);
+        if (paymentHistory.getPaymentStatusType() == PaymentStatusType.CANCEL) {
+            return PaymentResponse.of(paymentHistory);
         }
 
-        if (ph.getPaymentStatusType() == PaymentStatusType.PENDING) {
-            ph.markCancel();
-            return PaymentResponse.of(ph);
+        if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING) {
+            paymentHistory.markCancel();
+            return PaymentResponse.of(paymentHistory);
         }
 
-        if (ph.getPaymentStatusType() == PaymentStatusType.SUCCESS) {
+        if (paymentHistory.getPaymentStatusType() == PaymentStatusType.SUCCESS) {
             Optional<Long> ticketIdOpt = ticketRepository.findIdByPaymentId(paymentId);
 
             if (ticketIdOpt.isPresent()) {
@@ -147,13 +147,13 @@ public class PaymentHistoryService {
                 }
             }
 
-            ph.markCancel();
-            return PaymentResponse.of(ph);
+            paymentHistory.markCancel();
+            return PaymentResponse.of(paymentHistory);
         }
 
         // FAILED
-        ph.markCancel();
-        return PaymentResponse.of(ph);
+        paymentHistory.markCancel();
+        return PaymentResponse.of(paymentHistory);
     }
 
     //단건조회
