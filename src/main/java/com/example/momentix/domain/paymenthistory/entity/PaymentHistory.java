@@ -51,5 +51,10 @@ public class PaymentHistory extends TimeStamped {
     public void markFailed()  { this.paymentStatusType = PaymentStatusType.FAILED; }
     public void markCancel()  { this.paymentStatusType = PaymentStatusType.CANCEL; }
 
-    protected PaymentHistory() {}
+    public Long getPaymentHistoryId() { return paymentHistoryId; }
+    public Long getReservationId() { return reservationId; }
+    public String getPayer() { return payer; }
+    public String getPaymentMethod() { return paymentMethod; }
+    public BigDecimal getPaymentPrice() { return paymentPrice; }
+    public PaymentStatusType getPaymentStatusType() { return paymentStatusType; }
 }
