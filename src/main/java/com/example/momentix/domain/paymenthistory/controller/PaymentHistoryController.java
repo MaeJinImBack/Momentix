@@ -1,6 +1,7 @@
 package com.example.momentix.domain.paymenthistory.controller;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
+import com.example.momentix.domain.paymenthistory.dto.PaymentConfirmRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentCreateRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentResponse;
 import com.example.momentix.domain.paymenthistory.service.PaymentHistoryService;
@@ -30,9 +31,10 @@ public class PaymentHistoryController {
     @PostMapping("/{paymentId}/confirm")
     public ResponseEntity<PaymentResponse> confirm(
             @AuthenticationPrincipal UserDetailsImpl user,
-            @PathVariable Long paymentId
+            @PathVariable Long paymentId,
+            @RequestBody PaymentConfirmRequest req
     ) {
-        return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId));
+        return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId, req));
     }
     // 결제 수정 =???
 
