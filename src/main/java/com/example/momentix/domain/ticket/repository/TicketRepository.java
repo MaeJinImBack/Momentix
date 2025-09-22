@@ -2,7 +2,6 @@ package com.example.momentix.domain.ticket.repository;
 
 import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.users.entity.Users;
-import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -33,25 +32,25 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
     //----------결제---------
 
     // 결제ID로 링크된 티켓ID 조회
-    @Query("select t.ticketId from Tickets t where t.paymentHistory.paymentHistoryId = :paymentId")
+    @Query("select ticke.ticketId from Tickets ticke where ticke.paymentHistory.paymentHistoryId = :paymentId")
     Optional<Long> findIdByPaymentId(@Param("paymentId") Long paymentId);
 
     // 같은 예약으로 이미 발급된 티켓이 있는지 (결제-티켓 링크 기준)
     @Query("""
-           select (count(t) > 0)
-             from Tickets t
-             join t.paymentHistory ph
-            where ph.reservationId = :reservationId
+           select (count(ticke) > 0)
+             from Tickets ticke
+             join ticke.paymentHistory paymentHistory
+            where paymentHistory.reservationId = :reservationId
            """)
     boolean existsTicketByReservationId(@Param("reservationId") Long reservationId);
 
     // 결제 확정 시, 티켓에 결제ID 세팅 (FK 주인: 티켓)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-           update Tickets t
-              set t.paymentHistory.paymentHistoryId = :paymentHistoryId
-            where t.ticketId = :ticketId
-              and (t.paymentHistory is null or t.paymentHistory.paymentHistoryId is null)
+           update Tickets ticke
+              set ticke.paymentHistory.paymentHistoryId = :paymentHistoryId
+            where ticke.ticketId = :ticketId
+              and (ticke.paymentHistory is null or ticke.paymentHistory.paymentHistoryId is null)
            """)
     int linkPayment(@Param("ticketId") Long ticketId,
                     @Param("paymentHistoryId") Long paymentHistoryId);

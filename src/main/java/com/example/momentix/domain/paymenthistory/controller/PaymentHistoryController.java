@@ -22,9 +22,9 @@ public class PaymentHistoryController {
     @PostMapping
     public ResponseEntity<PaymentResponse> create(
             @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PaymentCreateRequest req
+            @RequestBody PaymentCreateRequest paymentCreateReq
     ) {
-        return ResponseEntity.ok(paymentHistoryService.create(user.getUserId(), req));
+        return ResponseEntity.ok(paymentHistoryService.create(user.getUserId(), paymentCreateReq));
     }
 
     //결제 확정
@@ -32,9 +32,9 @@ public class PaymentHistoryController {
     public ResponseEntity<PaymentResponse> confirm(
             @AuthenticationPrincipal UserDetailsImpl user,
             @PathVariable Long paymentId,
-            @RequestBody PaymentConfirmRequest req
+            @RequestBody PaymentConfirmRequest paymentConfirmReq
     ) {
-        return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId, req));
+        return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId, paymentConfirmReq));
     }
     // 결제 수정 =???
 
