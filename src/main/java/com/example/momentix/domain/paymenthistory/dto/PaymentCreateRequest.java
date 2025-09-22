@@ -30,5 +30,5 @@ public class PaymentCreateRequest {
     public Long getReservationId(){return reservationId;}
     public String getPayer(){return payer;}
     public String getPaymentMethod(){return paymentMethod;}
-    public BigDecimal getPaymentPricel(){return paymentPrice;}
+    public BigDecimal getPaymentPrice() { return paymentPrice; }
 }
