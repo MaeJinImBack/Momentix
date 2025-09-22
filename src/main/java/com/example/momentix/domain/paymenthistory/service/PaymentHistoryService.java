@@ -1,6 +1,5 @@
 package com.example.momentix.domain.paymenthistory.service;
 
-import com.example.momentix.domain.paymenthistory.dto.PaymentConfirmRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentCreateRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentResponse;
 import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
@@ -36,38 +35,68 @@ public class PaymentHistoryService {
 
     // 결제 생성(PENDING) -상태만 관리하는 결제 + FK 주인(티켓)
     @Transactional
-    public PaymentResponse confirmSimple(Long userId, PaymentConfirmRequest req) {
-        Long reservationId = req.getReservationId();
-
-        // 1) 예약 소유자 확인
-        Reservations r = reservationRepository.findById(reservationId)
+    public PaymentResponse create(Long userId, PaymentCreateRequest req) {
+        var reservation = reservationRepository.findById(req.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
-        if (!r.getUsers().getUserId().equals(userId)) {
+        if (!reservation.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
-        // 2) 결제내역 생성(PENDING)
-        PaymentHistory ph = PaymentHistory.create(reservationId, "SELF", "MOCK", null);
-        paymentHistoryRepository.save(ph);
-
-        // 3) 티켓 발급
-        CreateTicketRequestDto tr = new CreateTicketRequestDto();
-        tr.setReservationId(reservationId);
-        TicketResponseDto ticket = ticketService.createTicket(tr);
-
-        // 4) 티켓 ← 결제 FK 연결(외래키 주인: 티켓)
-        int updated = ticketRepository.linkPayment(ticket.getTicketId(), ph.getPaymentHistoryId());
-        if (updated == 0) {
-            throw new IllegalStateException("티켓 결제 연결 실패");
+        // 같은 예약에 이미 PENDING 결제가 있으면 금지
+        if (paymentHistoryRepository.existsPendingByReservation(req.getReservationId())) {
+            throw new IllegalStateException("이미 대기 중(PENDING)인 결제가 있습니다.");
         }
 
-        // 5) 결제 성공 표시
-        ph.markSuccess();
-        return PaymentResponse.of(ph);
+        var ph = PaymentHistory.create(
+                req.getReservationId(),
+                req.getPayer() == null ? "SELF" : req.getPayer(),
+                req.getPaymentMethod() == null ? "MOCK" : req.getPaymentMethod(),
+                req.getPaymentPrice()
+        );
+        paymentHistoryRepository.save(ph);
+        return PaymentResponse.of(ph); // PENDING
     }
 
 
     //결제 확정
+    @Transactional
+    public PaymentResponse confirm(Long userId, Long paymentId) {
+        PaymentHistory paymentHistory = paymentHistoryRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("결제 내역이 없습니다."));
+
+        if (paymentHistory.getPaymentStatusType() != PaymentStatusType.PENDING) {
+            throw new IllegalStateException("이미 처리된 결제입니다.");
+        }
+
+        Long reservationId = paymentHistory.getReservationId();
+
+        Reservations reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+        if (!reservation.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+        // 이미 다른 티켓에 연결되어 있나 체크 (안전장치)
+        if (ticketRepository.existsPaymentLinked(paymentId)) {
+            throw new IllegalStateException("이미 티켓에 연결된 결제입니다.");
+        }
+
+        // 티켓 발급
+        CreateTicketRequestDto ticketReq = new CreateTicketRequestDto();
+        ticketReq.setReservationId(reservationId);
+        TicketResponseDto ticket = ticketService.createTicket(ticketReq);
+
+        // FK 주인은 티켓 → 결제ID를 티켓에 세팅
+        int updated = ticketRepository.linkPayment(ticket.getTicketId(), paymentHistory.getPaymentHistoryId());
+        if (updated == 0) {
+            throw new IllegalStateException("티켓 결제 연결 실패");
+        }
+
+        // 상태 SUCCESS
+        paymentHistory.markSuccess();
+        return PaymentResponse.of(paymentHistory);
+    }
+
 
     //결제 취소/실패
 }

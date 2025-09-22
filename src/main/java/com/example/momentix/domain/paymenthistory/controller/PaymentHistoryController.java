@@ -1,7 +1,6 @@
 package com.example.momentix.domain.paymenthistory.controller;
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
-import com.example.momentix.domain.paymenthistory.dto.PaymentConfirmRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentCreateRequest;
 import com.example.momentix.domain.paymenthistory.dto.PaymentResponse;
 import com.example.momentix.domain.paymenthistory.service.PaymentHistoryService;
@@ -18,14 +17,22 @@ public class PaymentHistoryController {
         this.paymentHistoryService = paymentHistoryService;
     }
 
-    //결제 확정(= 생성 + 티켓발급 + 연결까지 한 번에)
+    //결제 대기
     @PostMapping
+    public ResponseEntity<PaymentResponse> create(
+            @AuthenticationPrincipal UserDetailsImpl user,
+            @RequestBody PaymentCreateRequest req
+    ) {
+        return ResponseEntity.ok(paymentHistoryService.create(user.getUserId(), req));
+    }
+
+    //결제 확정
+    @PostMapping("/{paymentId}/confirm")
     public ResponseEntity<PaymentResponse> confirm(
             @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PaymentConfirmRequest request
+            @PathVariable Long paymentId
     ) {
-        PaymentResponse res = paymentHistoryService.confirmSimple(user.getUserId(), request);
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(paymentHistoryService.confirm(user.getUserId(), paymentId));
     }
     // 결제 수정 =???
 

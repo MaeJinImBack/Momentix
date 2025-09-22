@@ -39,4 +39,8 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
            """)
     int linkPayment(@Param("ticketId") Long ticketId,
                     @Param("paymentHistoryId") Long paymentHistoryId);
+
+    @Query("select (count(t) > 0) from Tickets t where t.paymentHistory.paymentHistoryId = :paymentHistoryId")
+    boolean existsPaymentLinked(@Param("paymentHistoryId") Long paymentHistoryId);
+
 }
