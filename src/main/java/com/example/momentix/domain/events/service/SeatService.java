@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -44,6 +46,8 @@ public class SeatService {
     private final SeatsRepository seatsRepository;
     private final EventTimesRepository eventTimesRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
     @Transactional
     public List<SeatResponseDto> createSeat(MultipartFile seatFile,
@@ -207,6 +211,7 @@ public class SeatService {
         }
 
     }
+
     // 낙관적 락을 사용한 좌석 선점 메서드
     @Transactional
     public void selectSeatWithOptimisticLock(Long eventTimeId, Long eventSeatId) {
@@ -224,6 +229,36 @@ public class SeatService {
             // 이 예외를 잡아서 사용자 친화적인 메시지로 변환해 다시 던져줍니다.
             System.out.println("### 낙관적 락 충돌 발생! ###");
             throw new RuntimeException("이미 다른 사용자가 선택한 좌석입니다.");
+        }
+    }
+
+    // 순수 Redis 분산 락을 사용한 좌석 선점
+    @Transactional
+    public void selectSeatWithRedisLock(Long eventTimeId, Long eventSeatId) {
+        String lockKey = "seat_lock:" + eventTimeId + ":" + eventSeatId;
+
+        // 1. Redis에 락을 시도합니다. (5분간 유효한 락)
+        Boolean isLocked = redisTemplate.opsForValue()
+                .setIfAbsent(lockKey, "locked", Duration.ofMinutes(5));
+
+        if (isLocked == null || !isLocked) {
+            // 락 획득 실패 (다른 사용자가 이미 선점)
+            System.out.println("### Redis 락 획득 실패! ###");
+            throw new RuntimeException("이미 다른 사용자가 선택한 좌석입니다.");
+        }
+
+        try {
+            // 2. 락 획득 성공 이제 DB 작업을 수행합니다.
+            EventTimeReserveSeat seat = eventTimeReserveSeatRepository
+                    .findByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId) // 일반 조회 메서드 사용
+                    .orElseThrow(() -> new IllegalArgumentException("해당 좌석 정보를 찾을 수 없습니다."));
+
+            seat.hold(); // 상태 변경
+            // 트랜잭션이 끝나면 DB에 UPDATE 됨
+
+        } finally {
+            // 3. DB 작업이 끝나면 반드시 락을 해제합니다.
+            redisTemplate.delete(lockKey);
         }
     }
 

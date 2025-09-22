@@ -63,13 +63,23 @@ public class SeatController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 좌석 선점을 위한 API 엔드포인트
-    @PostMapping("/event-times/{eventTimeId}/seats/{eventSeatId}/select")
+    // 좌석 선점을 위한 낙관적 락 API 엔드포인트
+    @PostMapping("/optimistic/event-times/{eventTimeId}/seats/{eventSeatId}/select")
     public ResponseEntity<String> selectSeat(
             @PathVariable Long eventTimeId,
             @PathVariable Long eventSeatId) {
 
         seatService.selectSeatWithOptimisticLock(eventTimeId, eventSeatId);
         return ResponseEntity.ok("좌석 선점에 성공했습니다.");
+    }
+
+    // Redis 분산 락 API 엔드포인트
+    @PostMapping("/redis/event-times/{eventTimeId}/seats/{eventSeatId}/select")
+    public ResponseEntity<String> selectSeatWithRedis(
+            @PathVariable Long eventTimeId,
+            @PathVariable Long eventSeatId) {
+
+        seatService.selectSeatWithRedisLock(eventTimeId, eventSeatId);
+        return ResponseEntity.ok("좌석 선점에 성공했습니다. (Redis Lock)");
     }
 }
