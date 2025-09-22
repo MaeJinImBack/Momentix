@@ -55,4 +55,16 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
        """)
     int linkPayment(@Param("ticketId") Long ticketId,
                     @Param("paymentHistory") PaymentHistory paymentHistory);
+
+    //결제 취소
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+           update Tickets tickets
+              set tickets.paymentHistory = null
+            where tickets.ticketId = :ticketId
+              and tickets.paymentHistory.paymentHistoryId = :paymentHistoryId
+           """)
+    int unlinkPayment(@Param("ticketId") Long ticketId,
+                      @Param("paymentHistoryId") Long paymentHistoryId);
+
 }

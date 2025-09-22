@@ -40,5 +40,12 @@ public class PaymentHistoryController {
 
     //결제 조회 =/payments/{paymentId}
 
-    //결제 삭제 =/payments/{paymentId}/cancel
+    //결제 삭제
+    @PostMapping("/{paymentId}/cancel")
+    public ResponseEntity<PaymentResponse> cancel(
+            @AuthenticationPrincipal UserDetailsImpl user,
+            @PathVariable Long paymentId
+    ) {
+        return ResponseEntity.ok(paymentHistoryService.cancel(user.getUserId(), paymentId));
+    }
 }

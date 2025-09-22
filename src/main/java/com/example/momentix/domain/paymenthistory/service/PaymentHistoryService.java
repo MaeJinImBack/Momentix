@@ -10,6 +10,7 @@ import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
 import com.example.momentix.domain.ticket.dto.response.TicketResponseDto;
+import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
 import com.example.momentix.domain.ticket.service.TicketService;
 import jakarta.transaction.Transactional;
@@ -103,5 +104,53 @@ public class PaymentHistoryService {
 
         paymentHistory.markSuccess();
         return PaymentResponse.of(paymentHistory);
+    }
+
+
+    // 결제 취소
+    @Transactional
+    public PaymentResponse cancel(Long userId, Long paymentId) {
+        PaymentHistory ph = paymentHistoryRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("결제 내역이 없습니다."));
+
+        // 본인 예약 여부 체크
+        Reservations r = reservationRepository.findById(ph.getReservationId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+        if (!r.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+        if (ph.getPaymentStatusType() == PaymentStatusType.CANCEL) {
+            return PaymentResponse.of(ph);
+        }
+
+        if (ph.getPaymentStatusType() == PaymentStatusType.PENDING) {
+            ph.markCancel();
+            return PaymentResponse.of(ph);
+        }
+
+        if (ph.getPaymentStatusType() == PaymentStatusType.SUCCESS) {
+            Optional<Long> ticketIdOpt = ticketRepository.findIdByPaymentId(paymentId);
+
+            if (ticketIdOpt.isPresent()) {
+                Long ticketId = ticketIdOpt.get();
+
+                 Tickets ticket = ticketRepository.findById(ticketId)
+                         .orElseThrow(() -> new IllegalStateException("티켓을 찾을 수 없습니다."));
+                 ticket.softDelete();
+
+                int unlinked = ticketRepository.unlinkPayment(ticketId, paymentId);
+                if (unlinked == 0) {
+                    throw new IllegalStateException("티켓 결제 연결 해제 실패");
+                }
+            }
+
+            ph.markCancel();
+            return PaymentResponse.of(ph);
+        }
+
+        // FAILED
+        ph.markCancel();
+        return PaymentResponse.of(ph);
     }
 }
