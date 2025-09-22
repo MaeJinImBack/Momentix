@@ -82,6 +82,6 @@ public class SearchController {
     @GetMapping("/hourly-counts")
     public List<HourlyCountBucket> hourlyCounts(
             @RequestParam(value = "hours", defaultValue = "1") int hours) {
-        return searchService.hourlyCounts(hours);
+        return searchService.getHourlyCounts(hours);
     }
 }

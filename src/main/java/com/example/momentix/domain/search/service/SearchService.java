@@ -8,6 +8,8 @@ import com.example.momentix.domain.search.repository.SuggestRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,9 +55,20 @@ public class SearchService {
         return suggestRepository.suggest(input, limit);
     }
 
-    // 시간대별 검색 수 집계
+    // 1-1. 시간대별 검색 수 집계
+    // 스케줄러용 (1시간 단위, void)
+    @Scheduled(cron = "0 0 * * * *", zone = "Asia/Seoul")
     @Transactional(readOnly = true)
-    public List<HourlyCountBucket> hourlyCounts(int hours) {
+    public void hourlyCountsScheduler() {
+        int hours = 1;
+        List<HourlyCountBucket> result = analyticsRepository.countPerHour(hours);
+        System.out.println("최근 1시간 검색 집계: " + result);
+    }
+
+    // 1-2. 시간대별 검색 수 집계
+    // 컨트롤러용 (사용자 요청에 따라 hours 조정 가능)
+    @Transactional(readOnly = true)
+    public List<HourlyCountBucket> getHourlyCounts(int hours) {
         return analyticsRepository.countPerHour(hours);
     }
 
