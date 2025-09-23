@@ -36,6 +36,10 @@ public class PaymentHistory extends TimeStamped {
     @Column(name = "payment_status")
     private PaymentStatusType paymentStatusType;
 
+    // 매개변수 없는 생성자 = No-Args-Constructor
+   protected PaymentHistory(){
+    }
+
     public static PaymentHistory create(Long reservationId, String payer, String method, BigDecimal price){
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.reservationId = reservationId;
