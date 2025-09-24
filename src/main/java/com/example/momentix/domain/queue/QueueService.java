@@ -104,8 +104,7 @@ public class QueueService {
             String status = "ALLOWED";
             Map<String, String> msg = Map.of(
                     "token", token,
-                    "status", status,
-                    "position", "0"
+                    "status", status
             );
             RecordId streamId = redisTemplate.opsForStream().add(streamKey, msg);
             if (streamId != null) {
@@ -133,7 +132,7 @@ public class QueueService {
 
     public void rankAlarmQueue(Long eventId, String token) {
         String eventQueueKey = "queue:" + eventId;
-        String streamKey = "stream:" + eventId;
+        String streamRankKey = "streamRank:" + eventId;
 
         // token의 위치 0부터 시작
         Long position = redisTemplate.opsForZSet().rank(eventQueueKey, token);
@@ -147,13 +146,14 @@ public class QueueService {
                 "status", status,
                 "position", String.valueOf(position + 1) // 0부터 시작해서 + 1
         );
-        redisTemplate.opsForStream().add(streamKey, msg);
-        queueRegisterStreamService.registerStream(eventId);
+        redisTemplate.opsForStream().add(streamRankKey, msg);
+        redisTemplate.expire(streamRankKey, 30, TimeUnit.MINUTES);
+        queueRegisterStreamService.alarmStream(eventId);
 
     }
 
     /**
-     * 예매 완료시 RedisStream에서 삭제 후
+     * 예매 완료시 RedisStream 에서 삭제 후
      * 다음 우선 순위 예매 가능 상태로 만들기
      *
      * @param eventId 공연별 확인
@@ -167,6 +167,7 @@ public class QueueService {
 
         if (streamId != null) {
             redisTemplate.opsForStream().delete(streamKey, streamId);
+            redisTemplate.delete(token);
             redisTemplate.opsForValue().decrement(allowKey);
         }
         processQueue(eventId);
