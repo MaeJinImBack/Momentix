@@ -15,11 +15,11 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
 
     // 상태 유니크 제약으로 DB가 막고, 조회는 참고용으로만 사용
     @Query("""
-           select (count(paymentHistory) > 0)
-             from PaymentHistory paymentHistory
-            where paymentHistory.reservationId = :reservationId
-              and paymentHistory.paymentStatusType = com.example.momentix.domain.paymenthistory.entity.PaymentStatusType.PENDING
-           """)
+            select (count(paymentHistory) > 0)
+              from PaymentHistory paymentHistory
+             where paymentHistory.reservationId = :reservationId
+               and paymentHistory.paymentStatusType = com.example.momentix.domain.paymenthistory.entity.PaymentStatusType.PENDING
+            """)
     boolean existsPendingByReservation(@Param("reservationId") Long reservationId);
 
     Optional<PaymentHistory> findByReservationIdAndIdempotencyKey(Long reservationId, String key);

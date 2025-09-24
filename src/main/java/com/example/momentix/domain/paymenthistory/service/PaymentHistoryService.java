@@ -35,9 +35,9 @@ public class PaymentHistoryService {
             TicketService ticketService
     ) {
         this.paymentHistoryRepository = paymentHistoryRepository;
-        this.reservationRepository=reservationRepository;
-        this.ticketService=ticketService;
-        this.ticketRepository=ticketRepository;
+        this.reservationRepository = reservationRepository;
+        this.ticketService = ticketService;
+        this.ticketRepository = ticketRepository;
     }
 
     // 결제 생성(PENDING) - 상태만 관리하는 결제 + FK 주인(티켓)
@@ -66,7 +66,8 @@ public class PaymentHistoryService {
         // 2) 소유자 검증 (+ 필요시 예약 행 락)
         Reservations r = reservationRepository.findByIdForUpdate(req.getReservationId())
                 .orElseGet(() -> reservationRepository.findById(req.getReservationId()).orElse(null));
-        if (r == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
+        if (r == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
         if (!r.getUsers().getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약이 아닙니다.");
         }
@@ -83,7 +84,8 @@ public class PaymentHistoryService {
             Optional<PaymentHistory> dup =
                     paymentHistoryRepository.findByReservationIdAndIdempotencyKey(
                             req.getReservationId(), req.getIdempotencyKey());
-            if (dup.isPresent()) return PaymentResponse.of(dup.get());
+            if (dup.isPresent())
+                return PaymentResponse.of(dup.get());
 
             // 3-2) 동일 예약에 PENDING이 이미 있는 경우 (상태 유니크 충돌)
             if (paymentHistoryRepository.existsPendingByReservation(req.getReservationId())) {
@@ -110,7 +112,8 @@ public class PaymentHistoryService {
         //  예약 행 선점
         Reservations reservations = reservationRepository.findByIdForUpdate(req.getReservationId())
                 .orElseGet(() -> reservationRepository.findById(req.getReservationId()).orElse(null));
-        if (reservations == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
+        if (reservations == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
         if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약이 아닙니다.");
         }
@@ -118,7 +121,8 @@ public class PaymentHistoryService {
         // 이미 링크된 티켓이면 멱등 성공
         Optional<Long> linkedTicketIdOpt = ticketRepository.findIdByPaymentId(paymentId);
         if (linkedTicketIdOpt.isPresent()) {
-            if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING) paymentHistory.markSuccess();
+            if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING)
+                paymentHistory.markSuccess();
             return PaymentResponse.of(paymentHistory);
         }
 
@@ -133,7 +137,8 @@ public class PaymentHistoryService {
         TicketResponseDto ticket = ticketService.createTicket(ticketReq);
 
         int updated = ticketRepository.linkPayment(ticket.getTicketId(), paymentHistory);
-        if (updated == 0) throw new ResponseStatusException(HttpStatus.CONFLICT, "티켓 결제 연결 실패");
+        if (updated == 0)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "티켓 결제 연결 실패");
 
         paymentHistory.markSuccess();
         return PaymentResponse.of(paymentHistory);
@@ -147,12 +152,14 @@ public class PaymentHistoryService {
 
         Reservations reservations = reservationRepository.findByIdForUpdate(paymentHistory.getReservationId())
                 .orElseGet(() -> reservationRepository.findById(paymentHistory.getReservationId()).orElse(null));
-        if (reservations == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
+        if (reservations == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
         if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약이 아닙니다.");
         }
 
-        if (paymentHistory.getPaymentStatusType() == PaymentStatusType.CANCEL) return PaymentResponse.of(paymentHistory);
+        if (paymentHistory.getPaymentStatusType() == PaymentStatusType.CANCEL)
+            return PaymentResponse.of(paymentHistory);
 
         if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING) {
             paymentHistory.markCancel();
@@ -168,7 +175,8 @@ public class PaymentHistoryService {
                 ticket.softDelete();
 
                 int unlinked = ticketRepository.unlinkPayment(ticketId, paymentId);
-                if (unlinked == 0) throw new ResponseStatusException(HttpStatus.CONFLICT, "티켓 결제 연결 해제 실패");
+                if (unlinked == 0)
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "티켓 결제 연결 해제 실패");
             }
             paymentHistory.markCancel();
             return PaymentResponse.of(paymentHistory);
