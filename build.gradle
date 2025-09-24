@@ -89,6 +89,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 
     // elasticsearch
     implementation 'co.elastic.clients:elasticsearch-java:9.0.1'

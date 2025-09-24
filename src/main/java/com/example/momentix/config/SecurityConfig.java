@@ -45,6 +45,10 @@ public class SecurityConfig {
 //                                 Redis 연결 시 확인하기 위한 test url 접근 허락
 //                                .requestMatchers(HttpMethod.GET, "/redis/test").permitAll()
 
+                                // websocket 모두 허용
+                                .requestMatchers("/ws/**").permitAll()
+                                // 대기열 모두 허용
+                                .requestMatchers("/queue/**").permitAll()
                                 //admin
                                 // 이부분(리뷰 삭제 가능), 나중에 컨트롤러/서비스에서 본인 여부 검사 코드 넣어주셔야 합니다.
                                 //amdin은 모든 리뷰 삭제가 가능한 점,
