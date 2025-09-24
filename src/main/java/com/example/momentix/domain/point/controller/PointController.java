@@ -31,52 +31,6 @@ public class PointController {
         return ResponseEntity.ok(pointService.getMyPoints(user.getUserId()));
     }
 
-    // 즉시 적립
-    @PostMapping("/earn")
-    public ResponseEntity<PointBalanceResponse> earn(
-            @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PointApplyRequest pointApplyRequest
-    ){
-        return ResponseEntity.ok(pointService.earn(user.getUserId(), pointApplyRequest.getIdempotencyKey(),
-                pointApplyRequest.getAmount(), pointApplyRequest.getReason(), pointApplyRequest.getPaymentId(),
-                pointApplyRequest.getReservationId()));
-    }
-
-    // 사용(차감)
-    @PostMapping("/use")
-    public ResponseEntity<PointBalanceResponse> use(
-            @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PointApplyRequest pointApplyRequest
-    ){
-        return ResponseEntity.ok(pointService.use(user.getUserId(), pointApplyRequest.getIdempotencyKey(),
-                pointApplyRequest.getAmount(), pointApplyRequest.getReason(), pointApplyRequest.getPaymentId(),
-                pointApplyRequest.getReservationId()));
-    }
-
-    // 적립 에정
-    @PostMapping("/pending/earn")
-    public ResponseEntity<PointBalanceResponse> earnPending(
-            @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PointApplyRequest pointApplyRequest
-    ){
-        return ResponseEntity.ok(pointService.earnPending(user.getUserId(), pointApplyRequest.getIdempotencyKey(),
-                pointApplyRequest.getAmount(), pointApplyRequest.getReason(), pointApplyRequest.getPaymentId(),
-                pointApplyRequest.getReservationId()));
-    }
-
-    //예정 해제
-    @PostMapping("/pending/release")
-    public ResponseEntity<PointBalanceResponse> releasePending(
-            @AuthenticationPrincipal UserDetailsImpl user,
-            @RequestBody PointApplyRequest pointApplyRequest
-    ){
-        return ResponseEntity.ok(pointService.releasePending(user.getUserId(), pointApplyRequest.getIdempotencyKey(),
-                pointApplyRequest.getAmount(), pointApplyRequest.getReason(), pointApplyRequest.getPaymentId(),
-                pointApplyRequest.getReservationId()));
-    }
-
-    // ----------------여기서부터 결제 연동(결제직후 적립/환불 불가/결제 취소/포인트 사용된 결제 취소)--------------
-// 1) 결제 성공 직후: 할인 후 결제금액의 3%를 "적립 예정"으로 쌓기
     @PostMapping("/pending/earn-by-payment")
     public ResponseEntity<PointBalanceResponse> earnPendingByPayment(
             @AuthenticationPrincipal UserDetailsImpl user,

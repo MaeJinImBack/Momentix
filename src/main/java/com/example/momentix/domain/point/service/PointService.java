@@ -51,20 +51,6 @@ public class PointService {
         return snapshot(points);
     }
 
-    // 즉시 적립 - 잔액+=amount
-    // 같은 멱등키가 이미 처리됐다면, 다시 반영 x 현재 상태만 반환
-    // 같은 유저의 포인트 행을 잠그고 point_ledge에 기록
-    @Transactional
-    public PointBalanceResponse earn(Long userId, String idempotencyKey, long amount, String reason,
-                                     Long paymentId, Long reservationId) {
-        requirePositive(amount);
-        if (alreadyDone(userId, idempotencyKey)) return getMyPoints(userId);
-
-        Points points = lockRow(userId);
-        points.increaseBalance(amount);
-        writeLedger(userId, idempotencyKey, PointOperationType.EARN, amount, reason, paymentId, reservationId);
-        return snapshot(points);
-    }
     // 사용(차감) - 잔액-=amount
     // 잔액이 부족하면 실패
     // point_ledge에는 얼마를 사용했는지가 보이게 음수로 기록
