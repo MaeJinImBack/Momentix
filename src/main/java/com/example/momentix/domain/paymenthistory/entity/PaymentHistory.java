@@ -6,10 +6,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 
-// 낙관적 락으로 업데이트 충돌 방지
-// idempotencyKey: 유니크(같은 요청 중복 생성 차단)
-// (reservationId, paymentStatusType) UNIQUE: 동일 예약에서 같은 상태 중복 생성 차단
-// 예약 1건에 SUCCESS 1건
+//중복 결제 요청을 방지하는 멱등 제어(Idempotency) 방식
 @Table(
         name = "payment_history",
         uniqueConstraints = {
