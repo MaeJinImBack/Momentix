@@ -60,8 +60,11 @@ public class PaymentHistory extends TimeStamped {
         paymentHistory.payer = payer;
         paymentHistory.paymentMethod = method;
         paymentHistory.paymentPrice = price == null ? BigDecimal.ZERO : price;
-        paymentHistory.idempotencyKey = idempotencyKey;
         paymentHistory.paymentStatusType = PaymentStatusType.PENDING;
+        paymentHistory.idempotencyKey =
+                (idempotencyKey == null || idempotencyKey.isBlank())
+                        ? "PAY-" + reservationId + "-" + System.currentTimeMillis()
+                        : idempotencyKey;
         return paymentHistory;
     }
 
@@ -89,13 +92,7 @@ public class PaymentHistory extends TimeStamped {
         return payer;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
 
-    public BigDecimal getPaymentPrice() {
-        return paymentPrice;
-    }
 
     public String getIdempotencyKey() {
         return idempotencyKey;
@@ -104,4 +101,5 @@ public class PaymentHistory extends TimeStamped {
     public PaymentStatusType getPaymentStatusType() {
         return paymentStatusType;
     }
+
 }
