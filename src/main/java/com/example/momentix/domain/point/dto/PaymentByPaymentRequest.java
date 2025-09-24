@@ -8,10 +8,8 @@ public class PaymentByPaymentRequest {
     private final Long paymentId;
 
     @JsonCreator
-    public PaymentByPaymentRequest(
-            @JsonProperty("idempotencyKey") String idempotencyKey,
-            @JsonProperty("paymentId") Long paymentId
-    ) {
+    public PaymentByPaymentRequest(@JsonProperty("idempotencyKey") String idempotencyKey,
+                                   @JsonProperty("paymentId") Long paymentId) {
         this.idempotencyKey = idempotencyKey;
         this.paymentId = paymentId;
     }

@@ -36,17 +36,24 @@ public class PaymentHistory extends TimeStamped {
     @Column(name = "payment_status")
     private PaymentStatusType paymentStatusType;
 
+    @Column(name = "idempotency_key", nullable = false, length = 100, unique = true)
+    private String idempotencyKey;
+
     // 매개변수 없는 생성자 = No-Args-Constructor
    protected PaymentHistory(){
     }
 
-    public static PaymentHistory create(Long reservationId, String payer, String method, BigDecimal price){
+    public static PaymentHistory create(Long reservationId, String payer, String method, BigDecimal price, String idempotencyKey){
         PaymentHistory paymentHistory = new PaymentHistory();
         paymentHistory.reservationId = reservationId;
         paymentHistory.payer = payer;
         paymentHistory.paymentMethod = method;
         paymentHistory.paymentPrice = price == null ? BigDecimal.ZERO : price;
         paymentHistory.paymentStatusType = PaymentStatusType.PENDING;
+        paymentHistory.idempotencyKey =
+                (idempotencyKey == null || idempotencyKey.isBlank())
+                        ? "PAY-" + reservationId + "-" + System.currentTimeMillis()
+                        : idempotencyKey;
         return paymentHistory;
     }
 
@@ -61,4 +68,5 @@ public class PaymentHistory extends TimeStamped {
     public String getPaymentMethod() { return paymentMethod; }
     public BigDecimal getPaymentPrice() { return paymentPrice; }
     public PaymentStatusType getPaymentStatusType() { return paymentStatusType; }
+    public String getIdempotencyKey(){return idempotencyKey;}
 }

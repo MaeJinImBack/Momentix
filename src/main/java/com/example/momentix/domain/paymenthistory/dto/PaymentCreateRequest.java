@@ -13,13 +13,15 @@ public class PaymentCreateRequest {
     private final String payer;
     private final String paymentMethod;
     private final BigDecimal paymentPrice;
+    private String idempotencyKey;
 
     @JsonCreator
     public PaymentCreateRequest(
             @JsonProperty("reservationId") Long reservationId,
             @JsonProperty("payer") String payer,
             @JsonProperty("paymentMethod") String paymentMethod,
-            @JsonProperty("paymentPrice") BigDecimal paymentPrice
+            @JsonProperty("paymentPrice") BigDecimal paymentPrice,
+            @JsonProperty("idempotencyKey") String idempotencyKey
     ) {
         this.reservationId = reservationId;
         this.payer = payer;
@@ -31,4 +33,5 @@ public class PaymentCreateRequest {
     public String getPayer(){return payer;}
     public String getPaymentMethod(){return paymentMethod;}
     public BigDecimal getPaymentPrice() { return paymentPrice; }
+    public String getIdempotencyKey(){return idempotencyKey;}
 }

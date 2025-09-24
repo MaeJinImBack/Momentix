@@ -6,6 +6,7 @@ import com.example.momentix.domain.paymenthistory.dto.PaymentResponse;
 import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.paymenthistory.entity.PaymentStatusType;
 import com.example.momentix.domain.paymenthistory.repository.PaymentHistoryRepository;
+import com.example.momentix.domain.point.service.PointService;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -26,25 +28,28 @@ public class PaymentHistoryService {
     private final ReservationRepository reservationRepository;
     private final TicketService ticketService;
     private final TicketRepository ticketRepository;
+    private final PointService pointService;
 
     public PaymentHistoryService(
             PaymentHistoryRepository paymentHistoryRepository,
             ReservationRepository reservationRepository,
             TicketRepository ticketRepository,
-            TicketService ticketService
+            TicketService ticketService,
+            PointService pointService
     ) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.reservationRepository=reservationRepository;
         this.ticketService=ticketService;
         this.ticketRepository=ticketRepository;
+        this.pointService=pointService;
     }
 
     // 결제 생성(PENDING) - 상태만 관리하는 결제 + FK 주인(티켓)
     @Transactional
     public PaymentResponse create(Long userId, PaymentCreateRequest paymentCreateRequest) {
-        Reservations r = reservationRepository.findById(paymentCreateRequest.getReservationId())
+        Reservations reservations = reservationRepository.findById(paymentCreateRequest.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
-        if (!r.getUsers().getUserId().equals(userId)) {
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
@@ -56,7 +61,8 @@ public class PaymentHistoryService {
                 paymentCreateRequest.getReservationId(),
                 paymentCreateRequest.getPayer() == null ? "SELF" : paymentCreateRequest.getPayer(),
                 paymentCreateRequest.getPaymentMethod() == null ? "MOCK" : paymentCreateRequest.getPaymentMethod(),
-                paymentCreateRequest.getPaymentPrice()
+                paymentCreateRequest.getPaymentPrice(),
+                paymentCreateRequest.getIdempotencyKey()
         );
         paymentHistoryRepository.save(paymentHistory);
         return PaymentResponse.of(paymentHistory);
@@ -72,17 +78,29 @@ public class PaymentHistoryService {
             throw new IllegalArgumentException("예약 정보가 결제와 일치하지 않습니다.");
         }
 
-        Reservations r = reservationRepository.findById(paymentConfirmRequest.getReservationId())
+        Reservations reservations = reservationRepository.findById(paymentConfirmRequest.getReservationId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
-        if (!r.getUsers().getUserId().equals(userId)) {
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
-
+        // 포인트 사용(선택)
+        if (paymentConfirmRequest.getPointsToUse() > 0) {
+            String useIdemKey = "PAY-" + paymentHistory.getPaymentHistoryId() + "-POINT-USE";
+            pointService.use(
+                    userId,
+                    useIdemKey,
+                    paymentConfirmRequest.getPointsToUse(),
+                    "결제 시 포인트 사용",
+                    paymentHistory.getPaymentHistoryId(),
+                    paymentHistory.getReservationId()
+            );
+        }
         // 이미 이 paymentId로 링크된 티켓이 있으면 성공 간주
         Optional<Long> linkedTicketIdOpt = ticketRepository.findIdByPaymentId(paymentId);
         if (linkedTicketIdOpt.isPresent()) {
             if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING) {
                 paymentHistory.markSuccess();
+                triggerPointPending(userId, paymentHistory);
             }
             return PaymentResponse.of(paymentHistory);
         }
@@ -105,6 +123,7 @@ public class PaymentHistoryService {
         }
 
         paymentHistory.markSuccess();
+        triggerPointPending(userId, paymentHistory);
         return PaymentResponse.of(paymentHistory);
     }
 
@@ -148,10 +167,28 @@ public class PaymentHistoryService {
             }
 
             paymentHistory.markCancel();
+            // 이 결제로 쌓인 적립 예정 포인트는 취소
+            String cancelPendingIdemKey = "PAY-" + paymentHistory.getPaymentHistoryId() + "-PEND-CANCEL";
+            pointService.cancelPendingForPayment(
+                    userId,
+                    cancelPendingIdemKey,
+                    paymentHistory.getPaymentHistoryId(),
+                    "결제 취소로 적립 예정 취소"
+            );
+
+            // 이 결제로 사용했던 포인트가 있으면 환급
+            String refundUseIdemKey = "PAY-" + paymentHistory.getPaymentHistoryId() + "-REFUND-USE";
+            pointService.refundUsedPointsForPayment(
+                    userId,
+                    refundUseIdemKey,
+                    paymentHistory.getPaymentHistoryId(),
+                    "결제 취소로 포인트 사용 환급"
+            );
+
             return PaymentResponse.of(paymentHistory);
         }
 
-        // FAILED
+        // FAILED → CANCEL 로 정리
         paymentHistory.markCancel();
         return PaymentResponse.of(paymentHistory);
     }
@@ -171,5 +208,18 @@ public class PaymentHistoryService {
         }
 
         return PaymentResponse.of(paymentHistory);
+    }
+
+    private void triggerPointPending(Long userId, PaymentHistory paymentHistory) {
+        BigDecimal discountedAmount = paymentHistory.getPaymentPrice(); // 필요 시 실제 할인 반영
+        String idemKey = "PAY-" + paymentHistory.getPaymentHistoryId() + "-PEND-EARN";
+        pointService.earnPendingByPaymentAmount(
+                userId,
+                idemKey,
+                paymentHistory.getPaymentHistoryId(),
+                paymentHistory.getReservationId(),
+                discountedAmount,
+                "결제 적립 예정(3%)"
+        );
     }
 }

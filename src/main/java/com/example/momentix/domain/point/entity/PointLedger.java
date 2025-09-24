@@ -5,7 +5,16 @@ import com.example.momentix.domain.common.entity.TimeStamped;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "point_ledger")
+@Table(
+        name = "point_ledger",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_ledger_user_idem", columnNames = {"user_id", "idempotency_key"})
+        },
+        indexes = {
+                @Index(name = "ix_ledger_user_payment_op", columnList = "user_id,related_payment_id,operation_type"),
+                @Index(name = "ix_ledger_user_idem", columnList = "user_id,idempotency_key")
+        }
+)
 public class PointLedger extends TimeStamped {
 
     @Id
