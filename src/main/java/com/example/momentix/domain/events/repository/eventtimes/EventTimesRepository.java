@@ -8,9 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface EventTimesRepository extends JpaRepository<EventTimes, Long> {
-
-
-    boolean existsByIdAndEventsId(Long id, Long eventsId);
-
     Optional<EventTimes> findByIdAndEventsId(Long eventTimeId, Long eventsId);
 }

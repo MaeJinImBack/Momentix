@@ -1,8 +1,8 @@
 package com.example.momentix.domain.auth.service.oauth;
 
+import com.example.momentix.domain.auth.entity.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import com.example.momentix.domain.auth.entity.OAuthProvider;
 
 
 //분기 처리
@@ -11,15 +11,15 @@ import com.example.momentix.domain.auth.entity.OAuthProvider;
 public class OAuthServiceFactory {
     private final NaverOAuthService naverOAuthService;
     private final KaKaoOAuthService kaKaoOAuthService;
-    
+
     public OAuthService getOAuthService(OAuthProvider provider) {
-        switch (provider){
-            case  NAVER:
+        switch (provider) {
+            case NAVER:
                 return naverOAuthService;
-            case  KAKAO:
+            case KAKAO:
                 return kaKaoOAuthService;
             default:
-                throw new IllegalArgumentException("지원하지 않는 프로바이더: "+ provider);
+                throw new IllegalArgumentException("지원하지 않는 프로바이더: " + provider);
         }
     }
 }

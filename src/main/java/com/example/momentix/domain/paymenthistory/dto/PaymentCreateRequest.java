@@ -42,6 +42,11 @@ public class PaymentCreateRequest {
         return paymentMethod;
     }
 
-    public BigDecimal getPaymentPrice() { return paymentPrice; }
-    public String getIdempotencyKey(){return idempotencyKey;}
+    public BigDecimal getPaymentPrice() {
+        return paymentPrice;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
 }

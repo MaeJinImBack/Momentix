@@ -12,10 +12,10 @@ import java.util.List;
 public interface AnalyticsRepository {
 
     // 최근 N 시간 동안 1시간 단위로 검색이 몇 건 있었는지
-    List<HourlyCountBucket> countPerHour(int hours) ;
+    List<HourlyCountBucket> countPerHour(int hours);
 
     // 최근 N 시간 동안 가장 많이 검색된 단어 
-    List<AutocompleteResponse> popularQueries(int hours, int size) ;
+    List<AutocompleteResponse> popularQueries(int hours, int size);
 
     // 검색할 때 남기는 로그 한 건을 저장
     void indexSearchLog(SearchLogDoc doc);

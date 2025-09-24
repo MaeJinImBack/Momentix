@@ -18,7 +18,7 @@ public class PaymentResponse {
         this.paymentPrice = paymentPrice;
     }
 
-    public static PaymentResponse of(PaymentHistory paymentHistory){
+    public static PaymentResponse of(PaymentHistory paymentHistory) {
         return new PaymentResponse(
                 paymentHistory.getPaymentHistoryId(),
                 paymentHistory.getPaymentStatusType().name(),
@@ -26,7 +26,15 @@ public class PaymentResponse {
         );
     }
 
-    public Long getPaymentHistoryId(){return paymentHistoryId;}
-    public String getStatus(){return status;}
-    public BigDecimal getPaymentPrice(){return paymentPrice;}
+    public Long getPaymentHistoryId() {
+        return paymentHistoryId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public BigDecimal getPaymentPrice() {
+        return paymentPrice;
+    }
 }

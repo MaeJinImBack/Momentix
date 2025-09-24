@@ -1,7 +1,6 @@
 package com.example.momentix.domain.notification.slackdemo;
 
 
-
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
@@ -10,7 +9,6 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.conversations.ConversationsOpenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,10 +37,10 @@ public class SlackService {
                 slack.methods(token)
                         .conversationsOpen(
                                 ConversationsOpenRequest.builder()
-                                .users(Arrays.asList(slackId))
-                                .build());
+                                        .users(Arrays.asList(slackId))
+                                        .build());
 
-        if(!openResponse.isOk()) {
+        if (!openResponse.isOk()) {
             throw new IllegalArgumentException("DM 오픈 실패 : " + openResponse.getError());
         }
 
@@ -57,7 +55,7 @@ public class SlackService {
                                         .text(message)
                                         .build());
 
-        if(!messageResponse.isOk()) {
+        if (!messageResponse.isOk()) {
             throw new IllegalArgumentException("메세지 전송 실패: " + messageResponse.getError());
         }
 

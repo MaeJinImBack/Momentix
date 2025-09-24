@@ -7,7 +7,6 @@ import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.common.util.JwtUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;

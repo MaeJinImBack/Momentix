@@ -32,12 +32,12 @@ public class QueueConsumer implements StreamListener<String, MapRecord<String, S
                 "status", status
         ).toString();
         if ("ALLOWED".equals(status)) {
-            String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":"+ token);
+            String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token);
             if (sessionId != null) {
                 log.info("예매 가능");
                 try {
                     webSocketHandler.sendMessage(sessionId, payload);
-                    redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup"+eventId, message.getId());
+                    redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup" + eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

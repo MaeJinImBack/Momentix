@@ -1,11 +1,11 @@
 package com.example.momentix.domain.bookmark.service;
 
 import com.example.momentix.domain.bookmark.dto.response.BookmarkResponseDto;
-import com.example.momentix.domain.events.entity.Events;
-import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.bookmark.entity.Bookmark;
 import com.example.momentix.domain.bookmark.repository.BookmarkRepository;
-import com.example.momentix.domain.events.entity.eventimages.EventImage;
+import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.eventimages.EventImages;
+import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.events.repository.eventimages.EventImagesRepository;
 import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
@@ -55,10 +55,10 @@ public class BookmarkService {
             Events event = bookmark.getEvents();
 
             // 2. Events 객체로 EventImage 정보를 조회합니다. (없을 수도 있으므로 orElse(null) 처리)
-            EventImage eventImage = eventImagesRepository.findByEvents(event).orElse(null);
+            EventImages eventImages = eventImagesRepository.findByEvents(event).orElse(null);
 
             // 3. Events와 EventImage 정보를 모두 사용하여 DTO를 생성합니다.
-            return new BookmarkResponseDto(event, eventImage);
+            return new BookmarkResponseDto(event, eventImages);
         });
     }
 }

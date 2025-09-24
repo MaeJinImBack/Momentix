@@ -36,7 +36,6 @@ public class SuggestRepositoryImpl implements SuggestRepository {
     }
 
 
-
     @Override
     public List<AutocompleteResponse> suggest(String query, int limit) {
         try {
@@ -48,8 +47,8 @@ public class SuggestRepositoryImpl implements SuggestRepository {
 
 
             // 1단계: completion suggester로 "제목"과 "장소"에서 자동완성 후보 뽑기
-                 // completion 필드는 인덱스 만들 때 따로 지정해둔 eventTitle_suggest / placeName_suggest
-                 // 철자 조금 틀려도 잡아주게 fuzziness = AUTO
+            // completion 필드는 인덱스 만들 때 따로 지정해둔 eventTitle_suggest / placeName_suggest
+            // 철자 조금 틀려도 잡아주게 fuzziness = AUTO
 
             SearchResponse<Map<String, Object>> completionResponse = client.search(s -> s
                             .index(IndexNames.EVENTS)
@@ -96,7 +95,6 @@ public class SuggestRepositoryImpl implements SuggestRepository {
             }
 
 
-
             // 2단계: 추천 개수가 모자라면, 원문필드에서 앞부분 일치로 보충
             if (results.size() < size) {
                 int remain = size - results.size();
@@ -131,10 +129,10 @@ public class SuggestRepositoryImpl implements SuggestRepository {
                 );
 
                 // 검색된 문서들에서 자동완성 후보 텍스트 고르는 규칙
-                    // 입력으로 시작하는 값이 있으면 그걸 채택
-                    // 없으면 포함하는 값 중 하나
-                    // 그래도 없으면 타이틀-> 장소-> 주소 순서로 첫 값
-                    // 이미 담은 텍스트는 또 안 담음
+                // 입력으로 시작하는 값이 있으면 그걸 채택
+                // 없으면 포함하는 값 중 하나
+                // 그래도 없으면 타이틀-> 장소-> 주소 순서로 첫 값
+                // 이미 담은 텍스트는 또 안 담음
 
                 prefixResponse.hits().hits().forEach(hit -> {
                     Map<String, Object> sourceMap = hit.source();

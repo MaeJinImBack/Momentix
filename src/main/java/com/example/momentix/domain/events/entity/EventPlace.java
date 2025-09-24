@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // 공연과 장소 중간 테이블
+@Table(name = "event_place")
 public class EventPlace extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

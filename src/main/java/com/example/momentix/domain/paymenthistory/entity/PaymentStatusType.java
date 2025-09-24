@@ -8,10 +8,10 @@ public enum PaymentStatusType {
     CANCEL("결제 취소");// 사용자가 취소
 
 
-
     private final String korean;
 
-     PaymentStatusType(String korean){this.korean = korean;
+    PaymentStatusType(String korean) {
+        this.korean = korean;
     }
 
 }

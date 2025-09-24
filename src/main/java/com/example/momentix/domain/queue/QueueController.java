@@ -32,15 +32,17 @@ public class QueueController {
     }
 
     @PostMapping("/test/rank/{eventId}")
-    public ResponseEntity<String> rankQueue(@PathVariable Long eventId,  @RequestParam String token) {
+    public ResponseEntity<String> rankQueue(@PathVariable Long eventId, @RequestParam String token) {
         queueService.rankAlarmQueue(eventId, token);
         return ResponseEntity.ok("대기열 순위 확인");
     }
+
     @PostMapping("/test/process/{eventId}")
     public ResponseEntity<String> processQueue(@PathVariable Long eventId) {
         queueService.processQueue(eventId);
         return ResponseEntity.ok("대기열 변경 확인");
     }
+
     @PostMapping("/test/end/{eventId}")
     public ResponseEntity<String> endQueue(@PathVariable Long eventId, @RequestParam String token) {
         queueService.completeQueue(eventId, token);

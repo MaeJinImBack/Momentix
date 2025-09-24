@@ -25,7 +25,6 @@ public class SearchController {
     }
 
 
-
     @GetMapping
     public ResponseEntity<Page<SearchResponseDto>> searchEvent(
             @ModelAttribute SearchRequestDto searchRequestDto,
@@ -39,7 +38,7 @@ public class SearchController {
         // 검색 로그를 저장(검색어, 카테고리, 기간, 사용자, IP 등)
         /// 검색 결과를 반호나하는 것과 동시에 (비동기)
         // 뒤에서 몰래 기록 작업이 처리 됨(사용자가 기다릴 필요 없음)
-        
+
         searchService.logSearchAsync(
                 searchRequestDto,
                 (userId == null) ? null : String.valueOf(userId),

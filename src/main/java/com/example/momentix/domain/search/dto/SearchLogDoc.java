@@ -24,10 +24,11 @@ public class SearchLogDoc {
     @JsonProperty(IndexNames.FIELD_TIMESTAMP)
     private long timestamp; // 기록 시간
 
-    public SearchLogDoc() {}
+    public SearchLogDoc() {
+    }
 
     public SearchLogDoc(String query, String category, String startDate, String endDate,
-                        String userId, String ip, long  timestamp) {
+                        String userId, String ip, long timestamp) {
         this.query = query;
         this.category = category;
         this.startDate = startDate;
@@ -38,18 +39,59 @@ public class SearchLogDoc {
     }
 
     // getters/setters
-    public String getQuery() { return query; }
-    public void setQuery(String query) { this.query = query; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    public String getStartDate() { return startDate; }
-    public void setStartDate(String startDate) { this.startDate = startDate; }
-    public String getEndDate() { return endDate; }
-    public void setEndDate(String endDate) { this.endDate = endDate; }
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-    public String getIp() { return ip; }
-    public void setIp(String ip) { this.ip = ip; }
-    public long  getTimestamp() { return timestamp; }
-    public void setTimestamp(long  timestamp) { this.timestamp = timestamp; }
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

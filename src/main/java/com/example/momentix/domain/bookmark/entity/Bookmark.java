@@ -18,11 +18,11 @@ public class Bookmark extends TimeStamped {
     private Long bookmarkId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "eventId", nullable = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Events events;
 
     @Column(nullable = false)

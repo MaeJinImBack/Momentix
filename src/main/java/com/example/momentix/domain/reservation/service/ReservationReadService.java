@@ -1,6 +1,5 @@
 package com.example.momentix.domain.reservation.service;
 
-import com.amazonaws.services.ec2.model.Reservation;
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Service
@@ -59,10 +57,11 @@ public class ReservationReadService {
                 .eventAt(eventAt)
                 .build();
     }
+
     private ReservationDetailResponse toDetail(Reservations r) {
         var et = r.getEventTimes();
         var e = r.getEvents();
-        var etrs =r.getEventTimeReserveSeat();
+        var etrs = r.getEventTimeReserveSeat();
         var es = etrs.getEventSeat();
         var s = es.getSeats();
 

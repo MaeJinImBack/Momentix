@@ -4,7 +4,6 @@ package com.example.momentix.domain.reservation.service;
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.enums.SeatStatusType;
-import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
 import com.example.momentix.domain.events.repository.EventSeatRepository;
@@ -17,10 +16,7 @@ import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,7 +142,7 @@ public class ReservationService {
 
         //해당 공연이 공연 장소와 일치하는지
         EventPlace eventPlace = eventPlaceRepository.findByIdAndEventsId(eventPlaceId, eventsId).orElseThrow(
-                ()->new IllegalArgumentException("해당 공연의 공연 장소가 없습니다."));
+                () -> new IllegalArgumentException("해당 공연의 공연 장소가 없습니다."));
 
         reservations.selectEventPlace(eventPlace);
 
@@ -185,7 +181,7 @@ public class ReservationService {
 
         Long eventsId = reservations.getEvents().getId();
         EventTimes eventTimes = eventTimesRepository.findByIdAndEventsId(eventTimeId, eventsId).orElseThrow(
-                ()->new IllegalArgumentException("해당 공연에 공연 시간이 없습니다."));
+                () -> new IllegalArgumentException("해당 공연에 공연 시간이 없습니다."));
 
         reservations.selectEventTime(eventTimes);
 

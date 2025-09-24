@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnProperty(name = "search.bootstrap.enabled", havingValue = "true")// 로컬만 켜두고 기본(배표)은 꺼두기
-public class EventIndexBootstrapper  {
+public class EventIndexBootstrapper {
 
     // 실행조건: 설정(search.bootstrap.enabled=true)일 때만 동작
     // ES 인덱스(테이블 같은 것) 없으면 만들고
@@ -23,7 +23,6 @@ public class EventIndexBootstrapper  {
 
 
     private final EventIndexService eventIndexService;
-
 
 
     public EventIndexBootstrapper(EventIndexService eventIndexService) {

@@ -2,7 +2,8 @@ package com.example.momentix.domain.common.elasticsearch;
 
 // 상수 모음(객체로 절대 만들지 말 것)
 public final class IndexNames {
-    private IndexNames() {}
+    private IndexNames() {
+    }
 
     //이벤트 데이터가 저장되는 인덱스 이름
     public static final String EVENTS = "events";

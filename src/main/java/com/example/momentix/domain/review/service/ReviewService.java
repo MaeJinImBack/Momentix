@@ -11,9 +11,9 @@ import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.AccessDeniedException;
 
 @Service
 @RequiredArgsConstructor
@@ -72,7 +72,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 리뷰를 찾을 수 없습니다."));
 
-        if (!(user.getRole().name().equals("ADMIN") ||review.getUsers().getUserId().equals(user.getUserId()))) {
+        if (!(user.getRole().name().equals("ADMIN") || review.getUsers().getUserId().equals(user.getUserId()))) {
             throw new AccessDeniedException("리뷰를 삭제할 권한이 없습니다.");
         }
 

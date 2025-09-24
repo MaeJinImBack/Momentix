@@ -11,8 +11,5 @@ import java.util.Optional;
 @Repository
 public interface EventPlaceRepository extends JpaRepository<EventPlace, Long> {
     boolean existsByEventsAndPlaces(Events events, Places places);
-
-    boolean existsByIdAndEventsId(Long eventPlaceId, Long eventsId);
-
     Optional<EventPlace> findByIdAndEventsId(Long eventPlaceId, Long eventsId);
 }

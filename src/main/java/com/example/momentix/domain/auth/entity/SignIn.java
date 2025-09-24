@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
-@Table(name="Signin")
+@Table(name = "Signin")
 @Entity
 @NoArgsConstructor
 public class SignIn {
@@ -23,12 +23,12 @@ public class SignIn {
 
     // Users 하드 삭제 허용
     @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "userId", referencedColumnName = "userId", unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", unique = true)
     private Users users;
 
     //소프트 삭제용
     @Column(nullable = false)
-    private boolean isDeleted=false;
+    private boolean isDeleted = false;
 
     private LocalDateTime withdrawnAt; //언제 탈퇴?
 
@@ -49,6 +49,7 @@ public class SignIn {
     public String getPassword() {
         return password;
     }
+
     public Users getUser() {
         return users;
     }
@@ -56,9 +57,11 @@ public class SignIn {
     public void setUsername(String username) {
         this.username = username;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
+
     public void setUsers(Users users) {
         this.users = users;
     }

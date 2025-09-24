@@ -18,7 +18,7 @@ public class RedisStreamConfig {
             RedisConnectionFactory redisConnectionFactory,
             ThreadPoolTaskExecutor redisStreamTaskExecutor,
             QueueConsumer queueConsumer
-    ){
+    ) {
         StreamMessageListenerContainer
                 .StreamMessageListenerContainerOptions<String, MapRecord<String, String, String>> options =
                 StreamMessageListenerContainer
@@ -34,7 +34,7 @@ public class RedisStreamConfig {
     }
 
     @Bean
-    public ThreadPoolTaskExecutor redisStreamTaskExecutor(){
+    public ThreadPoolTaskExecutor redisStreamTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);

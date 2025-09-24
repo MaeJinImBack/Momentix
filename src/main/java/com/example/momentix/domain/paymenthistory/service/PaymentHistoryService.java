@@ -14,9 +14,9 @@ import com.example.momentix.domain.ticket.dto.response.TicketResponseDto;
 import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
 import com.example.momentix.domain.ticket.service.TicketService;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -41,7 +41,7 @@ public class PaymentHistoryService {
         this.reservationRepository = reservationRepository;
         this.ticketService = ticketService;
         this.ticketRepository = ticketRepository;
-        this.pointService=pointService;
+        this.pointService = pointService;
     }
 
     // 결제 생성(PENDING) - 상태만 관리하는 결제 + FK 주인(티켓)

@@ -11,14 +11,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignUpRequest {
-    public interface UserSignUp {}
-    public interface HostSignUp {}
+    public interface UserSignUp {
+    }
 
-    @NotBlank(groups = UserSignUp.class,  message = "비밀번호는 필수입니다.")
+    public interface HostSignUp {
+    }
+
+    @NotBlank(groups = UserSignUp.class, message = "비밀번호는 필수입니다.")
     @Null(groups = HostSignUp.class, message = "호스트 회원가입은 비밀번호를 입력하지 않습니다.")
     private String password;
 
-    @NotBlank(groups = UserSignUp.class,  message = "비밀번호 확인은 필수입니다.")
+    @NotBlank(groups = UserSignUp.class, message = "비밀번호 확인은 필수입니다.")
     @Null(groups = HostSignUp.class, message = "호스트 회원가입은 비밀번호를 입력하지 않습니다.")
     private String confirmPassword;
 
@@ -32,12 +35,12 @@ public class SignUpRequest {
     private String birthDate;
 
     @NotBlank(groups = UserSignUp.class)
-    @Pattern(groups = UserSignUp.class,regexp = "\\d{10,11}", message = "휴대폰번호는 11자리 숫자여야 합니다.")
+    @Pattern(groups = UserSignUp.class, regexp = "\\d{10,11}", message = "휴대폰번호는 11자리 숫자여야 합니다.")
     @Null(groups = HostSignUp.class, message = "호스트 회원가입은 휴대폰번호를 입력하지 않습니다.")
     private String phoneNumber;
 
     @NotBlank(groups = HostSignUp.class)
-    @Pattern(groups = HostSignUp.class,regexp = "\\d{10}", message = "사업자번호는 10자리 숫자여야 합니다.")
+    @Pattern(groups = HostSignUp.class, regexp = "\\d{10}", message = "사업자번호는 10자리 숫자여야 합니다.")
     @Null(groups = UserSignUp.class, message = "일반 회원가입은 사업자번호를 입력하지 않습니다.")
     private String businessNumber;
 }

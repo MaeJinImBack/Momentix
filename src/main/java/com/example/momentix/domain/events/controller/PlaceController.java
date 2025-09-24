@@ -23,7 +23,7 @@ public class PlaceController {
 
     @PostMapping
     public ResponseEntity<PlaceResponseDto> createPlace(@RequestBody PlacesRequestDto placesRequest) {
-        return new ResponseEntity<>(placeService.createPlace(placesRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(new PlaceResponseDto(placeService.createPlace(placesRequest)), HttpStatus.CREATED);
     }
 
     @PostMapping("/base-seat")

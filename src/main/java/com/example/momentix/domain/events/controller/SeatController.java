@@ -1,6 +1,5 @@
 package com.example.momentix.domain.events.controller;
 
-import com.example.momentix.domain.events.dto.request.PlacesRequestDto;
 import com.example.momentix.domain.events.dto.response.PartRowColSeatResponseDto;
 import com.example.momentix.domain.events.dto.response.SeatResponseDto;
 import com.example.momentix.domain.events.service.SeatService;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,7 +47,7 @@ public class SeatController {
     public ResponseEntity<Void> updateSeat(
             @RequestPart("file") MultipartFile seatFile,
             @PathVariable Long eventId,
-            @PathVariable Long placeId){
+            @PathVariable Long placeId) {
         seatService.updateSeat(seatFile, eventId, placeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

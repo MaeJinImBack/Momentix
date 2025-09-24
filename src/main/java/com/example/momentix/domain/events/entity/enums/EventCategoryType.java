@@ -11,7 +11,6 @@ public enum EventCategoryType {
 
     private final String eventGenre;
 
-
     EventCategoryType(String eventCategory) {
         this.eventGenre = eventCategory;
     }

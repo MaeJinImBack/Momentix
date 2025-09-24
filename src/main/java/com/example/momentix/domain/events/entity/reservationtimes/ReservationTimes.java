@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // 예매 시간
+@Table(name = "reservation_times")
 public class ReservationTimes extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

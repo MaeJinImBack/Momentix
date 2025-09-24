@@ -7,4 +7,8 @@ public class PlacesRequestDto {
     private String placeName;
     private String placeAddress;
 
+    public PlacesRequestDto(String placeName, String placeAddress) {
+        this.placeName = placeName;
+        this.placeAddress = placeAddress;
+    }
 }

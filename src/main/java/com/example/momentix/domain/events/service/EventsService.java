@@ -1,6 +1,8 @@
 package com.example.momentix.domain.events.service;
 
+import com.example.momentix.domain.events.dto.request.CreateCastRequestDto;
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.request.PlacesRequestDto;
 import com.example.momentix.domain.events.dto.request.UpdateBaseEventRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
@@ -13,10 +15,6 @@ import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.entity.places.Places;
 import com.example.momentix.domain.events.entity.reservationtimes.ReservationTimes;
 import com.example.momentix.domain.events.repository.EventsRepository;
-import com.example.momentix.domain.events.repository.casts.CastsRepository;
-import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
-import com.example.momentix.domain.events.repository.places.PlacesRepository;
-import com.example.momentix.domain.events.repository.reservationtimes.ReservationTimesRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
@@ -31,10 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventsService {
     private final EventsRepository eventsRepository;
-    private final PlacesRepository placesRepository;
-    private final EventTimesRepository eventTimesRepository;
-    private final ReservationTimesRepository reservationTimesRepository;
-    private final CastsRepository castsRepository;
+    private final PlaceService placeService;
+    private final CastService castService;
 
     @Transactional
     public EventsResponseDto createEvent(CreateEventsRequestDto requestDto) {
@@ -49,13 +45,8 @@ public class EventsService {
                 .build();
 
         // Places(공연장) 공연장 정보로 검색 or 생성
-        Places places = placesRepository.findByPlaceName(requestDto.getPlaceName())
-                .orElseGet(() -> Places.builder()
-                        .placeName(requestDto.getPlaceName())
-                        .placeAddress(requestDto.getPlaceAddress())
-                        .build());
-        // Places(공연장) 저장(or Update)
-        placesRepository.save(places);
+        Places places = placeService.createPlace(
+                new PlacesRequestDto(requestDto.getPlaceName(), requestDto.getPlaceAddress()));
 
         // EventTimes(공연 시간) 생성
         for (EventTimes eventTimesRequest : requestDto.getEventTimeList()) {
@@ -74,12 +65,8 @@ public class EventsService {
                 .build();
 
         // Casts(출연자) 출연자 정보로 검색 or 생성
-        Casts casts = castsRepository.findByCastName(requestDto.getCastName())
-                .orElseGet(() -> Casts.builder()
-                        .castName(requestDto.getCastName())
-                        .build());
-        // Casts(출연자) 저장(or Update)
-        castsRepository.save(casts);
+
+        Casts casts = castService.createCast(new CreateCastRequestDto(requestDto.getCastName(), ""));
 
         // EventPlace(공연, 공연장소 중간테이블), EventTime(공연시간), ReservationTime(예매시간), EventCast(공연, 출연자 중간테이블) 저장
         // 연관관계 편의 메서드 사용
@@ -124,7 +111,7 @@ public class EventsService {
 
     @Transactional
     public void deleteEvent(Long eventId) {
-        Events deleteEvent = eventsRepository.findById(eventId).orElseThrow(()->new IllegalIdentifierException("없는공연"));
+        Events deleteEvent = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("없는공연"));
         deleteEvent.setDeleted(true);
         eventsRepository.save(deleteEvent);
     }

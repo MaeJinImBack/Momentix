@@ -24,7 +24,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class NaverOAuthService implements OAuthService {
     // 네이버 OAuth에서 Authorization Code → Access Token으로 교환할 때 호출하는 API 주소
-    private static final String TOKEN_URL   = "https://nid.naver.com/oauth2.0/token";
+    private static final String TOKEN_URL = "https://nid.naver.com/oauth2.0/token";
     private static final String PROFILE_URL = "https://openapi.naver.com/v1/nid/me";
 
 
@@ -41,7 +41,7 @@ public class NaverOAuthService implements OAuthService {
     @Value("${naver.redirect.uri}")
     private String redirectUri;
 
-// token 발급 요청 → 응답(JSON) → Access Token 추출
+    // token 발급 요청 → 응답(JSON) → Access Token 추출
     @Transactional
     public OAuthSignInResponse signIn(String code, String state) {
         //네이버 인증 서버에 code보내고 토큰 받아오는 단계

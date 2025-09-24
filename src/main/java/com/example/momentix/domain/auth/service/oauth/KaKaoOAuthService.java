@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class KaKaoOAuthService implements OAuthService {
 
     //code를 주고 access_token / refresh_token을 교환받는 URL.
-    private static final String TOKEN_URL   = "https://kauth.kakao.com/oauth/token";
+    private static final String TOKEN_URL = "https://kauth.kakao.com/oauth/token";
     private static final String PROFILE_URL = "https://kapi.kakao.com/v2/user/me";
 
     private final OAuthClient oAuthClient;
