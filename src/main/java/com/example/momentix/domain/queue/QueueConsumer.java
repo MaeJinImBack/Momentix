@@ -29,8 +29,7 @@ public class QueueConsumer implements StreamListener<String, MapRecord<String, S
         log.info("onMessage 동작");
         String payload = Map.of(
                 "token", token,
-                "status", status,
-                "position", position
+                "status", status
         ).toString();
         if ("ALLOWED".equals(status)) {
             String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":"+ token);
@@ -38,22 +37,11 @@ public class QueueConsumer implements StreamListener<String, MapRecord<String, S
                 log.info("예매 가능");
                 try {
                     webSocketHandler.sendMessage(sessionId, payload);
+                    redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup"+eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
-        } else if (status.equals("WAITING")) {
-            String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token);
-            if (sessionId != null) {
-                try {
-                    webSocketHandler.sendMessage(sessionId, payload);
-                    redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup", message.getId());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                log.info(sessionId, position, payload);
-            }
-
         }
         log.info("token: {} status: {} position: {}", token, status, position);
     }

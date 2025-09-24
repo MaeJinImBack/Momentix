@@ -20,29 +20,32 @@ import java.util.concurrent.ConcurrentHashMap;
 public class QueueRegisterStreamService {
     private final StreamMessageListenerContainer<String, MapRecord<String, String, String>> container;
     private final QueueConsumer queueConsumer;
+    private final RankConsumer rankConsumer;
     private final Map<Long, Boolean> registeredStreams = new ConcurrentHashMap<>();
+    private final Map<Long, Boolean> alarmStreams = new ConcurrentHashMap<>();
     private final RedisTemplate<String, String> redisTemplate;
 
     @PostConstruct
-    public void startContainer(){
-        if(!container.isRunning()){
+    public void startContainer() {
+        if (!container.isRunning()) {
             log.info("시작 확인");
-            container.start();}
+            container.start();
+        }
     }
 
     public void registerStream(Long eventId) {
-        if (registeredStreams.containsKey(eventId)) {
+        String streamKey = "stream:" + eventId;
+        if (registeredStreams.containsKey(streamKey)) {
             log.info("여기는 있어서 리턴");
             return;
         }
 
-        String streamKey = "stream:" + eventId;
 
-        try{
-            redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.from("0"), "eventQueueGroup");
+        try {
+            redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.from("0"), "eventQueueGroup" + eventId);
             log.info("그룹생성");
-        } catch (Exception e){
-            if(e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
                 log.info("stream already exists");
             } else {
                 log.info("error");
@@ -51,12 +54,41 @@ public class QueueRegisterStreamService {
         }
 
         container.receive(
-                Consumer.from("eventQueueGroup", "consumer"+eventId),
+                Consumer.from("eventQueueGroup" + eventId, "consumer" + eventId),
                 StreamOffset.create(streamKey, ReadOffset.lastConsumed()),
                 queueConsumer
         );
         log.info("Stream 등록 확인");
         registeredStreams.put(eventId, true);
+
+    }
+
+    public void alarmStream(Long eventId) {
+        String streamRankKey = "streamRank:" + eventId;
+        if (alarmStreams.containsKey(streamRankKey)) {
+            log.info("여기는 있어서 리턴");
+            return;
+        }
+
+        try {
+            redisTemplate.opsForStream().createGroup(streamRankKey, ReadOffset.from("0"), "alarmQueueGroup" + eventId);
+            log.info("그룹생성");
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
+                log.info("stream already exists");
+            } else {
+                log.info("error");
+                return;
+            }
+        }
+
+        container.receive(
+                Consumer.from("alarmQueueGroup" + eventId, "consumer" + eventId),
+                StreamOffset.create(streamRankKey, ReadOffset.lastConsumed()),
+                rankConsumer
+        );
+        log.info("Stream 등록 확인");
+        alarmStreams.put(eventId, true);
 
     }
 }
