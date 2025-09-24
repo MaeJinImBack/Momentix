@@ -22,10 +22,10 @@ public interface PaymentHistoryRepository extends JpaRepository<PaymentHistory, 
            """)
     boolean existsPendingByReservation(@Param("reservationId") Long reservationId);
 
-    Optional<PaymentHistory> findByIdempotencyKey(String idempotencyKey);
+    Optional<PaymentHistory> findByReservationIdAndIdempotencyKey(Long reservationId, String key);
 
-    // 비관적 락으로 결제 레코드 선점
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select paymentHistory from PaymentHistory paymentHistory where paymentHistory.paymentHistoryId = :id")
+    @Query("select ph from PaymentHistory ph where ph.paymentHistoryId = :id")
     Optional<PaymentHistory> findByIdForUpdate(@Param("id") Long id);
 }

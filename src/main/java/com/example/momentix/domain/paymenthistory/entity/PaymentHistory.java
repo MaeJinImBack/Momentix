@@ -13,8 +13,10 @@ import java.math.BigDecimal;
 @Table(
         name = "payment_history",
         uniqueConstraints = {
-                @UniqueConstraint(name = "ux_payment_idempotency", columnNames = {"idempotency_key"}),
-                @UniqueConstraint(name = "ux_reservation_status", columnNames = {"reservation_id", "payment_status"})
+                @UniqueConstraint(
+                        name = "ux_reservation_id_idempotency",
+                        columnNames = {"reservation_id", "idempotency_key"}
+                )
         }
 )
 @Entity
