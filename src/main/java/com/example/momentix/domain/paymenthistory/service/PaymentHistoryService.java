@@ -44,51 +44,51 @@ public class PaymentHistoryService {
     //idempotencyKey가 같으면 항상 같은 결과를 반환(중복 생성 방지)
     //(reservationId, status) UNIQUE로 동일 예약의 PENDING 2개 생성 불가
     @Transactional
-    public PaymentResponse create(Long userId, PaymentCreateRequest req) {
-        if (req.getIdempotencyKey() == null || req.getIdempotencyKey().isBlank()) {
+    public PaymentResponse create(Long userId, PaymentCreateRequest paymentCreateRequest) {
+        if (paymentCreateRequest.getIdempotencyKey() == null || paymentCreateRequest.getIdempotencyKey().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "idempotencyKey가 필요합니다.");
         }
 
         // 1) 같은 예약 + 같은 멱등키면 기존 결과 그대로 반환
         Optional<PaymentHistory> existing =
                 paymentHistoryRepository.findByReservationIdAndIdempotencyKey(
-                        req.getReservationId(), req.getIdempotencyKey());
+                        paymentCreateRequest.getReservationId(), paymentCreateRequest.getIdempotencyKey());
 
         if (existing.isPresent()) {
-            Reservations r = reservationRepository.findById(existing.get().getReservationId())
+            Reservations reservations = reservationRepository.findById(existing.get().getReservationId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다."));
-            if (!r.getUsers().getUserId().equals(userId)) {
+            if (!reservations.getUsers().getUserId().equals(userId)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약이 아닙니다.");
             }
             return PaymentResponse.of(existing.get());
         }
 
         // 2) 소유자 검증 (+ 필요시 예약 행 락)
-        Reservations r = reservationRepository.findByIdForUpdate(req.getReservationId())
-                .orElseGet(() -> reservationRepository.findById(req.getReservationId()).orElse(null));
-        if (r == null)
+        Reservations reservations = reservationRepository.findByIdForUpdate(paymentCreateRequest.getReservationId())
+                .orElseGet(() -> reservationRepository.findById(paymentCreateRequest.getReservationId()).orElse(null));
+        if (reservations == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
-        if (!r.getUsers().getUserId().equals(userId)) {
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 예약이 아닙니다.");
         }
 
         // 3) 생성 시도
-        PaymentHistory ph = PaymentHistory.create(
-                req.getReservationId(), req.getPayer(), req.getPaymentMethod(),
-                req.getPaymentPrice(), req.getIdempotencyKey());
+        PaymentHistory paymentHistory = PaymentHistory.create(
+                paymentCreateRequest.getReservationId(), paymentCreateRequest.getPayer(), paymentCreateRequest.getPaymentMethod(),
+                paymentCreateRequest.getPaymentPrice(), paymentCreateRequest.getIdempotencyKey());
 
         try {
-            paymentHistoryRepository.saveAndFlush(ph);
+            paymentHistoryRepository.saveAndFlush(paymentHistory);
         } catch (DataIntegrityViolationException e) {
             // 3-1) 더블클릭/재시도 등으로 이미 같은 (reservationId, idempotencyKey)가 들어간 경우 → 기존 반환
             Optional<PaymentHistory> dup =
                     paymentHistoryRepository.findByReservationIdAndIdempotencyKey(
-                            req.getReservationId(), req.getIdempotencyKey());
+                            paymentCreateRequest.getReservationId(), paymentCreateRequest.getIdempotencyKey());
             if (dup.isPresent())
                 return PaymentResponse.of(dup.get());
 
             // 3-2) 동일 예약에 PENDING이 이미 있는 경우 (상태 유니크 충돌)
-            if (paymentHistoryRepository.existsPendingByReservation(req.getReservationId())) {
+            if (paymentHistoryRepository.existsPendingByReservation(paymentCreateRequest.getReservationId())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 이 예약에 결제 대기 건이 존재합니다.");
             }
 
@@ -96,22 +96,22 @@ public class PaymentHistoryService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "결제 생성 중 제약조건 위반");
         }
 
-        return PaymentResponse.of(ph);
+        return PaymentResponse.of(paymentHistory);
     }
 
 
     // 결제 확정 (비관적 락 + 멱등)
     @Transactional
-    public PaymentResponse confirm(Long userId, Long paymentId, PaymentConfirmRequest req) {
+    public PaymentResponse confirm(Long userId, Long paymentId, PaymentConfirmRequest paymentConfirmRequest) {
         PaymentHistory paymentHistory = paymentHistoryRepository.findByIdForUpdate(paymentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "결제 내역이 없습니다."));
-        if (!paymentHistory.getReservationId().equals(req.getReservationId())) {
+        if (!paymentHistory.getReservationId().equals(paymentConfirmRequest.getReservationId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "예약 정보가 결제와 일치하지 않습니다.");
         }
 
         //  예약 행 선점
-        Reservations reservations = reservationRepository.findByIdForUpdate(req.getReservationId())
-                .orElseGet(() -> reservationRepository.findById(req.getReservationId()).orElse(null));
+        Reservations reservations = reservationRepository.findByIdForUpdate(paymentConfirmRequest.getReservationId())
+                .orElseGet(() -> reservationRepository.findById(paymentConfirmRequest.getReservationId()).orElse(null));
         if (reservations == null)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 예약입니다.");
         if (!reservations.getUsers().getUserId().equals(userId)) {
@@ -127,14 +127,14 @@ public class PaymentHistoryService {
         }
 
         // 같은 예약 티켓 중복 방지
-        if (ticketRepository.existsTicketByReservationId(req.getReservationId())) {
+        if (ticketRepository.existsTicketByReservationId(paymentConfirmRequest.getReservationId())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 이 예약으로 발급된 티켓이 있습니다.");
         }
 
         // 티켓 발급 & 링크
-        CreateTicketRequestDto ticketReq = new CreateTicketRequestDto();
-        ticketReq.setReservationId(req.getReservationId());
-        TicketResponseDto ticket = ticketService.createTicket(ticketReq);
+        CreateTicketRequestDto createTicketRequestDto = new CreateTicketRequestDto();
+        createTicketRequestDto.setReservationId(paymentConfirmRequest.getReservationId());
+        TicketResponseDto ticket = ticketService.createTicket(createTicketRequestDto);
 
         int updated = ticketRepository.linkPayment(ticket.getTicketId(), paymentHistory);
         if (updated == 0)
