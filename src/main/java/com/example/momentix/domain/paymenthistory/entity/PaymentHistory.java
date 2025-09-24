@@ -27,10 +27,6 @@ public class PaymentHistory extends TimeStamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentHistoryId;
 
-    @Version
-    @Column(name = "version")
-    private Long version;
-
     // 예약 ID, 티켓발급 시 필요한 키
     @Column(name = "reservation_id", nullable = false)
     private Long reservationId;
@@ -85,10 +81,6 @@ public class PaymentHistory extends TimeStamped {
 
     public Long getPaymentHistoryId() {
         return paymentHistoryId;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 
     public Long getReservationId() {
