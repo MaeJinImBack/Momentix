@@ -15,6 +15,12 @@ public class HourlyCountBucket {
         this.count = count;
     }
 
+    //콘솔에 스케줄러 잘 찍히는지 확인용
+    @Override
+    public String toString() {
+        return "Hour: " + hour + ", Count: " + count;
+    }
+
     public LocalDateTime getHour() { return hour; }
     public void setHour(LocalDateTime hour) { this.hour = hour; }
     public long getCount() { return count; }
