@@ -28,16 +28,11 @@ import java.util.List;
 public class ReservationService {
 
     private final ReservationRepository reservationsRepository;
-
     private final UserRepository usersRepository;
-
     private final EventsRepository eventsRepository;
-
     private final EventPlaceRepository eventPlaceRepository;
-
     private final EventTimesRepository eventTimesRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
-
     private final EventSeatRepository eventSeatRepository;
 
 

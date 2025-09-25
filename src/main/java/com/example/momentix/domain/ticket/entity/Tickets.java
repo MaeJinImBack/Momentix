@@ -38,9 +38,7 @@ public class Tickets extends TimeStamped {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private Users users;
-    //
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "event_time_id")
+
     @Column(name = "event_time_id", nullable = false)
     private Long eventTimeId;
     // 공연 시작 시간
@@ -51,9 +49,6 @@ public class Tickets extends TimeStamped {
     @Column(nullable = false)
     private LocalDateTime eventEndTime;
 
-    //전시는 구현 전이라 optional = false
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name =  "seat_id")
     @Column(name = "seat_id", nullable = false)
     private Long seatId;
     // 좌석 행 열
