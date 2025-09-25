@@ -57,9 +57,11 @@ Momentix는 '특별한 순간(Moment)'을 위한 '티켓(Tix)', 그리고 그 �
 
 #### ☁️ Cloud & Infrastructure
 ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazons3&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
 #### 🔐 Security
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+<img src="https://img.shields.io/badge/oauth2-000000?style=for-the-badge&logo=oauth2&logoColor=white"> 
 
 ### 💾 Databases & Search Engine
 ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
