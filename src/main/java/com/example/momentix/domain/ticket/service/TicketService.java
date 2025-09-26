@@ -11,6 +11,7 @@ import com.example.momentix.domain.ticket.entity.Tickets;
 import com.example.momentix.domain.ticket.repository.TicketRepository;
 import com.example.momentix.domain.users.entity.Users;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketService {
@@ -48,6 +50,8 @@ public class TicketService {
         Tickets savedTicket = ticketRepository.save(ticket);
 
         reservation.completeTicketIssuance();
+
+        log.info("test{},--{}", savedTicket.getTicketId(), savedTicket.getTicketNumber());
 
         return new TicketResponseDto(savedTicket);
     }

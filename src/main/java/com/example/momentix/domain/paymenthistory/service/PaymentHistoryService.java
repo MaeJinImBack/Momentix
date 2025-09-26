@@ -104,7 +104,7 @@ public class PaymentHistoryService {
         if (linkedTicketIdOpt.isPresent()) {
             if (paymentHistory.getPaymentStatusType() == PaymentStatusType.PENDING) {
                 paymentHistory.markSuccess();
-                triggerPointPending(userId, paymentHistory); // 멱등키 덕분에 중복 호출 시 무해
+                triggerPointPending(userId, paymentHistory, paymentHistory.getPaymentStatusType()); // 멱등키 덕분에 중복 호출 시 무해
             }
             return PaymentResponse.of(paymentHistory);
         }
@@ -129,8 +129,10 @@ public class PaymentHistoryService {
         // 6) 결제 성공 마킹
         paymentHistory.markSuccess();
 
+        paymentHistoryRepository.save(paymentHistory);
+
         // 7) 적립 예정(3%) 트리거 (멱등)
-        triggerPointPending(userId, paymentHistory);
+        triggerPointPending(userId, paymentHistory, paymentHistory.getPaymentStatusType());
 
         return PaymentResponse.of(paymentHistory);
     }
@@ -213,7 +215,7 @@ public class PaymentHistoryService {
         return PaymentResponse.of(paymentHistory);
     }
 
-    private void triggerPointPending(Long userId, PaymentHistory paymentHistory) {
+    private void triggerPointPending(Long userId, PaymentHistory paymentHistory, PaymentStatusType paymentStatus) {
         BigDecimal discountedAmount = paymentHistory.getPaymentPrice(); // 필요 시 실제 할인 반영
         String idemKey = "PAY-" + paymentHistory.getPaymentHistoryId() + "-PEND-EARN";
         pointService.earnPendingByPaymentAmount(
@@ -222,7 +224,8 @@ public class PaymentHistoryService {
                 paymentHistory.getPaymentHistoryId(),
                 paymentHistory.getReservationId(),
                 discountedAmount,
-                "결제 적립 예정(3%)"
+                "결제 적립 예정(3%)",
+                paymentStatus
         );
     }
 }
