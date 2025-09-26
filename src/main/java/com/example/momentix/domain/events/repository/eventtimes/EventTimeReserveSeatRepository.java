@@ -96,4 +96,6 @@ public interface EventTimeReserveSeatRepository
             @Param("eventTimeId") Long eventTimeId,
             @Param("eventSeatId") Long eventSeatId
     );
+
+    Optional<EventTimeReserveSeat> findByEventTimes_IdAndEventSeat_Id(Long eventTimeId, Long eventSeatId);
 }
