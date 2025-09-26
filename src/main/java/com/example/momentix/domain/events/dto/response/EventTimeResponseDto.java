@@ -11,4 +11,9 @@ import java.time.LocalDateTime;
 public class EventTimeResponseDto {
     private LocalDateTime eventStartTime;
     private LocalDateTime eventEndTime;
+
+    public EventTimeResponseDto(LocalDateTime eventStartTime, LocalDateTime eventEndTime) {
+        this.eventStartTime = eventStartTime;
+        this.eventEndTime = eventEndTime;
+    }
 }

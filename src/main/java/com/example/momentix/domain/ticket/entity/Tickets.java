@@ -22,14 +22,12 @@ import java.time.LocalDateTime;
 )
 @NoArgsConstructor
 public class Tickets extends TimeStamped {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ticketId;
 
     @Column(nullable = false, unique = true, length = 50)
     private String ticketNumber;
-
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,7 +54,6 @@ public class Tickets extends TimeStamped {
     private Long seatRow;
     @Column(nullable = false)
     private Long seatCol;
-
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "payment_history_id", nullable = true)

@@ -23,7 +23,7 @@ public class SignIn {
 
     // Users 하드 삭제 허용
     @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", unique = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "userId", unique = true)
     private Users users;
 
     //소프트 삭제용

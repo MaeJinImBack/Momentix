@@ -24,7 +24,7 @@ import java.util.List;
 public class Events extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     // 공연 제목
     @Column(nullable = false)
