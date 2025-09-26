@@ -2,7 +2,9 @@ package com.example.momentix.domain.events.repository.eventtimes;
 
 import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -91,4 +93,18 @@ public interface EventTimeReserveSeatRepository
         """, nativeQuery = true)
     int normalizeIfBlank(@Param("eventTimeId") Long eventTimeId,
                          @Param("eventSeatId") Long eventSeatId);
+
+    // 좌석을 조회할 때 낙관적 락을 걸도록 설정하는 메서드입니다.
+    // 기존 조회 메서드와 기능이 겹치지만, Lock 설정을 위해 명시적으로 분리합니다.
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("""
+        select r
+        from EventTimeReserveSeat r
+        where r.eventTimes.id = :eventTimeId
+          and r.eventSeat.id = :eventSeatId
+        """)
+    Optional<EventTimeReserveSeat> findByEventTimeIdAndEventSeatIdWithLock(
+            @Param("eventTimeId") Long eventTimeId,
+            @Param("eventSeatId") Long eventSeatId
+    );
 }
