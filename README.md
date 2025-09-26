@@ -57,14 +57,26 @@ Momentix는 '특별한 순간(Moment)'을 위한 '티켓(Tix)', 그리고 그 �
 
 #### ☁️ Cloud & Infrastructure
 ![Amazon S3](https://img.shields.io/badge/Amazon%20S3-FF9900?style=for-the-badge&logo=amazons3&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
 
 #### 🔐 Security
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+<img src="https://img.shields.io/badge/oauth2-000000?style=for-the-badge&logo=oauth2&logoColor=white"> 
 
-### 💾 Databases & Search Engine
+#### 💾 Databases & Search Engine
 ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
 ![Elasticsearch](https://img.shields.io/badge/elasticsearch-%230377CC.svg?style=for-the-badge&logo=elasticsearch&logoColor=white)
+
+#### 📧 Notification Service
+![Sendgrid](https://img.shields.io/badge/Sendgrid-51A9E3?style=for-the-badge&logo=Sendgrid&logoColor=white)
+
+#### 🖥️ Backend Development
+![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
+
+#### 📟 Test
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+<img src="https://img.shields.io/badge/jmeter-9D1620?style=for-the-badge&logo=jmeter&logoColor=white"> 
 
 #### 🎨 Design & Collaboration Tools
 ![Canva](https://img.shields.io/badge/Canva-%2300C4CC.svg?style=for-the-badge&logo=Canva&logoColor=white)
@@ -75,12 +87,6 @@ Momentix는 '특별한 순간(Moment)'을 위한 '티켓(Tix)', 그리고 그 �
 ![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)
 ![Zoom](https://img.shields.io/badge/Zoom-2D8CFF?style=for-the-badge&logo=zoom&logoColor=white)
 <img src="https://img.shields.io/badge/erd cloud-7B00FF?style=for-the-badge&logo=erd&logoColor=white"> 
-
-#### 🖥️ Backend Development
-![Gradle](https://img.shields.io/badge/Gradle-02303A.svg?style=for-the-badge&logo=Gradle&logoColor=white)
-
-#### 📟 Test
-![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
 
 ## 🔩 기술적 의사결정
 

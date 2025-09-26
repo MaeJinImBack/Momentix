@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Version;
 
 @Entity
 @Getter
@@ -35,6 +36,9 @@ public class EventTimeReserveSeat {
     @Enumerated(EnumType.STRING)
     @Column(name = "seat_reserve_status", nullable = false, length = 32)
     private SeatStatusType seatReserveStatus;
+
+    @Version
+    private Long version;
 
     @Builder
     public EventTimeReserveSeat(EventTimes eventTimes, EventSeat eventSeat, SeatStatusType seatReserveStatus) {
