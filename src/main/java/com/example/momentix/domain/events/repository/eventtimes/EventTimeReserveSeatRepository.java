@@ -107,4 +107,7 @@ public interface EventTimeReserveSeatRepository
             @Param("eventTimeId") Long eventTimeId,
             @Param("eventSeatId") Long eventSeatId
     );
+
+    @Lock(LockModeType.OPTIMISTIC)
+    Optional<EventTimeReserveSeat> findById(Long id);
 }
