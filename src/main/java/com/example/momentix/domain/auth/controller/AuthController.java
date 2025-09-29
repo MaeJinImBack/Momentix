@@ -31,12 +31,6 @@ public class AuthController {
     private final EmailVerificationService emailVerificationService;
     private final SignOutService signOutService;
 
-    @PostMapping("/test")
-    public ResponseEntity<String> test(){
-        return ResponseEntity.ok("test 2OK");
-    }
-
-    
     @PostMapping("/sign-in")
     public ResponseEntity<TokenRes> signIn(@RequestBody SigninReq req) {
         SignInService.Tokens tokens = signInService.signIn(req.username(), req.password());
@@ -156,17 +150,17 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    public record SigninReq(String username, String password) {
-    }
-
-    public record TokenRes(String accessToken, String refreshToken) {
-    }
-
     private String extractBearer(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
         throw new IllegalArgumentException("유효하지 않은 Authorization 헤더");
+    }
+
+    public record SigninReq(String username, String password) {
+    }
+
+    public record TokenRes(String accessToken, String refreshToken) {
     }
 
 
