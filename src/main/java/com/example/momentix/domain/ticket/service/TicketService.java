@@ -1,6 +1,7 @@
 package com.example.momentix.domain.ticket.service;
 
 import com.example.momentix.domain.auth.entity.RoleType;
+import com.example.momentix.domain.common.exception.ticket.TicketErrorException;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static com.example.momentix.domain.common.exception.ticket.TicketCode.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class TicketService {
 
         // 1. reservationId로 임시 예매 정보 조회
         Reservations reservation = reservationRepository.findById(requestDto.getReservationId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 임시 예매 정보입니다."));
+                .orElseThrow(() -> new TicketErrorException(RESERVATION_NOT_FOUND));
 
         // 2. 고유한 티켓 번호를 생성합니다.
         String ticketNumber = "MOMENTIX-" + UUID.randomUUID().toString().toUpperCase().substring(0, 13);
@@ -68,11 +71,11 @@ public class TicketService {
     public TicketResponseDto getTicket(Long ticketId, Users user) {
 
         Tickets ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+                .orElseThrow(() -> new TicketErrorException(RESERVATION_NOT_FOUND));
 
         // 찾은 티켓의 주인과 현재 로그인한 유저가 같은지 확인
         if (!ticket.getUsers().getUserId().equals(user.getUserId())) {
-            throw new AccessDeniedException("조회 권한이 없습니다.");
+            throw new TicketErrorException(FORBIDDEN);
         }
 
         return new TicketResponseDto(ticket);
@@ -83,15 +86,15 @@ public class TicketService {
     public void updateTicketStatus(Long ticketId, UpdateTicketStatusRequestDto requestDto, Users user) {
 
         Tickets ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+                .orElseThrow(() -> new TicketErrorException(RESERVATION_NOT_FOUND));
 
         if (!ticket.getUsers().getUserId().equals(user.getUserId())) {
-            throw new AccessDeniedException("예매 상태를 변경할 권한이 없습니다.");
+            throw new TicketErrorException(FORBIDDEN);
         }
 
         // 요청된 상태가 'CANCEL_TICKET'이 맞는지 확인합니다.
         if (requestDto.getTicketStatus() != TicketStatusType.CANCEL_TICKET) {
-            throw new IllegalArgumentException("잘못된 상태 값입니다.");
+            throw new TicketErrorException(INVALID_TICKET_STATUS);
         }
 
         ticket.updateStatus(requestDto.getTicketStatus());
@@ -103,11 +106,11 @@ public class TicketService {
 
         // 요청한 사용자가 ADMIN인지 확인
         if (adminUser.getRole() != RoleType.ADMIN) {
-            throw new AccessDeniedException("삭제 권한이 없습니다.");
+            throw new TicketErrorException(FORBIDDEN);
         }
 
         Tickets ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 예매 내역을 찾을 수 없습니다."));
+                .orElseThrow(() -> new TicketErrorException(RESERVATION_NOT_FOUND));
 
         ticket.softDelete();
     }

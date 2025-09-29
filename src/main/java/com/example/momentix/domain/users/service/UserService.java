@@ -3,17 +3,20 @@ package com.example.momentix.domain.users.service;
 import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.auth.repository.SignInRepository;
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
+import com.example.momentix.domain.common.exception.users.UsersErrorException;
 import com.example.momentix.domain.users.dto.ReadUserSimpleResponseDto;
 import com.example.momentix.domain.users.dto.UserRequestDto;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
+import static com.example.momentix.domain.common.exception.users.UsersCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +29,17 @@ public class UserService {
     public void withdrawSelf(String username, String rawPassword) {
         // 1) 계정 조회 (isDeleted=false)
         SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "계정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsersErrorException(USER_NOT_FOUND));
 
         // 2) 비밀번호 확인
         if (!passwordEncoder.matches(rawPassword, signIn.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비밀번호가 일치하지 않습니다.");
+            throw new UsersErrorException(INCORRECT_PASSWORD);
         }
 
         // 3) Users 하드 삭제 + SignIn tombstone(소프트딜리트)
         Users users = signIn.getUser();
         if (users == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
+            throw new AuthErrorException(BLACK_USER);
         }
 
         // SignIn을 tombstone(소프트딜리트) 상태로
@@ -50,11 +53,11 @@ public class UserService {
     @Transactional
     public void updateUserInfo(String username, UserRequestDto userRequestDto) {
         SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자"));
+                .orElseThrow(() -> new UsersErrorException(INCORRECT_PASSWORD));
 
         Users users = signIn.getUser();
         if (users == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자");
+            throw new UsersErrorException(INCORRECT_PASSWORD);
         }
         boolean changed = false;
 
@@ -69,7 +72,7 @@ public class UserService {
                 && !userRequestDto.getPhoneNumber().equals(users.getPhoneNumber())) {
             String p = userRequestDto.getPhoneNumber();
             if (!p.matches("^[0-9]{10,11}$")) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "전화번호 형식이 올바르지 않습니다.");
+                throw new UsersErrorException(INVALID_PHONE_NUMBER_FORMAT);
             }
             users.setPhoneNumber(p);
             changed = true;
@@ -77,10 +80,10 @@ public class UserService {
         // 새 비밀번호(둘 다 있을 때만 변경) → 비번 유효성 관련은 401
         if (userRequestDto.getNewPassword() != null || userRequestDto.getNewConfirmPassword() != null) {
             if (userRequestDto.getNewPassword() == null || userRequestDto.getNewConfirmPassword() == null) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 모두 필요합니다.");
+                throw new UsersErrorException(PASSWORD_MISMATCH);
             }
             if (!userRequestDto.getNewPassword().equals(userRequestDto.getNewConfirmPassword())) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 일치하지 않습니다.");
+                throw new UsersErrorException(INCORRECT_PASSWORD);
             }
             signIn.setPassword(passwordEncoder.encode(userRequestDto.getNewPassword()));
             changed = true;
@@ -88,7 +91,7 @@ public class UserService {
 
         // 변경사항 없음 → 401
         if (!changed) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "잘못된 요청(변경사항 없음)");
+            throw new UsersErrorException(NO_CHANGES_TO_UPDATE);
         }
         userRepository.save(users);
         signInRepository.save(signIn);
@@ -97,7 +100,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public ReadUserSimpleResponseDto readUserSimple(Long userId, UserDetailsImpl principal) {
         if (principal == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 필요");
+            throw new AuthErrorException(AUTHENTICATION_REQUIRED);
         }
 
         boolean isAdmin = principal.getAuthorities().stream()
@@ -107,11 +110,11 @@ public class UserService {
         boolean isSelf = principal.getUserId().equals(userId);
 
         if (!isAdmin && !isSelf) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한 없음");
+            throw new AuthErrorException(FORBIDDEN);
         }
 
         Users users = userRepository.findWithSignInByUserId(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없음"));
+                .orElseThrow(() -> new UsersErrorException(USER_NOT_FOUND));
 
         return ReadUserSimpleResponseDto.from(users);
     }

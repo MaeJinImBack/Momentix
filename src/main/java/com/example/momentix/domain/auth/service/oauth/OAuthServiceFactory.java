@@ -1,8 +1,11 @@
 package com.example.momentix.domain.auth.service.oauth;
 
 import com.example.momentix.domain.auth.entity.OAuthProvider;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
 
 
 //분기 처리
@@ -19,7 +22,7 @@ public class OAuthServiceFactory {
             case KAKAO:
                 return kaKaoOAuthService;
             default:
-                throw new IllegalArgumentException("지원하지 않는 프로바이더: " + provider);
+                throw new AuthErrorException(UNSUPPORTED_OAUTH_PROVIDER);
         }
     }
 }

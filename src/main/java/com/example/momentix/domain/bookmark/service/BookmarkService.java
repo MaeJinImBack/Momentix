@@ -3,6 +3,7 @@ package com.example.momentix.domain.bookmark.service;
 import com.example.momentix.domain.bookmark.dto.response.BookmarkResponseDto;
 import com.example.momentix.domain.bookmark.entity.Bookmark;
 import com.example.momentix.domain.bookmark.repository.BookmarkRepository;
+import com.example.momentix.domain.common.exception.event.EventErrorException;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.eventimages.EventImages;
 import com.example.momentix.domain.events.repository.EventsRepository;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import static com.example.momentix.domain.common.exception.event.EventErrorCode.*;
 import java.util.Optional;
 
 @Service
@@ -27,7 +28,7 @@ public class BookmarkService {
     @Transactional
     public boolean toggleBookmark(Long eventId, Users user) {
         Events event = eventsRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 공연을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EventErrorException(NO_EVENT));
 
         // 1. 기존에 즐겨찾기 정보가 있는지 조회
         Optional<Bookmark> bookmarkOptional = bookmarkRepository.findByUsersAndEvents(user, event);
