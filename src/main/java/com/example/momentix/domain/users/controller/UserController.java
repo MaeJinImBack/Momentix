@@ -16,7 +16,7 @@ public class UserController {
 
     @GetMapping("/test")
     public String getUser(){
-        String testmsg = "Test Ok";
+        String testmsg = "Test 2Ok";
         return testmsg;
     }
 

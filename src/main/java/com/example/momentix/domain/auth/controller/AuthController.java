@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/test")
     public ResponseEntity<String> test(){
-        return ResponseEntity.ok("test OK");
+        return ResponseEntity.ok("test 2OK");
     }
 
     
