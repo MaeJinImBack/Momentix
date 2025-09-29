@@ -49,7 +49,7 @@ public class EventSeat extends TimeStamped {
 
     @Builder
     public EventSeat(String seatGradeType, String seatPartType, BigDecimal seatPrice, Seats seat) {
-        this.seatGradeType =  SeatGradeType.valueOf(seatGradeType);
+        this.seatGradeType = SeatGradeType.valueOf(seatGradeType);
         this.seatPartType = SeatPartType.valueOf(seatPartType);
         this.seatPrice = seatPrice;
         this.seats = seat;

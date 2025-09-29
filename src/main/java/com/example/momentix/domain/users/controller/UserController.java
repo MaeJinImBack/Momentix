@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/test")
+    public String getUser(){
+        String testmsg = "Test 2Ok";
+        return testmsg;
+    }
+
     // 본인 탈퇴: principal에서 username(이메일)만 있는 구조일 때
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)

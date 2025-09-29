@@ -1,7 +1,6 @@
 package com.example.momentix.domain.events.entity.eventtimes;
 
 import com.example.momentix.domain.common.entity.TimeStamped;
-import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -31,11 +30,11 @@ public class EventTimes extends TimeStamped {
 
     // 공연
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="events_id", nullable = false)
+    @JoinColumn(name = "events_id", nullable = false)
     private Events events;
 
     // 공연 시간별 좌석 예매 현황
-    @OneToMany(mappedBy = "eventTimes", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "eventTimes", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventTimeReserveSeat> eventTimeReserveSeatList;
 
     @Builder

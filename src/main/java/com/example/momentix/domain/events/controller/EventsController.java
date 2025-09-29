@@ -1,8 +1,10 @@
 package com.example.momentix.domain.events.controller;
 
 import com.example.momentix.domain.events.dto.request.CreateEventsRequestDto;
+import com.example.momentix.domain.events.dto.request.UpdateBaseEventRequestDto;
 import com.example.momentix.domain.events.dto.response.AllReadEventsResponseDto;
 import com.example.momentix.domain.events.dto.response.EventsResponseDto;
+import com.example.momentix.domain.events.dto.response.ReadEventResponseDto;
 import com.example.momentix.domain.events.service.EventsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,4 +35,20 @@ public class EventsController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PutMapping("/{eventId}")
+    public ResponseEntity<Void> updateBaseEvent(@PathVariable Long eventId, @RequestBody UpdateBaseEventRequestDto requestDto) {
+        eventsService.updateEvent(eventId, requestDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/{eventId}/{placeId}")
+    public ResponseEntity<ReadEventResponseDto> readEvent(@PathVariable Long eventId, @PathVariable Long placeId) {
+        ReadEventResponseDto response = eventsService.readEvent(eventId, placeId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
+        eventsService.deleteEvent(eventId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

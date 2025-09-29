@@ -98,4 +98,14 @@ public class JwtUtil {
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    // 리프레시 엔드포인트
+    public static boolean isRefreshToken(String token) {
+        return "refresh".equals(getTokenType(token));
+    }
+
+    public static Long getUserIdFromToken(String token) {
+        Number n = getClaims(token).get("userId", Number.class);
+        return (n == null) ? null : n.longValue();
+    }
 }

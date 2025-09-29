@@ -2,6 +2,7 @@ package com.example.momentix.domain.auth.service;
 
 
 import com.example.momentix.domain.auth.entity.RoleType;
+import com.example.momentix.domain.auth.entity.SignIn;
 import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.common.util.JwtUtil;
 import lombok.Getter;
@@ -59,6 +60,12 @@ public class SignInService {
             // 403
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "블랙리스트 계정 또는 탈퇴 계정입니다.");
         }
+    }
+
+    // 리프레시 엔드포인트
+    public SignIn loadByUserId(Long userId) {
+        return signInRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "없는 유저입니다."));
     }
 
     @Getter

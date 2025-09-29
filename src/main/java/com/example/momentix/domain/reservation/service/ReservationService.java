@@ -3,9 +3,13 @@ package com.example.momentix.domain.reservation.service;
 
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
+import com.example.momentix.domain.events.entity.enums.SeatStatusType;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
+import com.example.momentix.domain.events.repository.EventSeatRepository;
 import com.example.momentix.domain.events.repository.EventsRepository;
+import com.example.momentix.domain.events.repository.eventtimes.EventTimeReserveSeatRepository;
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.ReservationStatusType;
@@ -13,10 +17,16 @@ import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -32,12 +42,17 @@ public class ReservationService {
     private final EventPlaceRepository eventPlaceRepository;
 
     private final EventTimesRepository eventTimesRepository;
+    private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
+
+    private final EventSeatRepository eventSeatRepository;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
 
     //공연 선택
     @Transactional
     public ReservationResponseDto selectEvent(Long userId, Long eventId) {
-
         //이용자와 공연 존재 확인
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -46,8 +61,8 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공연입니다."));
 
         //해당 상태의 예매 상태가 있는지 조회
-        List<Reservations> reservationsList = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(userId, eventId
-                ,List.of(
+        List<Reservations> reservationsList = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
+                userId, eventId, List.of(
                         ReservationStatusType.DRAFT,
                         ReservationStatusType.SELECT_PLACE,
                         ReservationStatusType.SELECT_TIME,
@@ -56,10 +71,10 @@ public class ReservationService {
                 ));
 
         //있다면, list 중 1번째 가져오기
-        if(! reservationsList.isEmpty()){
+        if (!reservationsList.isEmpty()) {
             return ReservationResponseDto.from(reservationsList.get(0));
         }
-
+//push test
         //없을 시, 생성
         Reservations reservation = Reservations.builder()
                 .users(user)
@@ -72,54 +87,72 @@ public class ReservationService {
         return ReservationResponseDto.from(reservation);
     }
 
+    // 장소 재선택 - 따로 뺀 이유 : 재선택 하려면 어느 예약을 바꿀지 reservationId가 필요
+    @Transactional
+    public ReservationResponseDto reselectEvent(Long userId, Long reservationId, Long eventId) {
+        if (!usersRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+        Reservations reservations = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+        if (!reservations.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+
+        // 허용 상태만 재선택 가능 (최소한의 체크)
+        switch (reservations.getReservationStatusType()) {
+            case DRAFT, SELECT_PLACE, SELECT_TIME, SELECT_SEAT -> {
+            }
+            default -> throw new IllegalArgumentException("공연 선택이 불가능합니다.");
+        }
+
+        Events event = eventsRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 공연입니다."));
+
+        // 최소 변경만 적용 (엔티티에 전용 메서드가 있으면 그걸 사용)
+        reservations.setEvents(event);
+
+        return ReservationResponseDto.from(reservations);
+    }
+
 
     //공연 장소 선택하기
     @Transactional
     public ReservationResponseDto selectEventPlace(Long userId, Long reservationId, Long eventPlaceId) {
-
         //사용자 확인
-        if(!usersRepository.existsById(userId)) {
+        if (!usersRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
-
         //해당 예매 아이디 확인
         Reservations reservations = reservationsRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 
-
         //예매 대기가 본인이 아닐경우
-        if(!reservations.getUsers().getUserId().equals(userId)) {
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
         //공연을 선택하지 않았을 경우
-        if(reservations.getEvents() == null){
+        if (reservations.getEvents() == null) {
             throw new IllegalArgumentException("공연이 먼저 선택되어야 합니다.");
         }
-
-
-        //공연 선택 및 공연을 선택했을 경우 제외 선택 불가
+        //상태 체크: 장소 재선택 허용 범위 확대
+        // (최초 선택, 시간 선택 중, 좌석 선택 중 모두 허용)
         switch (reservations.getReservationStatusType()) {
 
-            case DRAFT, SELECT_PLACE-> {}
+            case DRAFT, SELECT_PLACE, SELECT_TIME, SELECT_SEAT -> {
+            }
 
             default -> throw new IllegalArgumentException("공연장 선택이 불가능합니다.");
         }
 
-
         //공연 아이디를 가져와서
-        Long eventsId  = reservations.getEvents().getId();
-
+        Long eventsId = reservations.getEvents().getId();
 
         //해당 공연이 공연 장소와 일치하는지
-        boolean flag = eventPlaceRepository.existsByIdAndEventsId(eventPlaceId, eventsId);
+        EventPlace eventPlace = eventPlaceRepository.findByIdAndEventsId(eventPlaceId, eventsId).orElseThrow(
+                ()->new IllegalArgumentException("해당 공연의 공연 장소가 없습니다."));
 
-        if(!flag) {
-            throw new IllegalArgumentException("해당 공연의 공연 장소가 없습니다.");
-        }
-
-        //해당 예매 테이블에 장소 등록
-        EventPlace eventPlace = eventPlaceRepository.getReferenceById(eventPlaceId);
         reservations.selectEventPlace(eventPlace);
 
         return ReservationResponseDto.from(reservations);
@@ -128,51 +161,155 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponseDto selectEventTime(Long userId, Long reservationId, Long eventTimeId) {
-
-
-        if(!usersRepository.existsById(userId)){
+        if (!usersRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
         Reservations reservations = reservationsRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
 
-        if(!reservations.getUsers().getUserId().equals(userId)){
+        if (!reservations.getUsers().getUserId().equals(userId)) {
             throw new IllegalArgumentException("본인 예약이 아닙니다.");
         }
 
-        if(reservations.getEvents() == null){
+        if (reservations.getEvents() == null) {
             throw new IllegalArgumentException("공연이 먼저 선택되어야 합니다.");
         }
-
         //공연 장소 선택 확인
-        if(reservations.getEventPlace() == null){
+        if (reservations.getEventPlace() == null) {
             throw new IllegalArgumentException("공연 장소가 선택되지 않았습니다.");
         }
 
-
         //해당 상태에는 시간 선택이 불가능 -> 추후 상태 관리를 정확히 명시하여, if(==null) 로 처리하던 부분 상태로 변경
         switch (reservations.getReservationStatusType()) {
-
-            case DRAFT,SELECT_SEAT, WAIT_PAYMENT, CANCELED ,COMPLETED_TICKET
-                    -> throw new IllegalArgumentException("시간 선택이 불가능합니다.");
+            //최초 선택(SELECT_PLACE) 허용, 시간 재선택(SELECT_TIME), 좌석 선택 이후 재선택(SELECT_SEAT)도 허용
+            case SELECT_PLACE, SELECT_TIME, SELECT_SEAT -> {
+            }
+            default -> throw new IllegalArgumentException("시간 선택이 불가능합니다.");
         }
 
         Long eventsId = reservations.getEvents().getId();
-
-        boolean flag = eventTimesRepository.existsByIdAndEventsId(eventTimeId, eventsId);
-
-        if(!flag){
-            throw new IllegalArgumentException("해당 공연에 공연 시간이 없습니다.");
-        }
-
-        EventTimes eventTimes = eventTimesRepository.getReferenceById(eventTimeId);
+        EventTimes eventTimes = eventTimesRepository.findByIdAndEventsId(eventTimeId, eventsId).orElseThrow(
+                ()->new IllegalArgumentException("해당 공연에 공연 시간이 없습니다."));
 
         reservations.selectEventTime(eventTimes);
 
         return ReservationResponseDto.from(reservations);
 
     }
+
+    //Reservation을 임시 테이블 처럼 사용하기 때문에, 티켓(예매 내역)이 생성되는 순간 제거 -> CreateTicket 에 RS.deleteReservation 추가
+
+    //Propagation.REQUIRED 가 default 지만, 티켓 생성 트랜잭션에 사용할 예정이라 명시
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteReservation(Long userId, Long reservationId) {
+        if (!usersRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
+        Reservations reservations = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+
+        if (!reservations.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+        reservationsRepository.deleteById(reservationId);
+
+    }
+
+    // 좌석 선택 (좌석 상태: AVAILABLE -> HOLD)
+    @Transactional
+    public ReservationResponseDto selectEventSeat(Long userId, Long reservationId, Long eventTimeReserveSeatId) {
+
+        // --- 1. 기존 유효성 검증 로직 ---
+        if (!usersRepository.existsById(userId)) {
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+        Reservations r = reservationsRepository.findById(reservationId)
+                .orElseThrow(() -> new IllegalArgumentException("예약이 존재하지 않습니다."));
+        if (!r.getUsers().getUserId().equals(userId)) {
+            throw new IllegalArgumentException("본인 예약이 아닙니다.");
+        }
+        if (r.getEvents() == null) throw new IllegalArgumentException("공연이 먼저 선택되어야 합니다.");
+        if (r.getEventPlace() == null) throw new IllegalArgumentException("공연 장소가 선택되지 않았습니다.");
+        if (r.getEventTimes() == null) throw new IllegalArgumentException("공연 시간이 선택되지 않았습니다.");
+        switch (r.getReservationStatusType()) {
+            case SELECT_TIME, SELECT_SEAT -> {
+            }
+            default -> throw new IllegalArgumentException("좌석 선택이 불가능한 상태입니다.");
+        }
+
+        // --- 2. Redis 분산락 + DB 낙관적 락 적용 ---
+        String lockKey = "seat_lock:" + eventTimeReserveSeatId;
+
+        // 1차 잠금: Redis 분산 락 시도 (5분 유효)
+        Boolean isLocked = redisTemplate.opsForValue()
+                .setIfAbsent(lockKey, "locked", Duration.ofMinutes(5));
+
+        if (isLocked == null || !isLocked) {
+            throw new IllegalStateException("이미 다른 사용자가 선점 중인 좌석입니다.");
+        }
+
+        try {
+            // 2차 잠금: DB 낙관적 락으로 좌석 조회 및 상태 변경
+            EventTimeReserveSeat seat = eventTimeReserveSeatRepository.findById(eventTimeReserveSeatId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 좌석입니다."));
+
+            // 상태 변경 로직 호출 (내부에서 AVAILABLE 체크)
+            seat.hold();
+
+            // 예매 객체에 좌석 반영
+            r.selectEventSeat(seat);
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Redis 락은 통과했지만, DB에서 버전 충돌이 발생한 희귀한 경우
+            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
+        } finally {
+            // 3. 작업 완료 후 Redis 락 해제 (필수!)
+            redisTemplate.delete(lockKey);
+        }
+
+        return ReservationResponseDto.from(r);
+    }
+
+//        Long currentSeatId = (r.getEventSeat() != null) ? r.getEventSeat().getId() : null;
+//        if (currentSeatId != null) {
+//            if (currentSeatId.equals(eventSeatId)) {
+//                // 같은 좌석이면 그대로 반환
+//                return ReservationResponseDto.from(r);
+//            }
+//            // ★ 엔티티 조회 없이 이전 좌석 AVAILABLE로 해제
+//            eventTimeReserveSeatRepository
+//                    .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, currentSeatId)
+//                    .ifPresent(prevId ->
+//                            eventTimeReserveSeatRepository.forceUpdateStatus(prevId, SeatStatusType.AVAILABLE));
+//        }
+
+//        // ★ 여기서도 엔티티를 읽지 말고 ID만 본다
+//        Long rowId = eventTimeReserveSeatRepository
+//                .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
+//                .orElse(null);
+//
+//        if (rowId == null) {
+//            // 없으면 생성 시도 (AVAILABLE로)
+//            EventTimeReserveSeat created = EventTimeReserveSeat.builder()
+//                    .eventTimes(eventTimesRepository.getReferenceById(eventTimeId))
+//                    .eventSeat(eventSeatRepository.getReferenceById(eventSeatId))
+//                    .seatReserveStatus(SeatStatusType.AVAILABLE)
+//                    .build();
+//            try {
+//                created = eventTimeReserveSeatRepository.saveAndFlush(created);
+//                rowId = created.getId();
+//            } catch (DataIntegrityViolationException dup) {
+//                // 동시 생성 충돌 시 ID만 다시 조회
+//                rowId = eventTimeReserveSeatRepository
+//                        .findIdOnlyByEventTimes_IdAndEventSeat_Id(eventTimeId, eventSeatId)
+//                        .orElseThrow();
+//            }
+//        } else {
+//            // 기존 행인데 seat_reserve_status가 ''/NULL이면 한 번 정규화
+//            eventTimeReserveSeatRepository.normalizeIfBlank(eventTimeId, eventSeatId);
+//        }
 
 
 }
