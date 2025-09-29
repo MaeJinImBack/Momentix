@@ -9,6 +9,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 @Component
 public class QueueWebSocketHandler extends TextWebSocketHandler {
@@ -23,7 +24,7 @@ public class QueueWebSocketHandler extends TextWebSocketHandler {
         if (query != null && query.contains("sessionId=")) {
             sessionId = query.split("sessionId=")[1];
         }
-        if (sessionId != null){
+        if (sessionId != null) {
             sessions.put(sessionId, session);
         }
         log.info("새로운 웹소켓 연결 : {}, {}", session.getId(), sessionId);

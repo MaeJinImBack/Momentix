@@ -126,7 +126,7 @@ public class QueueService {
      * 대기열 순위 확인
      *
      * @param eventId 공연별로 체크
-     * @param token 토큰으로 유저 확인
+     * @param token   토큰으로 유저 확인
      */
 
 
@@ -157,7 +157,7 @@ public class QueueService {
      * 다음 우선 순위 예매 가능 상태로 만들기
      *
      * @param eventId 공연별 확인
-     * @param token 유저 확인용
+     * @param token   유저 확인용
      */
     public void completeQueue(Long eventId, String token) {
         String streamKey = "stream:" + eventId;

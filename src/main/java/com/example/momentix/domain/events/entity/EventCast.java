@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 // 공연과 출연진 중간테이블
+@Table(name = "event_cast")
 public class EventCast extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

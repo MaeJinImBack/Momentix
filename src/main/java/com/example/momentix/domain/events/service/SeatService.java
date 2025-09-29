@@ -184,6 +184,7 @@ public class SeatService {
             // List를 반복문으로 하나씩 데이터 저장
             eventSeatRepository.updateEventSeatListByEventsIdAndPlaceId(eventId, placeId, seatList);
         } catch (IOException e) {
+            throw new IllegalIdentifierException("IO Exception");
         }
     }
 

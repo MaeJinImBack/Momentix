@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @Entity
 @Getter
-@Table(name = "Events")
+@Table(name = "events")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Events extends TimeStamped {
@@ -72,8 +72,7 @@ public class Events extends TimeStamped {
     @Column(nullable = false)
     private boolean isDeleted;
 
-    public void setEvent(String eventTitle, AgeRatingType ageRatingType, EventCategoryType eventCategoryType, LocalDate eventStartDate, LocalDate eventEndDate)
-    {
+    public void setEvent(String eventTitle, AgeRatingType ageRatingType, EventCategoryType eventCategoryType, LocalDate eventStartDate, LocalDate eventEndDate) {
         this.eventTitle = eventTitle;
         this.ageRatingType = ageRatingType;
         this.eventCategoryType = eventCategoryType;

@@ -26,6 +26,7 @@ public class TicketController {
         TicketResponseDto response = ticketService.createTicket(requestDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
     @GetMapping("/tickets")
     public ResponseEntity<Page<TicketResponseDto>> getMyTickets(
             @AuthenticationPrincipal UserDetailsImpl userDetails,

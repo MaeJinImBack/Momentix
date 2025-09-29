@@ -4,7 +4,6 @@ package com.example.momentix.domain.events.dto.request;
 import com.example.momentix.domain.events.entity.enums.AgeRatingType;
 import com.example.momentix.domain.events.entity.enums.EventCategoryType;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +13,6 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class CreateEventsRequestDto {
 
     // Event Entity 값

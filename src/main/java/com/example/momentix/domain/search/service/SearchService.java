@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,7 @@ public class SearchService {
     }
 
     //엘라스틱서치
-    
+
     // 자동완성
     @Transactional(readOnly = true)
     public List<AutocompleteResponse> autocomplete(String input, int size) {

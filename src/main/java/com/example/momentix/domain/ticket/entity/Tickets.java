@@ -9,6 +9,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Getter
 @Entity
@@ -20,7 +22,6 @@ import lombok.NoArgsConstructor;
 )
 @NoArgsConstructor
 public class Tickets extends TimeStamped {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ticketId;
@@ -28,27 +29,31 @@ public class Tickets extends TimeStamped {
     @Column(nullable = false, unique = true, length = 50)
     private String ticketNumber;
 
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TicketStatusType ticketStatusType;
-
-    //추후에 수정 가능성 있음
-    @Column
-    private Long eventId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private Users users;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "event_time_id")
-    private EventTimes eventTime;
+    @Column(name = "event_time_id", nullable = false)
+    private Long eventTimeId;
+    // 공연 시작 시간
+    @Column(nullable = false)
+    private LocalDateTime eventStartTime;
 
-    //전시는 구현 전이라 optional = false
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name =  "seat_id")
-    private Seats seat;
+    // 공연 종료 시간
+    @Column(nullable = false)
+    private LocalDateTime eventEndTime;
+
+    @Column(name = "seat_id", nullable = false)
+    private Long seatId;
+    // 좌석 행 열
+    @Column(nullable = false)
+    private Long seatRow;
+    @Column(nullable = false)
+    private Long seatCol;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "payment_history_id", nullable = true)
@@ -60,8 +65,12 @@ public class Tickets extends TimeStamped {
     //== 생성자 ==//
     public Tickets(Users user, Seats seat, EventTimes eventTime, String ticketNumber) {
         this.users = user;
-        this.seat = seat;
-        this.eventTime = eventTime;
+        this.seatId = seat.getId();
+        this.seatRow = seat.getSeatRow();
+        this.seatCol = seat.getSeatCol();
+        this.eventTimeId = eventTime.getId();
+        this.eventStartTime = eventTime.getEventStartTime();
+        this.eventEndTime = eventTime.getEventEndTime();
         this.ticketNumber = ticketNumber;
         this.ticketStatusType = TicketStatusType.COMPLETED_PAYMENT;
     }

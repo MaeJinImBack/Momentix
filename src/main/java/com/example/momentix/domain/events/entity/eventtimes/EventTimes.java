@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// 공연 시간
+@Table(name = "event_times")
 public class EventTimes extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

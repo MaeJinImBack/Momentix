@@ -10,9 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EventSeatRepository extends
         JpaRepository<EventSeat, Long>, EventSeatRepositoryCustom {
-    @Modifying
-    @Query("DELETE " +
-            "FROM EventSeat es " +
-            "where es.events.id = :eventsId")
-    void deleteByEventsId(@Param("eventsId") Long eventsId);
+
 }

@@ -30,7 +30,7 @@ public class EventsController {
     }
 
     @GetMapping()
-    public ResponseEntity<Page<AllReadEventsResponseDto>> readAllEvents(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable) {
+    public ResponseEntity<Page<AllReadEventsResponseDto>> readAllEvents(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<AllReadEventsResponseDto> response = eventsService.allReadEvents(pageable);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -40,6 +40,7 @@ public class EventsController {
         eventsService.updateEvent(eventId, requestDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @GetMapping("/{eventId}/{placeId}")
     public ResponseEntity<ReadEventResponseDto> readEvent(@PathVariable Long eventId, @PathVariable Long placeId) {
         ReadEventResponseDto response = eventsService.readEvent(eventId, placeId);

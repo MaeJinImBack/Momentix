@@ -17,6 +17,7 @@ public enum SeatPartType {
         this.seatPart = seatPart;
         this.id = id;
     }
+
     public static SeatPartType fromId(Long id) {
         for (SeatPartType type : SeatPartType.values()) {
             if (type.getId().equals(id)) {

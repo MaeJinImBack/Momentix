@@ -18,33 +18,34 @@ import jakarta.persistence.*;
 public class PointLedger extends TimeStamped {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="user_id", nullable=false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name="idempotency_key", nullable=false, length=64)
+    @Column(name = "idempotency_key", nullable = false, length = 64)
     private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="operation_type", nullable=false, length=32)
+    @Column(name = "operation_type", nullable = false, length = 32)
     private PointOperationType pointOperationType;
 
-    @Column(name="amount", nullable=false)
+    @Column(name = "amount", nullable = false)
     private long amount;
 
-    @Column(name="reason", length=128)
+    @Column(name = "reason", length = 128)
     private String reason;
 
     //결제/예약 매핑(느슨한 결합: FK없음, 포인트 테이블 독립임)
-    @Column(name="related_payment_id")
+    @Column(name = "related_payment_id")
     private Long relatedPaymentId;// 결제/예약과의 느슨한 연결
 
-    @Column(name="related_reservation_id")
+    @Column(name = "related_reservation_id")
     private Long relatedReservationId;
 
-    protected PointLedger() {}
+    protected PointLedger() {
+    }
 
     public PointLedger(Long userId, String idempotencyKey, PointOperationType pointOperationType,
                        long amount, String reason, Long relatedPaymentId, Long relatedReservationId) {
@@ -57,12 +58,35 @@ public class PointLedger extends TimeStamped {
         this.relatedReservationId = relatedReservationId;
     }
 
-    public Long getId() { return id; }
-    public Long getUserId() { return userId; }
-    public String getIdempotencyKey() { return idempotencyKey; }
-    public PointOperationType getOperationType() { return pointOperationType; }
-    public long getAmount() { return amount; }
-    public String getReason() { return reason; }
-    public Long getRelatedPaymentId() { return relatedPaymentId; }
-    public Long getRelatedReservationId() { return relatedReservationId; }
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getIdempotencyKey() {
+        return idempotencyKey;
+    }
+
+    public PointOperationType getOperationType() {
+        return pointOperationType;
+    }
+
+    public long getAmount() {
+        return amount;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public Long getRelatedPaymentId() {
+        return relatedPaymentId;
+    }
+
+    public Long getRelatedReservationId() {
+        return relatedReservationId;
+    }
 }

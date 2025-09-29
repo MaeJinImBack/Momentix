@@ -4,7 +4,6 @@ import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.casts.Casts;
 import com.example.momentix.domain.events.entity.places.Places;
 import com.example.momentix.domain.events.entity.reservationtimes.ReservationTimes;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class EventsResponseDto {
     private String eventTitle;
     private String eventCategory;

@@ -21,7 +21,7 @@ public class CastService {
         Casts castResponse = castsRepository.findByCastName(request.getCastName()).orElseGet(
                 () -> new Casts(
                         request.getCastName(),
-                        request.getCastImage()
+                        request.getCastImageUrl()
                 ));
         castsRepository.save(castResponse);
         return castResponse;
@@ -43,7 +43,7 @@ public class CastService {
                 .filter(requestDto -> requestCastNameSet.contains(requestDto.getCastName()))
                 .map(requestDto -> new Casts(
                         requestDto.getCastName(),
-                        requestDto.getCastImage()))
+                        requestDto.getCastImageUrl()))
                 .toList();
 
         castsRepository.saveAll(newCastList);

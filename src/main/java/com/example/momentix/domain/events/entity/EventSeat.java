@@ -17,6 +17,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "event_seat")
 public class EventSeat extends TimeStamped {
 
     @Id

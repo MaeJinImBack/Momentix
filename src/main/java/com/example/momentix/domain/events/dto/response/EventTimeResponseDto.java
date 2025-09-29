@@ -8,8 +8,12 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class EventTimeResponseDto {
     private LocalDateTime eventStartTime;
     private LocalDateTime eventEndTime;
+
+    public EventTimeResponseDto(LocalDateTime eventStartTime, LocalDateTime eventEndTime) {
+        this.eventStartTime = eventStartTime;
+        this.eventEndTime = eventEndTime;
+    }
 }

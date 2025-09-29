@@ -9,7 +9,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -35,9 +38,8 @@ public class OAuthController {
     private String kakaoRedirectUri;
 
 
-
     @GetMapping("/naver")
-   public ResponseEntity<Void> naver(HttpSession session){
+    public ResponseEntity<Void> naver(HttpSession session) {
         String state = UUID.randomUUID().toString();
         session.setAttribute("OAUTH_STATE_NAVER", state);
         //url 조합
@@ -54,7 +56,7 @@ public class OAuthController {
 
     //------------카카오---------
     @GetMapping("/kakao")
-    public ResponseEntity<Void> kakao(HttpSession session){
+    public ResponseEntity<Void> kakao(HttpSession session) {
         String state = UUID.randomUUID().toString();
         session.setAttribute("OAUTH_STATE_KAKAO", state);
 

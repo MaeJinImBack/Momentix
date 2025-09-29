@@ -23,11 +23,11 @@ import java.util.List;
 //집계 구현 (인기검색어/시간대)
 @Repository
 public class AnalyticsRepositoryImpl implements AnalyticsRepository {
-    
+
     // 엘라스틱서치에 쌓인 검색 로그를 가지고 
     // 시간대별 검색 건수, 많이 검색된 단어(인기 검색어)
     // 를 뽑아오는 클래스
-    
+
     private final ElasticsearchClient client;
 
     public AnalyticsRepositoryImpl(ElasticsearchClient client) {

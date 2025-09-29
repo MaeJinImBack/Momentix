@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-//// 엘라스틱서치와 연결 설정하는 곳
+/// / 엘라스틱서치와 연결 설정하는 곳
 @Configuration
 public class ElasticsearchConfig {
     @Value("${elasticsearch.url}")

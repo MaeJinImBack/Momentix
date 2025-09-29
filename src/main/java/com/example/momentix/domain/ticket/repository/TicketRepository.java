@@ -38,32 +38,32 @@ public interface TicketRepository extends JpaRepository<Tickets, Long> {
 
     // 같은 예약으로 이미 발급된 티켓이 있는지 (결제-티켓 링크 기준)
     @Query("""
-           select (count(ticke) > 0)
-             from Tickets ticke
-             join ticke.paymentHistory paymentHistory
-            where paymentHistory.reservationId = :reservationId
-           """)
+            select (count(ticke) > 0)
+              from Tickets ticke
+              join ticke.paymentHistory paymentHistory
+             where paymentHistory.reservationId = :reservationId
+            """)
     boolean existsTicketByReservationId(@Param("reservationId") Long reservationId);
 
     // 결제 확정 시, 티켓에 결제ID 세팅 (FK 주인: 티켓)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-       update Tickets ticke
-          set ticke.paymentHistory = :paymentHistory
-        where ticke.ticketId = :ticketId
-          and ticke.paymentHistory is null
-       """)
+            update Tickets ticke
+               set ticke.paymentHistory = :paymentHistory
+             where ticke.ticketId = :ticketId
+               and ticke.paymentHistory is null
+            """)
     int linkPayment(@Param("ticketId") Long ticketId,
                     @Param("paymentHistory") PaymentHistory paymentHistory);
 
     //결제 취소
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-           update Tickets tickets
-              set tickets.paymentHistory = null
-            where tickets.ticketId = :ticketId
-              and tickets.paymentHistory.paymentHistoryId = :paymentHistoryId
-           """)
+            update Tickets tickets
+               set tickets.paymentHistory = null
+             where tickets.ticketId = :ticketId
+               and tickets.paymentHistory.paymentHistoryId = :paymentHistoryId
+            """)
     int unlinkPayment(@Param("ticketId") Long ticketId,
                       @Param("paymentHistoryId") Long paymentHistoryId);
 

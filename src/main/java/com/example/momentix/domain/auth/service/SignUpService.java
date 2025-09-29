@@ -24,14 +24,14 @@ public class SignUpService {
 
     @Transactional
     public Long signUpUser(String email, SignUpRequest req) {
-        if(!req.getPassword().equals(req.getConfirmPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"비밀번호가 일치하지 않습니다.");
+        if (!req.getPassword().equals(req.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
         }
-        if(signInRepository.existsByUsername(email)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"이미 가입된 이메일입니다.");
+        if (signInRepository.existsByUsername(email)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
         }
 
-        Users users = Users.createConsumer(email, req,passwordEncoder);
+        Users users = Users.createConsumer(email, req, passwordEncoder);
         userRepository.save(users);
         return users.getUserId();
     }
@@ -61,7 +61,7 @@ public class SignUpService {
 
     // host ID 생성
     private String nextHostUsername() {
-        for (int width : new int[]{4,5,6}) {
+        for (int width : new int[]{4, 5, 6}) {
             int max = (int) Math.pow(10, width) - 1;
             for (int i = 1; i <= max; i++) {
                 String candidate = HOST_PREFIX + String.format("%0" + width + "d", i) + "!";

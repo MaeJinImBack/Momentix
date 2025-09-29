@@ -31,10 +31,12 @@ public class EmailVerificationService {
     private String codeKey(String email) {
         return "momentix:email:code:" + email;
     }
+
     // 같은 이메일에 너무 자자 요청하지 못하도록 쿨다운 시간관리햐는 redis key
     private String cooldownKey(String email) {
         return "momentix:email:cooldown:" + email;
     }
+
     //발급된 토큰이 실제로 인증된 상태인지 확인할 떄 쓰는 redis key
     private String tokenKey(String token) {
         return "momentix:email:verified:" + token;
@@ -42,9 +44,9 @@ public class EmailVerificationService {
 
     //인증 코드 발송
     public void sendCode(String email) {
-        String code = String.valueOf((int)(Math.random() * 900000) + 100000); //6자리
+        String code = String.valueOf((int) (Math.random() * 900000) + 100000); //6자리
         //쿨다운
-        if(Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey(email)))){
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey(email)))) {
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후에 다시 시도해 주세요.");
         }
         // 코드 저장 (TTL)
@@ -59,7 +61,7 @@ public class EmailVerificationService {
         // 메일 제목
         message.setSubject("[MOMENTIX] 이메일 인증 코드");
         // 메일 본문 설정
-        message.setText("인증 코드 " + code +"\n유효시간: " +(codeTtlSec/60)+ "분");
+        message.setText("인증 코드 " + code + "\n유효시간: " + (codeTtlSec / 60) + "분");
         // 실제 메일 전송(STMP서버 통해 발송)
         mailSender.send(message);
     }
@@ -84,13 +86,13 @@ public class EmailVerificationService {
     }
 
     //최종 가입에서 토큰 소비 -> 이메일 복구(1회성)
-    public String consumerVerifiedToken(String token){
+    public String consumerVerifiedToken(String token) {
         // 1. 토큰 문자열을 redis key형태로 반환
         String key = tokenKey(token);
         //2. redis에서 이 토큰에 매핑된 이메일 값 조회
         String email = redisTemplate.opsForValue().get(key);
         //3. 조회된 값이 없거나 공백이면 토큰 만료되었거나 이미 사용중
-        if(email==null||email.isBlank()){
+        if (email == null || email.isBlank()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었거나 이미 사용되었습니다.");
         }
         return email;
