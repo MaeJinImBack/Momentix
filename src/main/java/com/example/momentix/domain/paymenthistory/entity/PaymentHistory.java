@@ -93,7 +93,6 @@ public class PaymentHistory extends TimeStamped {
     }
 
 
-
     public String getIdempotencyKey() {
         return idempotencyKey;
     }

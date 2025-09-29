@@ -34,7 +34,7 @@ public class ReservationResponseDto {
 
     public static ReservationResponseDto from(Reservations r) {
         var e = r.getEvents();
-        return  ReservationResponseDto.builder()
+        return ReservationResponseDto.builder()
                 .reservationId(r.getReservationId())
                 .usersId(r.getUsers().getUserId())
                 .eventsId(r.getEvents().getId())

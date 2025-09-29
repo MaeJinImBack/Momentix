@@ -32,8 +32,8 @@ public class PointService {
         this.pointsRepository = pointsRepository;
         this.ledgerRepository = ledgerRepository;
         this.policyService = policyService;
-        this.paymentHistoryRepository=paymentHistoryRepository;
-        this.reservationRepository=reservationRepository;
+        this.paymentHistoryRepository = paymentHistoryRepository;
+        this.reservationRepository = reservationRepository;
     }
 
 //    같은 요청이 와도 한 번만 반영되게 함

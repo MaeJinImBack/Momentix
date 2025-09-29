@@ -106,7 +106,7 @@ public class AuthController {
     @PostMapping("/sign-out")
     @ResponseStatus(HttpStatus.NO_CONTENT)// 204 No Content 권장: 데이터가 없음(토큰 무효화)
     public void signOut(HttpServletResponse res) {
-        ResponseCookie cookie=ResponseCookie.from("ACCESS_TOKEN","")
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", "")
                 .path("/")
                 .sameSite("Strict") //CSRF방지
                 .secure(false) // 개발단계에서는 false, 운영은 true
@@ -142,22 +142,25 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up/host")
-    public ResponseEntity<Map<String,String>> signUpHost(
+    public ResponseEntity<Map<String, String>> signUpHost(
             @Validated(SignUpRequest.HostSignUp.class)
             @RequestBody SignUpRequest req) {
 
         Map<String, String> creds = signUpService.signUpHost(req);
 
         Map<String, String> body = new HashMap<>();
-        body.put("message",  "회원가입 성공! 아이디와 비밀번호는 일치합니다. 비밀번호를 변경해 주세요.");
+        body.put("message", "회원가입 성공! 아이디와 비밀번호는 일치합니다. 비밀번호를 변경해 주세요.");
         body.put("username", creds.get("username"));
         body.put("password", creds.get("password"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    public record SigninReq(String username, String password) {}
-    public record TokenRes(String accessToken, String refreshToken) {}
+    public record SigninReq(String username, String password) {
+    }
+
+    public record TokenRes(String accessToken, String refreshToken) {
+    }
 
     private String extractBearer(String authHeader) {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

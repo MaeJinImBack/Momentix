@@ -5,7 +5,6 @@ import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.paymenthistory.entity.PaymentStatusType;
 import com.example.momentix.domain.point.dto.PaymentByPaymentRequest;
 import com.example.momentix.domain.point.dto.PaymentEarnByPaymentRequest;
-import com.example.momentix.domain.point.dto.PointApplyRequest;
 import com.example.momentix.domain.point.dto.PointBalanceResponse;
 import com.example.momentix.domain.point.service.PointService;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class PointController {
     public ResponseEntity<PointBalanceResponse> earnPendingByPayment(
             @AuthenticationPrincipal UserDetailsImpl user,
             @RequestBody PaymentEarnByPaymentRequest paymentEarnByPaymentRequest
-    ){
+    ) {
         return ResponseEntity.ok(pointService.earnPendingByPaymentAmount(user.getUserId(), paymentEarnByPaymentRequest.getIdempotencyKey(),
                 paymentEarnByPaymentRequest.getPaymentId(), paymentEarnByPaymentRequest.getReservationId(), paymentEarnByPaymentRequest.getDiscountedAmount(), "결제 적립 예정(3%)", PaymentStatusType.SUCCESS));
     }
@@ -45,7 +44,7 @@ public class PointController {
     public ResponseEntity<PointBalanceResponse> releasePendingByPayment(
             @AuthenticationPrincipal UserDetailsImpl user,
             @RequestBody PaymentByPaymentRequest paymentByPaymentRequest
-    ){
+    ) {
         return ResponseEntity.ok(pointService.releasePendingByPayment(user.getUserId(), paymentByPaymentRequest.getIdempotencyKey(),
                 paymentByPaymentRequest.getPaymentId(), "환불 불가 시점 적립 확정"));
     }
@@ -54,7 +53,7 @@ public class PointController {
     public ResponseEntity<PointBalanceResponse> cancelPendingByPayment(
             @AuthenticationPrincipal UserDetailsImpl user,
             @RequestBody PaymentByPaymentRequest paymentByPaymentRequest
-    ){
+    ) {
         return ResponseEntity.ok(pointService.cancelPendingForPayment(user.getUserId(), paymentByPaymentRequest.getIdempotencyKey(),
                 paymentByPaymentRequest.getPaymentId(), "결제 취소로 적립 예정 취소"));
     }

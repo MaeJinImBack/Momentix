@@ -1,7 +1,7 @@
 package com.example.momentix.domain.events.controller;
 
 import com.example.momentix.domain.events.entity.Events;
-import com.example.momentix.domain.events.entity.eventimages.EventImage;
+import com.example.momentix.domain.events.entity.eventimages.EventImages;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.events.repository.eventimages.EventImagesRepository;
 import com.example.momentix.domain.events.service.S3UploadService;
@@ -34,17 +34,17 @@ public class EventImageController {
         Events event = eventsRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 공연을 찾을 수 없습니다."));
 
-        EventImage eventImage = eventImagesRepository.findByEvents(event)
-                .orElse(new EventImage(event));
+        EventImages eventImages = eventImagesRepository.findByEvents(event)
+                .orElse(new EventImages(event));
 
         if ("poster".equalsIgnoreCase(imageType)) {
-            eventImage.updatePosterImageUrl(imageUrl);
+            eventImages.updatePosterImageUrl(imageUrl);
         } else if ("detail".equalsIgnoreCase(imageType)) {
-            eventImage.updateDetailImageUrl(imageUrl);
+            eventImages.updateDetailImageUrl(imageUrl);
         } else {
             throw new IllegalArgumentException("유효하지 않은 이미지 타입입니다.");
         }
-        eventImagesRepository.save(eventImage);
+        eventImagesRepository.save(eventImages);
 
         return ResponseEntity.ok("업로드 성공: " + imageUrl);
     }

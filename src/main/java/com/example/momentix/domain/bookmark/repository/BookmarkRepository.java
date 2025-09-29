@@ -1,7 +1,7 @@
 package com.example.momentix.domain.bookmark.repository;
 
-import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.bookmark.entity.Bookmark;
+import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.users.entity.Users;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

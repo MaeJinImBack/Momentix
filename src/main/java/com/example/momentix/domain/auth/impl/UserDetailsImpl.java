@@ -24,13 +24,13 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         RoleType role = signIn.getUser().getRole();
-        return List.of(new SimpleGrantedAuthority("ROLE_" +  role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     // 현재 로그인한 사용자의 PK(userId)를 반환
     //본인 소유 리소스(리뷰, 예매, 공연 등)인지 확인할 때 사용
 
-    public Long getUserId(){
+    public Long getUserId() {
         return signIn.getUser().getUserId();
     }
 
@@ -46,8 +46,10 @@ public class UserDetailsImpl implements UserDetails {
         return signIn.getUser().getRole().name();
     }
 
-    public Users getUser() { return this.signIn.getUser(); }
-    
+    public Users getUser() {
+        return this.signIn.getUser();
+    }
+
     @Override
     public String getPassword() {
         return signIn.getPassword();
@@ -58,8 +60,23 @@ public class UserDetailsImpl implements UserDetails {
         return signIn.getUsername();
     }
 
-    @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
-    @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

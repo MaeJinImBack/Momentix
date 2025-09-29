@@ -8,7 +8,8 @@ public class HourlyCountBucket {
     private LocalDateTime hour;//(Asia/Seoul 기준)
     private long count;// 그 시간대에 몇 건인지
 
-    public HourlyCountBucket() {}
+    public HourlyCountBucket() {
+    }
 
     public HourlyCountBucket(LocalDateTime hour, long count) {
         this.hour = hour;
@@ -21,8 +22,19 @@ public class HourlyCountBucket {
         return "Hour: " + hour + ", Count: " + count;
     }
 
-    public LocalDateTime getHour() { return hour; }
-    public void setHour(LocalDateTime hour) { this.hour = hour; }
-    public long getCount() { return count; }
-    public void setCount(long count) { this.count = count; }
+    public LocalDateTime getHour() {
+        return hour;
+    }
+
+    public void setHour(LocalDateTime hour) {
+        this.hour = hour;
+    }
+
+    public long getCount() {
+        return count;
+    }
+
+    public void setCount(long count) {
+        this.count = count;
+    }
 }

@@ -36,12 +36,10 @@ public class EventIndexService {
     private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
-
     public EventIndexService(ElasticsearchClient elasticsearchClient, JPAQueryFactory queryFactory) {
         this.elasticsearchClient = elasticsearchClient;
         this.queryFactory = queryFactory;
     }
-
 
 
     //인덱스 없으면 매핑과 함께 생성
@@ -91,7 +89,6 @@ public class EventIndexService {
     }
 
 
-
     //MySQL → ES로 전부 넣기
     public void reindexAllFromMySQL() throws Exception {
         QEvents e = QEvents.events;
@@ -127,7 +124,7 @@ public class EventIndexService {
             String eventTitle = t.get(e.eventTitle);
             String eventCategory = t.get(e.eventCategoryType).name();
             String start = DF.format(t.get(e.eventStartDate));
-            String end   = DF.format(t.get(e.eventEndDate));
+            String end = DF.format(t.get(e.eventEndDate));
             String placeName = t.get(p.placeName);
             String placeAddress = t.get(p.placeAddress);
 

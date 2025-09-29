@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "EventImages")
+@Table(name = "event_images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 
 // 공연 관련 이미지
-public class EventImage extends TimeStamped {
+public class EventImages extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class EventImage extends TimeStamped {
     @Column(columnDefinition = "TEXT")
     private String detailImageUrl;
 
-    public EventImage(Events events) {
+    public EventImages(Events events) {
         this.events = events;
     }
 

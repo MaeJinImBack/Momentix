@@ -11,7 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
-@Table(name="users")
+@Table(name = "users")
 @Getter
 @Entity
 @NoArgsConstructor
@@ -23,7 +23,7 @@ public class Users extends TimeStamped {
     @Column(length = 10)
     private String nickname;
 
-    @Column( length = 11)  // 01012345678
+    @Column(length = 11)  // 01012345678
     private String phoneNumber;
 
     @Column
@@ -44,7 +44,7 @@ public class Users extends TimeStamped {
 
     //CascadeType.PERSIST: Users새로 저장 시 SignIn도 같이 저장
     //CascadeType.MERGE: Users 수정 시 SignIn도 같이 수정
-    @OneToOne(mappedBy = "users", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private SignIn signIn;
 
 
@@ -78,12 +78,29 @@ public class Users extends TimeStamped {
         return users;
     }
 
-    public void setNickname(String nickname){ this.nickname = nickname; }
-    public void setPhoneNumber(String phoneNumber){ this.phoneNumber = phoneNumber; }
-    public void setBirthDate(LocalDate birthDate){ this.birthDate = birthDate; }
-    public void setBusinessNumber(String businessNumber){ this.businessNumber = businessNumber; }
-    public void setRole(RoleType role){ this.role = role; }
-    public void setSignIn(SignIn signIn){ this.signIn = signIn; }
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void setBusinessNumber(String businessNumber) {
+        this.businessNumber = businessNumber;
+    }
+
+    public void setRole(RoleType role) {
+        this.role = role;
+    }
+
+    public void setSignIn(SignIn signIn) {
+        this.signIn = signIn;
+    }
 
 
 }

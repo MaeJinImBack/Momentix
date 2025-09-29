@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "casts")
 public class Casts extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

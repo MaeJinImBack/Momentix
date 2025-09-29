@@ -2,13 +2,15 @@ package com.example.momentix.domain.reservation.entity;
 
 
 import com.example.momentix.domain.events.entity.EventPlace;
-import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.users.entity.Users;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Getter
@@ -17,8 +19,8 @@ import lombok.*;
         name = "reservations",
         //공연 시간과 좌석을 unique 처리 -> 해당 공연 시간의 좌석은 1개
         uniqueConstraints = {
-            @UniqueConstraint(name = "unique_reservation_event_time_event_seat",
-            columnNames = {"event_time_id","event_time_reserve_seat_id"}) }
+                @UniqueConstraint(name = "unique_reservation_event_time_event_seat",
+                        columnNames = {"event_time_id", "event_time_reserve_seat_id"})}
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reservations {

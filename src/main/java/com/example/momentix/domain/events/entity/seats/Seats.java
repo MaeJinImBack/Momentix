@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 // 공연 좌석
+@Table(name = "seats")
 public class Seats extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

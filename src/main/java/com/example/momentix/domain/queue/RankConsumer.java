@@ -37,7 +37,7 @@ public class RankConsumer implements StreamListener<String, MapRecord<String, St
             if (sessionId != null) {
                 try {
                     webSocketHandler.sendMessage(sessionId, payload);
-                    redisTemplate.opsForStream().acknowledge(message.getStream(), "alarmQueueGroup"+eventId, message.getId());
+                    redisTemplate.opsForStream().acknowledge(message.getStream(), "alarmQueueGroup" + eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

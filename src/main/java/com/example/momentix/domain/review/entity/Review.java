@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "Reviews")
+@Table(name = "reviews")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Review extends TimeStamped {
 
@@ -19,11 +19,11 @@ public class Review extends TimeStamped {
     private Long reviewId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "eventId", nullable = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Events events;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
     @Column(nullable = false, length = 500)

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface SeatsRepository extends
-        JpaRepository<Seats, Long>,SeatsRepositoryCustom{
+        JpaRepository<Seats, Long>, SeatsRepositoryCustom {
     Optional<Seats> findBySeatRowAndSeatColAndPlaces_Id(Long seatRow, Long seatCol, Long id);
 }

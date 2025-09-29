@@ -1,7 +1,6 @@
 package com.example.momentix.domain.common.util;
 
 
-
 import com.example.momentix.domain.auth.entity.RoleType;
 import com.example.momentix.domain.auth.impl.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
@@ -20,7 +19,7 @@ public class JwtUtil {
     private static final long REFRESH_TOKEN = 1000L * 60 * 60 * 24 * 7;
 
     //  초기화
-    public static void init(String secret){
+    public static void init(String secret) {
         secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
@@ -92,7 +91,7 @@ public class JwtUtil {
     }
 
     // 토큰만으로 Authentication 생성 (DB 조회 X)
-    public static Authentication getAuthenticationFromToken(String token,  UserDetailsServiceImpl userDetailsServiceImpl) {
+    public static Authentication getAuthenticationFromToken(String token, UserDetailsServiceImpl userDetailsServiceImpl) {
         String username = getUserEmailFromToken(token);
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(username);
 

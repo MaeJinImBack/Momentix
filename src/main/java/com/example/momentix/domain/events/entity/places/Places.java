@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "places")
 public class Places extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

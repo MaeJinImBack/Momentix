@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SignOutService {
-    private static final String ACCESS_TOKEN="ACCESS_TOKEN";
-    private static final String   REFRESH_TOKEN="REFRESH_TOKEN";
+    private static final String ACCESS_TOKEN = "ACCESS_TOKEN";
+    private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
-    public void signOut(HttpServletResponse response){
+    public void signOut(HttpServletResponse response) {
         //액세스 토큰 쿠키 만료(삭제)
-        ResponseCookie expiredAccess  = ResponseCookie.from(ACCESS_TOKEN, "")
+        ResponseCookie expiredAccess = ResponseCookie.from(ACCESS_TOKEN, "")
                 .path("/")
                 .httpOnly(true)
                 .secure(true)      // HTTPS 권장

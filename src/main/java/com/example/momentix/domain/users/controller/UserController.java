@@ -38,7 +38,7 @@ public class UserController {
     public void updateUserInfo(
             @AuthenticationPrincipal UserDetails principal,
             @RequestBody UserRequestDto userRquestDto
-    ){
+    ) {
         if (principal == null) {
             throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 필요");
         }
