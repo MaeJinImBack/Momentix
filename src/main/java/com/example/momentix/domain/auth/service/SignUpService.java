@@ -5,14 +5,14 @@ import com.example.momentix.domain.auth.repository.SignInRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +25,10 @@ public class SignUpService {
     @Transactional
     public Long signUpUser(String email, SignUpRequest req) {
         if (!req.getPassword().equals(req.getConfirmPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다.");
+            throw new AuthErrorException(BAD_REQUEST);
         }
         if (signInRepository.existsByUsername(email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
+            throw new AuthErrorException(CONFLICT);
         }
 
         Users users = Users.createConsumer(email, req, passwordEncoder);
@@ -41,7 +41,7 @@ public class SignUpService {
     public Map<String, String> signUpHost(SignUpRequest signUpRequest) {
         // 409: 사업자번호 중복 확인
         if (userRepository.existsByBusinessNumber(signUpRequest.getBusinessNumber())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 사업자 번호입니다.");
+            throw new AuthErrorException(BAD_REQUEST);
         }
 
         String username = nextHostUsername(); // ex) momentixHost0001!
@@ -70,6 +70,6 @@ public class SignUpService {
                 }
             }
         }
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "생성 가능한 호스트 아이디가 없습니다");
+        throw new AuthErrorException(HOST_ID_NOT_AVAILABLE);
     }
 }

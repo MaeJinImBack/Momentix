@@ -1,6 +1,7 @@
 package com.example.momentix.domain.users.repository;
 
 import com.example.momentix.domain.users.entity.Users;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,7 @@ public interface UserRepository extends JpaRepository<Users, Long> {
     boolean existsByBusinessNumber(String businessNumber);
 
     Optional<Users> findBySignIn_Username(String username);
+
+    @EntityGraph(attributePaths = "signIn")
+    Optional<Users> findWithSignInByUserId(Long userId);
 }

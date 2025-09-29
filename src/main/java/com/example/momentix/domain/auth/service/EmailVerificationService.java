@@ -1,14 +1,13 @@
 package com.example.momentix.domain.auth.service;
 
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -47,7 +46,7 @@ public class EmailVerificationService {
         String code = String.valueOf((int) (Math.random() * 900000) + 100000); //6자리
         //쿨다운
         if (Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey(email)))) {
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "잠시 후에 다시 시도해 주세요.");
+            throw new AuthErrorException(EMAIL_CODE_REQUEST_TOO_FREQUENT);
         }
         // 코드 저장 (TTL)
         redisTemplate.opsForValue().set(codeKey(email), code, Duration.ofSeconds(codeTtlSec));
@@ -72,7 +71,7 @@ public class EmailVerificationService {
         String saved = redisTemplate.opsForValue().get(codeKey(email));
         // 2. 저장된 코드가 없거나 사용자가 입력한 값과 다르면 인증 실패임
         if (saved == null || !saved.equals(code)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증에 실패했습니다. 코드를 다시 요청해 주세요.");
+            throw new AuthErrorException(EMAIL_CODE_INVALID);
         }
         // 3. 인증 코드 1회 사용 후 바로 제거, 재사용 방지
         redisTemplate.delete(codeKey(email));
@@ -93,7 +92,7 @@ public class EmailVerificationService {
         String email = redisTemplate.opsForValue().get(key);
         //3. 조회된 값이 없거나 공백이면 토큰 만료되었거나 이미 사용중
         if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 토큰이 만료되었거나 이미 사용되었습니다.");
+            throw new AuthErrorException(EMAIL_TOKEN_EXPIRED);
         }
         return email;
     }

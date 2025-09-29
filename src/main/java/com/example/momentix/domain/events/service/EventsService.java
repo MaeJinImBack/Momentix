@@ -16,12 +16,16 @@ import com.example.momentix.domain.events.entity.places.Places;
 import com.example.momentix.domain.events.entity.reservationtimes.ReservationTimes;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.example.momentix.domain.common.exception.event.EventErrorCode.*;
+
+import com.example.momentix.domain.common.exception.event.EventErrorException;
+
 
 import java.util.List;
 
@@ -98,7 +102,8 @@ public class EventsService {
     // 공연에 관련된 기본적인 내용들 한번에 수정
     @Transactional
     public void updateEvent(Long eventId, UpdateBaseEventRequestDto requestDto) {
-        Events updateEvent = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalArgumentException("없는 공연"));
+        Events updateEvent =
+                eventsRepository.findById(eventId).orElseThrow(() -> new EventErrorException(EVENT_NOT_FOUND));
 
         updateEvent.setEvent(
                 requestDto.getEventTitle(),
@@ -111,7 +116,8 @@ public class EventsService {
 
     @Transactional
     public void deleteEvent(Long eventId) {
-        Events deleteEvent = eventsRepository.findById(eventId).orElseThrow(() -> new IllegalIdentifierException("없는공연"));
+        Events deleteEvent =
+                eventsRepository.findById(eventId).orElseThrow(() -> new EventErrorException(EVENT_NOT_FOUND));
         deleteEvent.setDeleted(true);
         eventsRepository.save(deleteEvent);
     }

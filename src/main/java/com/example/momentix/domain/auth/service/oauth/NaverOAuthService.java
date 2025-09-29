@@ -16,7 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
 import java.time.LocalDate;
 
 @Slf4j
@@ -62,7 +63,7 @@ public class NaverOAuthService implements OAuthService {
             JsonNode tokenJson = objectMapper.readTree(tokenResponse);
             String accessToken = tokenJson.get("access_token").asText("");
             if (accessToken == null) {
-                throw new IllegalArgumentException("네이버 발급 실패!" + tokenResponse);
+                throw new AuthErrorException(OAUTH_TOKEN_EXCHANGE_FAILED);
             }
 
             String profileResponse = oAuthClient.get(PROFILE_URL, accessToken);
@@ -71,7 +72,7 @@ public class NaverOAuthService implements OAuthService {
             //Access Token으로 사용자 프로필 조회
             //ex){ "resultcode": "00", "message": "success" }
             if (!"00".equals(root.get("resultcode").asText())) {
-                throw new IllegalArgumentException("네이버 프로필 조회 실패!" + profileResponse);
+                throw new AuthErrorException(OAUTH_PROFILE_FETCH_FAILED);
             }
             JsonNode response = root.get("response");
 
@@ -85,7 +86,7 @@ public class NaverOAuthService implements OAuthService {
             String birthday = response.path("birthday").asText(null);
             String mobile = response.path("mobile").asText(null);
             if (email == null || nickname == null) {
-                throw new IllegalArgumentException("이메일 권한 없음");
+                throw new AuthErrorException(OAUTH_PROFILE_FETCH_FAILED);
             }
 
             LocalDate birthDate = toBirthDate(birthyear, birthday); // null 허용
@@ -118,7 +119,7 @@ public class NaverOAuthService implements OAuthService {
             );
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("네이버 OAuth 처리 실패:" + e.getMessage());
+            throw new AuthErrorException(OAUTH_PROVIDER_ERR);
         }
 
     }

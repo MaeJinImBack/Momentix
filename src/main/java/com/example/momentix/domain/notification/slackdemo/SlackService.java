@@ -1,6 +1,7 @@
 package com.example.momentix.domain.notification.slackdemo;
 
 
+import com.example.momentix.domain.common.exception.event.EventErrorException;
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static com.example.momentix.domain.common.exception.event.EventErrorCode.*;
 
 
 @Service
@@ -41,7 +44,7 @@ public class SlackService {
                                         .build());
 
         if (!openResponse.isOk()) {
-            throw new IllegalArgumentException("DM 오픈 실패 : " + openResponse.getError());
+            throw new EventErrorException(DM_OPEN_FAILED);
         }
 
         String channelId = openResponse.getChannel().getId();
@@ -56,7 +59,7 @@ public class SlackService {
                                         .build());
 
         if (!messageResponse.isOk()) {
-            throw new IllegalArgumentException("메세지 전송 실패: " + messageResponse.getError());
+            throw new EventErrorException(MESSAGE_SEND_FAILED);
         }
 
 

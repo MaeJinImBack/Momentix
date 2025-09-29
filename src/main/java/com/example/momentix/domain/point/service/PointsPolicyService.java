@@ -1,7 +1,8 @@
 package com.example.momentix.domain.point.service;
 
+import com.example.momentix.domain.common.exception.point.PointErrorException;
 import org.springframework.stereotype.Service;
-
+import static com.example.momentix.domain.common.exception.point.PointCode.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -14,7 +15,7 @@ public class PointsPolicyService {
 
     public long calculateEarnPoints(BigDecimal discountedAmount) {
         if (discountedAmount == null || discountedAmount.signum() < 0) {
-            throw new IllegalArgumentException("음수가 될 수 없습니다.");
+            throw new PointErrorException(INVALID_POINT_AMOUNT);
         }
         return discountedAmount.multiply(RATE).setScale(0, RoundingMode.DOWN).longValueExact();
     }

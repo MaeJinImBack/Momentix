@@ -1,5 +1,9 @@
 package com.example.momentix.domain.point.service;
 
+import com.example.momentix.domain.common.exception.paymenthistory.PaymentHistoryErrorException;
+import static com.example.momentix.domain.common.exception.paymenthistory.PaymentHistoryCode.*;
+import com.example.momentix.domain.common.exception.point.PointErrorException;
+import com.example.momentix.domain.common.exception.reservation.ReservationErrorException;
 import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.paymenthistory.entity.PaymentStatusType;
 import com.example.momentix.domain.paymenthistory.repository.PaymentHistoryRepository;
@@ -14,7 +18,8 @@ import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
+import static com.example.momentix.domain.common.exception.reservation.ReservationErrorCode.*;
+import static com.example.momentix.domain.common.exception.point.PointCode.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -62,7 +67,7 @@ public class PointService {
 
         Points points = lockRow(userId);
         if (points.getPointBalance() < amount) {
-            throw new IllegalStateException("포인트 잔액이 부족합니다.");
+            throw new PointErrorException(INSUFFICIENT_POINTS);
         }
         points.decreaseBalance(amount);
         writeLedger(userId, idempotencyKey, PointOperationType.USE, -amount, reason, paymentId, reservationId);
@@ -96,7 +101,7 @@ public class PointService {
 
         Points points = lockRow(userId);
         if (points.getPointPending() < amount) {
-            throw new IllegalStateException("예정 포인트가 부족합니다.");
+            throw new PointErrorException(INSUFFICIENT_PENDING_POINTS);
         }
         points.decreasePending(amount);
         points.increaseBalance(amount);
@@ -115,7 +120,7 @@ public class PointService {
 
         PaymentHistory payment = verifyPaymentOwnershipAndMatch(userId, paymentId, reservationId);
         if (paymentStatusType != PaymentStatusType.SUCCESS) {
-            throw new IllegalStateException("결제가 성공(SUCCESS) 상태가 아닙니다.");
+            throw new PaymentHistoryErrorException(PAYMENT_NOT_FOUND);
         }
 
         if (ledgerRepository.existsByUserIdAndPointOperationTypeAndRelatedPaymentId(
@@ -178,12 +183,12 @@ public class PointService {
 
     // 0이하 금액은 잘못된 요청으로 처리
     private void requirePositive(long amount) {
-        if (amount <= 0) throw new IllegalArgumentException("amount must be positive.");
+        if (amount <= 0) throw new PointErrorException(INVALID_POINT_AMOUNT);
     }
 
     private boolean alreadyDone(Long userId, String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isEmpty())
-            throw new IllegalArgumentException("idempotencyKey is required.");
+            throw new PaymentHistoryErrorException(DUPLEICATED_REQUEST);
         return ledgerRepository.existsByUserIdAndIdempotencyKey(userId, idempotencyKey);
     }
 
@@ -207,13 +212,13 @@ public class PointService {
 
     private PaymentHistory verifyPaymentOwnership(Long userId, Long paymentId) {
         PaymentHistory payment = paymentHistoryRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("결제 내역이 없습니다."));
+                .orElseThrow(() -> new PaymentHistoryErrorException(PAYMENT_NO_SUCCESS));
 
         Reservations reservation = reservationRepository.findById(payment.getReservationId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 예약입니다."));
+                .orElseThrow(() -> new ReservationErrorException(NO_RESERVATION));
 
         if (!reservation.getUsers().getUserId().equals(userId)) {
-            throw new SecurityException("본인 결제가 아닙니다.");
+            throw new PaymentHistoryErrorException(PAYMENT_FORBIDDEN);
         }
         return payment;
     }
@@ -221,7 +226,7 @@ public class PointService {
     private PaymentHistory verifyPaymentOwnershipAndMatch(Long userId, Long paymentId, Long reservationId) {
         PaymentHistory payment = verifyPaymentOwnership(userId, paymentId);
         if (reservationId != null && !payment.getReservationId().equals(reservationId)) {
-            throw new IllegalArgumentException("예약 정보가 결제와 일치하지 않습니다.");
+            throw new PaymentHistoryErrorException(PAYMENT_RESERVATION_MISMATCH);
         }
         return payment;
     }

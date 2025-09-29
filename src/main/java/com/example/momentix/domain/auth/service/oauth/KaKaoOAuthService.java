@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.momentix.domain.common.exception.auth.AuthErrorException;
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
+
 
 @Slf4j
 @Service
@@ -55,7 +58,7 @@ public class KaKaoOAuthService implements OAuthService {
             JsonNode tokenJson = objectMapper.readTree(tokenResponse);
             String accessToken = tokenJson.get("access_token").asText(null);
             if (accessToken == null) {
-                throw new IllegalArgumentException("카카오 토큰 발급 실패: " + tokenResponse);
+                throw new AuthErrorException(OAUTH_TOKEN_EXCHANGE_FAILED);
             }
 
             // 2) 프로필 조회
@@ -68,7 +71,7 @@ public class KaKaoOAuthService implements OAuthService {
             String profileImage = kakaoAccount.path("profile").path("profile_image_url").asText(null);
 
             if (email == null) {
-                throw new IllegalArgumentException("카카오 계정에 이메일 제공 동의 필요");
+                throw new AuthErrorException(OAUTH_EMAIL_SCOPE_REQUIRED);
             }
 
             // 3) 유저 조회/생성
@@ -96,7 +99,7 @@ public class KaKaoOAuthService implements OAuthService {
             );
 
         } catch (Exception e) {
-            throw new IllegalArgumentException("카카오 OAuth 처리 실패: " + e.getMessage(), e);
+            throw new AuthErrorException(OAUTH_PROVIDER_ERROR);
         }
     }
 }
