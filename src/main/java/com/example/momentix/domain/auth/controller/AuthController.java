@@ -31,7 +31,12 @@ public class AuthController {
     private final EmailVerificationService emailVerificationService;
     private final SignOutService signOutService;
 
+    @PostMapping("/test")
+    public ResponseEntity<String> test(){
+        return ResponseEntity.ok("test OK");
+    }
 
+    
     @PostMapping("/sign-in")
     public ResponseEntity<TokenRes> signIn(@RequestBody SigninReq req) {
         SignInService.Tokens tokens = signInService.signIn(req.username(), req.password());
