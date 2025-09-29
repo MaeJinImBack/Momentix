@@ -12,4 +12,13 @@ public class UserRequestDto {
     private String phoneNumber;
     private String newPassword;
     private String newConfirmPassword;
+    public UserRequestDto(
+            String nickname,
+            String phoneNumber,
+            String newConfirmPassword
+    ) {
+        this.nickname = nickname;
+        this.phoneNumber = phoneNumber;
+        this.newConfirmPassword = newConfirmPassword;
+    }
 }

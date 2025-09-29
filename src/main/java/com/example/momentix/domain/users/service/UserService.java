@@ -1,12 +1,15 @@
 package com.example.momentix.domain.users.service;
 
 import com.example.momentix.domain.auth.entity.SignIn;
+import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.auth.repository.SignInRepository;
+import com.example.momentix.domain.users.dto.ReadUserSimpleResponseDto;
 import com.example.momentix.domain.users.dto.UserRequestDto;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +48,7 @@ public class UserService {
 
     // 닉넴/휴대폰/새 비번 한 번에 수정
     @Transactional
-    public void updateUserInfo(String username, UserRequestDto req) {
+    public void updateUserInfo(String username, UserRequestDto userRequestDto) {
         SignIn signIn = signInRepository.findByUsernameAndIsDeletedFalse(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "이미 탈퇴한 사용자, 존재하지 않는 사용자"));
 
@@ -56,15 +59,15 @@ public class UserService {
         boolean changed = false;
 
         // 닉네임
-        if (req.getNickname() != null && !req.getNickname().isBlank()
-                && !req.getNickname().equals(users.getNickname())) {
-            users.setNickname(req.getNickname());
+        if (userRequestDto.getNickname() != null && !userRequestDto.getNickname().isBlank()
+                && !userRequestDto.getNickname().equals(users.getNickname())) {
+            users.setNickname(userRequestDto.getNickname());
             changed = true;
         }
         // 휴대폰 (유효성은 400 유지)
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isBlank()
-                && !req.getPhoneNumber().equals(users.getPhoneNumber())) {
-            String p = req.getPhoneNumber();
+        if (userRequestDto.getPhoneNumber() != null && !userRequestDto.getPhoneNumber().isBlank()
+                && !userRequestDto.getPhoneNumber().equals(users.getPhoneNumber())) {
+            String p = userRequestDto.getPhoneNumber();
             if (!p.matches("^[0-9]{10,11}$")) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "전화번호 형식이 올바르지 않습니다.");
             }
@@ -72,14 +75,14 @@ public class UserService {
             changed = true;
         }
         // 새 비밀번호(둘 다 있을 때만 변경) → 비번 유효성 관련은 401
-        if (req.getNewPassword() != null || req.getNewConfirmPassword() != null) {
-            if (req.getNewPassword() == null || req.getNewConfirmPassword() == null) {
+        if (userRequestDto.getNewPassword() != null || userRequestDto.getNewConfirmPassword() != null) {
+            if (userRequestDto.getNewPassword() == null || userRequestDto.getNewConfirmPassword() == null) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 모두 필요합니다.");
             }
-            if (!req.getNewPassword().equals(req.getNewConfirmPassword())) {
+            if (!userRequestDto.getNewPassword().equals(userRequestDto.getNewConfirmPassword())) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호 유효성검사: 새 비밀번호와 확인이 일치하지 않습니다.");
             }
-            signIn.setPassword(passwordEncoder.encode(req.getNewPassword()));
+            signIn.setPassword(passwordEncoder.encode(userRequestDto.getNewPassword()));
             changed = true;
         }
 
@@ -91,4 +94,25 @@ public class UserService {
         signInRepository.save(signIn);
     }
 
+    @Transactional(readOnly = true)
+    public ReadUserSimpleResponseDto readUserSimple(Long userId, UserDetailsImpl principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 필요");
+        }
+
+        boolean isAdmin = principal.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        boolean isSelf = principal.getUserId().equals(userId);
+
+        if (!isAdmin && !isSelf) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "권한 없음");
+        }
+
+        Users users = userRepository.findWithSignInByUserId(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없음"));
+
+        return ReadUserSimpleResponseDto.from(users);
+    }
 }
