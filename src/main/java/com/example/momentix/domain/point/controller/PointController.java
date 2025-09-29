@@ -2,6 +2,7 @@ package com.example.momentix.domain.point.controller;
 
 
 import com.example.momentix.domain.auth.impl.UserDetailsImpl;
+import com.example.momentix.domain.paymenthistory.entity.PaymentStatusType;
 import com.example.momentix.domain.point.dto.PaymentByPaymentRequest;
 import com.example.momentix.domain.point.dto.PaymentEarnByPaymentRequest;
 import com.example.momentix.domain.point.dto.PointBalanceResponse;
@@ -36,7 +37,7 @@ public class PointController {
             @RequestBody PaymentEarnByPaymentRequest paymentEarnByPaymentRequest
     ) {
         return ResponseEntity.ok(pointService.earnPendingByPaymentAmount(user.getUserId(), paymentEarnByPaymentRequest.getIdempotencyKey(),
-                paymentEarnByPaymentRequest.getPaymentId(), paymentEarnByPaymentRequest.getReservationId(), paymentEarnByPaymentRequest.getDiscountedAmount(), "결제 적립 예정(3%)"));
+                paymentEarnByPaymentRequest.getPaymentId(), paymentEarnByPaymentRequest.getReservationId(), paymentEarnByPaymentRequest.getDiscountedAmount(), "결제 적립 예정(3%)", PaymentStatusType.SUCCESS));
     }
 
     @PostMapping("/pending/release-by-payment")

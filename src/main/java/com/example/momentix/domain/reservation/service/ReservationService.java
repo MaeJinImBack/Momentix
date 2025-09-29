@@ -4,6 +4,7 @@ package com.example.momentix.domain.reservation.service;
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.enums.SeatStatusType;
+import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
 import com.example.momentix.domain.events.repository.EventSeatRepository;
@@ -16,11 +17,16 @@ import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -28,12 +34,20 @@ import java.util.List;
 public class ReservationService {
 
     private final ReservationRepository reservationsRepository;
+
     private final UserRepository usersRepository;
+
     private final EventsRepository eventsRepository;
+
     private final EventPlaceRepository eventPlaceRepository;
+
     private final EventTimesRepository eventTimesRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
+
     private final EventSeatRepository eventSeatRepository;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
 
     //공연 선택
@@ -137,7 +151,7 @@ public class ReservationService {
 
         //해당 공연이 공연 장소와 일치하는지
         EventPlace eventPlace = eventPlaceRepository.findByIdAndEventsId(eventPlaceId, eventsId).orElseThrow(
-                () -> new IllegalArgumentException("해당 공연의 공연 장소가 없습니다."));
+                ()->new IllegalArgumentException("해당 공연의 공연 장소가 없습니다."));
 
         reservations.selectEventPlace(eventPlace);
 
@@ -176,7 +190,7 @@ public class ReservationService {
 
         Long eventsId = reservations.getEvents().getId();
         EventTimes eventTimes = eventTimesRepository.findByIdAndEventsId(eventTimeId, eventsId).orElseThrow(
-                () -> new IllegalArgumentException("해당 공연에 공연 시간이 없습니다."));
+                ()->new IllegalArgumentException("해당 공연에 공연 시간이 없습니다."));
 
         reservations.selectEventTime(eventTimes);
 
@@ -206,6 +220,8 @@ public class ReservationService {
     // 좌석 선택 (좌석 상태: AVAILABLE -> HOLD)
     @Transactional
     public ReservationResponseDto selectEventSeat(Long userId, Long reservationId, Long eventTimeReserveSeatId) {
+
+        // --- 1. 기존 유효성 검증 로직 ---
         if (!usersRepository.existsById(userId)) {
             throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
@@ -223,11 +239,38 @@ public class ReservationService {
             default -> throw new IllegalArgumentException("좌석 선택이 불가능한 상태입니다.");
         }
 
-        if (!eventSeatRepository.existsById(eventTimeReserveSeatId)) {
-            throw new IllegalArgumentException("존재하지 않는 좌석입니다.");
+        // --- 2. Redis 분산락 + DB 낙관적 락 적용 ---
+        String lockKey = "seat_lock:" + eventTimeReserveSeatId;
+
+        // 1차 잠금: Redis 분산 락 시도 (5분 유효)
+        Boolean isLocked = redisTemplate.opsForValue()
+                .setIfAbsent(lockKey, "locked", Duration.ofMinutes(5));
+
+        if (isLocked == null || !isLocked) {
+            throw new IllegalStateException("이미 다른 사용자가 선점 중인 좌석입니다.");
         }
 
-        Long eventTimeId = r.getEventTimes().getId();
+        try {
+            // 2차 잠금: DB 낙관적 락으로 좌석 조회 및 상태 변경
+            EventTimeReserveSeat seat = eventTimeReserveSeatRepository.findById(eventTimeReserveSeatId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 좌석입니다."));
+
+            // 상태 변경 로직 호출 (내부에서 AVAILABLE 체크)
+            seat.hold();
+
+            // 예매 객체에 좌석 반영
+            r.selectEventSeat(seat);
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            // Redis 락은 통과했지만, DB에서 버전 충돌이 발생한 희귀한 경우
+            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
+        } finally {
+            // 3. 작업 완료 후 Redis 락 해제 (필수!)
+            redisTemplate.delete(lockKey);
+        }
+
+        return ReservationResponseDto.from(r);
+    }
 
 //        Long currentSeatId = (r.getEventSeat() != null) ? r.getEventSeat().getId() : null;
 //        if (currentSeatId != null) {
@@ -268,19 +311,5 @@ public class ReservationService {
 //            eventTimeReserveSeatRepository.normalizeIfBlank(eventTimeId, eventSeatId);
 //        }
 
-        // AVAILABLE -> HOLD CAS 전이 (원자적 체크)
-        int updated = eventTimeReserveSeatRepository
-                .casUpdateStatus(eventTimeReserveSeatId, SeatStatusType.AVAILABLE, SeatStatusType.HOLD);
-
-        if (updated == 0) {
-            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
-        }
-
-        // 예매 객체에 좌석 반영
-        var seatRef = eventTimeReserveSeatRepository.getReferenceById(eventTimeReserveSeatId);
-        r.selectEventSeat(seatRef);
-
-        return ReservationResponseDto.from(r);
-    }
 
 }

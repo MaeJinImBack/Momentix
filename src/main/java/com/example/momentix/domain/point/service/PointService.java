@@ -110,11 +110,11 @@ public class PointService {
     // 환불 가능 기간이 지나서 확정되기 전까지 아직 불확실하기 때문
     @Transactional
     public PointBalanceResponse earnPendingByPaymentAmount(Long userId, String idempotencyKey, Long paymentId,
-                                                           Long reservationId, BigDecimal discountedAmount, String reason) {
+                                                           Long reservationId, BigDecimal discountedAmount, String reason, PaymentStatusType paymentStatusType) {
         if (alreadyDone(userId, idempotencyKey)) return getMyPoints(userId);
 
         PaymentHistory payment = verifyPaymentOwnershipAndMatch(userId, paymentId, reservationId);
-        if (payment.getPaymentStatusType() != PaymentStatusType.SUCCESS) {
+        if (paymentStatusType != PaymentStatusType.SUCCESS) {
             throw new IllegalStateException("결제가 성공(SUCCESS) 상태가 아닙니다.");
         }
 
