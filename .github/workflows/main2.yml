@@ -50,6 +50,14 @@ jobs:
       
             # 프로필은 prod로, 나머지 값은 .env에서 읽힘
             nohup java -jar "$JAR" --spring.profiles.active=prod > "$LOG" 2>&1 &
+
+
+            # test용 - 나중에 SecurityConfig에 코드 넣어야 함
+            EXCLUDE="org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration"
+            # test용 - 나중에 SecurityConfig에 코드 넣어야 함
+            nohup env SPRING_PROFILES_ACTIVE=prod \
+               SPRING_AUTOCONFIGURE_EXCLUDE="$EXCLUDE" \
+                java -jar "$JAR" > "$LOG" 2>&1 &
       
             sleep 4
             pgrep -f "$(basename "$JAR")" >/dev/null || (tail -n 200 "$LOG"; exit 1)
