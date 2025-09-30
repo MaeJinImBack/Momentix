@@ -20,7 +20,7 @@ public interface ReservationRepository extends JpaRepository<Reservations, Long>
             " and r.events.id = :eventsId" +
             " and r.reservationStatusType in (:active)" +
             " order by r.reservationId desc")
-    List<Reservations> findActiveByUsers_UsersIdAndEvents_Id(
+    Optional<Reservations> findActiveByUsers_UsersIdAndEvents_Id(
             @Param("usersId") Long usersId,
             @Param("eventsId") Long eventsId,
             @Param("active") List<ReservationStatusType> draft);

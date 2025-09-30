@@ -7,6 +7,7 @@ import com.example.momentix.domain.paymenthistory.entity.PaymentHistory;
 import com.example.momentix.domain.paymenthistory.entity.PaymentStatusType;
 import com.example.momentix.domain.paymenthistory.repository.PaymentHistoryRepository;
 import com.example.momentix.domain.point.service.PointService;
+import com.example.momentix.domain.queue.QueueService;
 import com.example.momentix.domain.reservation.entity.Reservations;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.ticket.dto.request.CreateTicketRequestDto;
@@ -34,19 +35,21 @@ public class PaymentHistoryService {
     private final TicketService ticketService;
     private final TicketRepository ticketRepository;
     private final PointService pointService;
+    private final QueueService queueService;
 
     public PaymentHistoryService(
             PaymentHistoryRepository paymentHistoryRepository,
             ReservationRepository reservationRepository,
             TicketRepository ticketRepository,
             TicketService ticketService,
-            PointService pointService
+            PointService pointService, QueueService queueService
     ) {
         this.paymentHistoryRepository = paymentHistoryRepository;
         this.reservationRepository = reservationRepository;
         this.ticketService = ticketService;
         this.ticketRepository = ticketRepository;
         this.pointService = pointService;
+        this.queueService = queueService;
     }
 
     // 결제 생성(PENDING) - 상태만 관리하는 결제 + FK 주인(티켓)
@@ -139,6 +142,10 @@ public class PaymentHistoryService {
 
         // 7) 적립 예정(3%) 트리거 (멱등)
         triggerPointPending(userId, paymentHistory, paymentHistory.getPaymentStatusType());
+
+        // 8) 예매 완료 상태
+        String token = queueService.getToken(userId, reservation.getEvents().getId());
+        queueService.completeQueue(reservation.getEvents().getId(), token);
 
         return PaymentResponse.of(paymentHistory);
     }
