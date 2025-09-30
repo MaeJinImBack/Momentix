@@ -18,7 +18,7 @@ public class QueueWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-//        sessions.put(session.getId(), session);
+        sessions.put(session.getId(), session);
         String query = session.getUri().getQuery();
         String sessionId = null;
         if (query != null && query.contains("sessionId=")) {

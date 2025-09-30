@@ -1,17 +1,13 @@
 package com.example.momentix.domain.reservation.service;
 
-import static com.example.momentix.domain.common.exception.reservation.ReservationErrorCode.*;
-import static com.example.momentix.domain.common.exception.event.EventErrorCode.*;
-import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.*;
-import com.example.momentix.domain.common.exception.reservation.ReservationErrorException;
 import com.example.momentix.domain.common.exception.auth.AuthErrorException;
 import com.example.momentix.domain.common.exception.event.EventErrorException;
+import com.example.momentix.domain.common.exception.reservation.ReservationErrorException;
 import com.example.momentix.domain.events.entity.EventPlace;
 import com.example.momentix.domain.events.entity.Events;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimeReserveSeat;
 import com.example.momentix.domain.events.entity.eventtimes.EventTimes;
 import com.example.momentix.domain.events.repository.EventPlaceRepository;
-import com.example.momentix.domain.events.repository.EventSeatRepository;
 import com.example.momentix.domain.events.repository.EventsRepository;
 import com.example.momentix.domain.events.repository.eventtimes.EventTimeReserveSeatRepository;
 import com.example.momentix.domain.events.repository.eventtimes.EventTimesRepository;
@@ -31,27 +27,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.List;
 
+import static com.example.momentix.domain.common.exception.auth.AuthErrorCode.NOT_FOUND;
+import static com.example.momentix.domain.common.exception.event.EventErrorCode.*;
+import static com.example.momentix.domain.common.exception.reservation.ReservationErrorCode.NO_MY_RESERVATION;
+import static com.example.momentix.domain.common.exception.reservation.ReservationErrorCode.NO_RESERVATION;
+
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-
     private final ReservationRepository reservationsRepository;
-
     private final UserRepository usersRepository;
-
     private final EventsRepository eventsRepository;
-
     private final EventPlaceRepository eventPlaceRepository;
-
     private final EventTimesRepository eventTimesRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
-
-    private final EventSeatRepository eventSeatRepository;
-
     private final RedisTemplate<String, Object> redisTemplate;
 
     @Transactional
     public ReservationResponseDto selectAll(Long userId, Long eventId, Long eventPlaceId, Long eventTimeId) {
+
         //이용자와 공연 존재 확인
         Users user = usersRepository.findById(userId)
                 .orElseThrow(() -> new AuthErrorException(NOT_FOUND));
@@ -60,19 +54,18 @@ public class ReservationService {
                 .orElseThrow(() -> new EventErrorException(EVENT_NOT_FOUND));
 
         //해당 상태의 예매 상태가 있는지 조회
-        List<Reservations> reservationsList = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
+        Reservations reservation = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
                 userId, eventId, List.of(
                         ReservationStatusType.DRAFT,
                         ReservationStatusType.SELECT_PLACE,
                         ReservationStatusType.SELECT_TIME,
                         ReservationStatusType.SELECT_SEAT,
                         ReservationStatusType.WAIT_PAYMENT
-                ));
-        Reservations reservation = Reservations.builder()
+                )).orElseGet(() -> Reservations.builder()
                 .users(user)
                 .events(event)
                 .reservationStatusType(ReservationStatusType.DRAFT)
-                .build();
+                .build());
 
         //해당 공연이 공연 장소와 일치하는지
         EventPlace eventPlace = eventPlaceRepository.findByIdAndEventsId(eventPlaceId, eventId).orElseThrow(
@@ -100,26 +93,19 @@ public class ReservationService {
                 .orElseThrow(() -> new EventErrorException(EVENT_NOT_FOUND));
 
         //해당 상태의 예매 상태가 있는지 조회
-        List<Reservations> reservationsList = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
+        Reservations reservation = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
                 userId, eventId, List.of(
                         ReservationStatusType.DRAFT,
                         ReservationStatusType.SELECT_PLACE,
                         ReservationStatusType.SELECT_TIME,
                         ReservationStatusType.SELECT_SEAT,
                         ReservationStatusType.WAIT_PAYMENT
-                ));
-
-        //있다면, list 중 1번째 가져오기
-        if (!reservationsList.isEmpty()) {
-            return ReservationResponseDto.from(reservationsList.get(0));
-        }
-//push test
-        //없을 시, 생성
-        Reservations reservation = Reservations.builder()
+                )).orElseGet(() -> Reservations.builder()
                 .users(user)
                 .events(event)
                 .reservationStatusType(ReservationStatusType.DRAFT)
-                .build();
+                .build()
+        );
 
         reservationsRepository.save(reservation);
 

@@ -3,6 +3,7 @@ package com.example.momentix.domain.queue;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -37,13 +38,11 @@ public class QueueRegisterStreamService {
         if (registeredStreams.containsKey(streamKey)) {
             return;
         }
-
-
         try {
             redisTemplate.opsForStream().createGroup(streamKey, ReadOffset.from("0"), "eventQueueGroup" + eventId);
-            log.info("그룹생성");
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
+                throw new IllegalIdentifierException("이미 존재하는 그룹");
             } else {
                 return;
             }
@@ -71,9 +70,8 @@ public class QueueRegisterStreamService {
             log.info("그룹생성");
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
-                log.info("stream already exists");
+                throw new IllegalIdentifierException("이미 존재하는 그룹");
             } else {
-                log.info("error");
                 return;
             }
         }
@@ -83,7 +81,6 @@ public class QueueRegisterStreamService {
                 StreamOffset.create(streamRankKey, ReadOffset.lastConsumed()),
                 rankConsumer
         );
-        log.info("Stream 등록 확인");
         alarmStreams.put(eventId, true);
 
     }
