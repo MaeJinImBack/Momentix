@@ -28,7 +28,6 @@ public class QueueRegisterStreamService {
     @PostConstruct
     public void startContainer() {
         if (!container.isRunning()) {
-            log.info("시작 확인");
             container.start();
         }
     }
@@ -36,7 +35,6 @@ public class QueueRegisterStreamService {
     public void registerStream(Long eventId) {
         String streamKey = "stream:" + eventId;
         if (registeredStreams.containsKey(streamKey)) {
-            log.info("여기는 있어서 리턴");
             return;
         }
 
@@ -46,9 +44,7 @@ public class QueueRegisterStreamService {
             log.info("그룹생성");
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
-                log.info("stream already exists");
             } else {
-                log.info("error");
                 return;
             }
         }
