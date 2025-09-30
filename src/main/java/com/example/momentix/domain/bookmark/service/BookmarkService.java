@@ -28,7 +28,7 @@ public class BookmarkService {
     @Transactional
     public boolean toggleBookmark(Long eventId, Users user) {
         Events event = eventsRepository.findById(eventId)
-                .orElseThrow(() -> new EventErrorException(NO_EVENT));
+                .orElseThrow(() -> new EventErrorException(NOT_EVENT));
 
         // 1. 기존에 즐겨찾기 정보가 있는지 조회
         Optional<Bookmark> bookmarkOptional = bookmarkRepository.findByUsersAndEvents(user, event);
