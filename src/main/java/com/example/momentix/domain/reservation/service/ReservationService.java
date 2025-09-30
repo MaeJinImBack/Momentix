@@ -50,6 +50,45 @@ public class ReservationService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    @Transactional
+    public ReservationResponseDto selectAll(Long userId, Long eventId, Long eventPlaceId, Long eventTimeId) {
+        //이용자와 공연 존재 확인
+        Users user = usersRepository.findById(userId)
+                .orElseThrow(() -> new AuthErrorException(NOT_FOUND));
+
+        Events event = eventsRepository.findById(eventId)
+                .orElseThrow(() -> new EventErrorException(EVENT_NOT_FOUND));
+
+        //해당 상태의 예매 상태가 있는지 조회
+        List<Reservations> reservationsList = reservationsRepository.findActiveByUsers_UsersIdAndEvents_Id(
+                userId, eventId, List.of(
+                        ReservationStatusType.DRAFT,
+                        ReservationStatusType.SELECT_PLACE,
+                        ReservationStatusType.SELECT_TIME,
+                        ReservationStatusType.SELECT_SEAT,
+                        ReservationStatusType.WAIT_PAYMENT
+                ));
+        Reservations reservation = Reservations.builder()
+                .users(user)
+                .events(event)
+                .reservationStatusType(ReservationStatusType.DRAFT)
+                .build();
+
+        //해당 공연이 공연 장소와 일치하는지
+        EventPlace eventPlace = eventPlaceRepository.findByIdAndEventsId(eventPlaceId, eventId).orElseThrow(
+                () -> new EventErrorException(NOT_EVENT));
+
+        reservation.selectEventPlace(eventPlace);
+        EventTimes eventTimes = eventTimesRepository.findByIdAndEventsId(eventTimeId, eventId).orElseThrow(
+                () -> new EventErrorException(NOT_SELECT_TIME));
+
+        reservation.selectEventTime(eventTimes);
+
+        reservationsRepository.save(reservation);
+
+        return ReservationResponseDto.from(reservation);
+    }
+
     //공연 선택
     @Transactional
     public ReservationResponseDto selectEvent(Long userId, Long eventId) {

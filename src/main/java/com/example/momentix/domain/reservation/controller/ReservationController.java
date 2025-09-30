@@ -17,6 +17,18 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
+    // 공연, 장소, 시간 선택
+    @PostMapping("/events/{eventId}/{eventPlaceId}/{eventTimeId}")
+    public ResponseEntity<ReservationResponseDto> selectAllReservations(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PathVariable Long eventId,
+            @PathVariable Long eventPlaceId,
+            @PathVariable Long eventTimeId){
+        ReservationResponseDto reservations = reservationService.selectAll(userDetails.getUserId(), eventId, eventPlaceId, eventTimeId);
+
+        return  new ResponseEntity<>(reservations, HttpStatus.OK);
+    }
+
     //공연 선택
     @PostMapping("/events/{eventId}")
     public ResponseEntity<ReservationResponseDto> selectEvent(@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -61,6 +73,8 @@ public class ReservationController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 
     // 좌석 선택
     @PostMapping("/{reservationId}/seat/{eventTimeReserveSeatId}")
