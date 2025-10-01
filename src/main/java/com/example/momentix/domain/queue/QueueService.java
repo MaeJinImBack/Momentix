@@ -143,8 +143,8 @@ public class QueueService {
             // sessionId -> token 매핑 중복유저 방지용 키 삭제
             redisTemplate.delete(List.of(
                     userToTokenKey + eventId + ":" + userId,
-                    sessionToTokenKey + eventId + ":" + sessionId,
-                    tokenKey + eventId + ":" + token));
+                    sessionToTokenKey + eventId + ":" + sessionId
+                    ));
             queueRegisterStreamService.registerStream(eventId);
         }
         // 최소 다음 batchSize때 예매 상태로 변화할 가능성 있는 순위는 바로 알림
@@ -194,6 +194,7 @@ public class QueueService {
 
         if (streamId != null) {
             redisTemplate.opsForStream().delete(streamKey + eventId, streamId);
+            redisTemplate.delete(tokenKey + eventId + ":" + token);
             redisTemplate.delete(token);
             redisTemplate.opsForValue().decrement(allowKey + eventId);
         }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -32,11 +33,12 @@ public class QueueConsumer implements StreamListener<String, MapRecord<String, S
                 "status", status
         ).toString();
         if ("ALLOWED".equals(status)) {
-            String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token);
-            if (sessionId != null) {
-                log.info("예매 가능");
+
+            String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token).split(":")[0];
+            String userId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token).split(":")[1];
+            if (sessionId != null && userId != null) {
                 try {
-                    webSocketHandler.sendMessage(sessionId, payload);
+                    webSocketHandler.sendMessage(userId, payload);
                     redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup" + eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
