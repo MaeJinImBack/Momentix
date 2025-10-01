@@ -61,13 +61,11 @@ public class QueueRegisterStreamService {
     public void alarmStream(Long eventId) {
         String streamRankKey = "streamRank:" + eventId;
         if (alarmStreams.containsKey(streamRankKey)) {
-            log.info("여기는 있어서 리턴");
             return;
         }
 
         try {
             redisTemplate.opsForStream().createGroup(streamRankKey, ReadOffset.from("0"), "alarmQueueGroup" + eventId);
-            log.info("그룹생성");
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("BUSY GROUP")) {
                 throw new IllegalIdentifierException("이미 존재하는 그룹");

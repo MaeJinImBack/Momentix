@@ -38,7 +38,7 @@ public class QueueConsumer implements StreamListener<String, MapRecord<String, S
             String userId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token).split(":")[1];
             if (sessionId != null && userId != null) {
                 try {
-                    webSocketHandler.sendMessage(userId, payload);
+                    webSocketHandler.sendMessage(userId, "userId : " + userId + "예매 가능 상태입니다. " + payload);
                     redisTemplate.opsForStream().acknowledge(message.getStream(), "eventQueueGroup" + eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);

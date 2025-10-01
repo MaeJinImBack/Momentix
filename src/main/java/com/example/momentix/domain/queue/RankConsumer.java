@@ -29,8 +29,7 @@ public class RankConsumer implements StreamListener<String, MapRecord<String, St
         log.info("onMessage 동작");
         String payload = Map.of(
                 "token", token,
-                "status", status,
-                "position", position
+                "status", status
         ).toString();
         if ("WAITING".equals(status)) {
             String sessionId = redisTemplate.opsForValue().get("token:" + eventId + ":" + token).split(":")[0];
@@ -38,7 +37,7 @@ public class RankConsumer implements StreamListener<String, MapRecord<String, St
 
             if (sessionId != null && userId != null) {
                 try {
-                    webSocketHandler.sendMessage(userId, payload);
+                    webSocketHandler.sendMessage(userId,"userId : "+ userId+"현재 순위는 : " + position + "입니다." + payload);
                     redisTemplate.opsForStream().acknowledge(message.getStream(), "alarmQueueGroup" + eventId, message.getId());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
