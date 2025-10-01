@@ -1,11 +1,9 @@
 package com.example.momentix.domain.test;
 
-import com.example.momentix.domain.auth.impl.UserDetailsImpl;
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +16,12 @@ public class TestController {
     private final ReservationService reservationService;
 
     // 좌석 선택
-    @PostMapping("/{reservationId}/seat/{eventTimeReserveSeatId}")
+    @PostMapping("/seat/{eventTimeReserveSeatId}")
     public ResponseEntity<ReservationResponseDto> selectSeat(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @PathVariable("reservationId") Long reservationId,
             @PathVariable("eventTimeReserveSeatId") Long eventTimeReserveSeatId
     ) {
         ReservationResponseDto dto =
-                reservationService.selectEventSeat(userDetails.getUserId(), reservationId, eventTimeReserveSeatId);
-
-
-
+                reservationService.testSelectEventSeat(eventTimeReserveSeatId);
 
         return ResponseEntity.ok(dto);
     }
