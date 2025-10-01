@@ -114,7 +114,6 @@ public class QueueService {
         if (batchSize - allowSize > 0) {
             // batchsize 만큼 조회 // index 값이 0부터 시작해서 batchSize - allowSize -1 해야함
             Set<String> batch = redisTemplate.opsForZSet().range(eventQueueKey + eventId, 0, batchSize - allowSize - 1);
-            log.info("process queue 1초마다 반복" + allowSize);
             if (batch == null || batch.isEmpty()) {
                 return;
             }
@@ -153,7 +152,6 @@ public class QueueService {
         // 최소 다음 batchSize때 예매 상태로 변화할 가능성 있는 순위는 바로 알림 // test 용으로 일단 남은 순번 다 알림
         Set<String> waiting = redisTemplate.opsForZSet().range(eventQueueKey + eventId, 0, - 1);
         if (waiting != null && !waiting.isEmpty()) {
-            log.info("process queue 알람 호출");
             for (String token : waiting) {
                 rankAlarmQueue(eventId, token);
             }
@@ -176,7 +174,6 @@ public class QueueService {
         if (position == null) {
             return;
         }
-        log.info("process queue 알람 호출 1초마다");
         String status = "WAITING"; // 대기상태
         Map<String, String> msg = Map.of(
                 "token", token,
