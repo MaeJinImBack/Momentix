@@ -1,5 +1,6 @@
 package com.example.momentix.domain.events.entity.eventtimes;
 
+import com.example.momentix.domain.common.exception.event.EventErrorException;
 import com.example.momentix.domain.events.entity.EventSeat;
 import com.example.momentix.domain.events.entity.enums.SeatStatusType;
 import jakarta.persistence.*;
@@ -8,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Version;
+
+import static com.example.momentix.domain.common.exception.event.EventErrorCode.SEAT_ALREADY_BOOKED;
 
 @Entity
 @Getter
@@ -57,7 +60,7 @@ public class EventTimeReserveSeat {
 
     public void hold() {
         if (!isAvailable()) {
-            throw new IllegalStateException("현재 상태(" + seatReserveStatus + ")에서는 HOLD 불가");
+            throw new EventErrorException(SEAT_ALREADY_BOOKED);
         }
         this.seatReserveStatus = SeatStatusType.HOLD;
     }

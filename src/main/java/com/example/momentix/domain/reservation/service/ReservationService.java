@@ -14,6 +14,7 @@ import com.example.momentix.domain.events.repository.eventtimes.EventTimesReposi
 import com.example.momentix.domain.reservation.dto.ReservationResponseDto;
 import com.example.momentix.domain.reservation.entity.ReservationStatusType;
 import com.example.momentix.domain.reservation.entity.Reservations;
+import com.example.momentix.domain.reservation.repository.RedisLockRepository;
 import com.example.momentix.domain.reservation.repository.ReservationRepository;
 import com.example.momentix.domain.users.entity.Users;
 import com.example.momentix.domain.users.repository.UserRepository;
@@ -41,7 +42,7 @@ public class ReservationService {
     private final EventPlaceRepository eventPlaceRepository;
     private final EventTimesRepository eventTimesRepository;
     private final EventTimeReserveSeatRepository eventTimeReserveSeatRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisLockRepository redisLockRepository;
 
     @Transactional
     public ReservationResponseDto selectAll(Long userId, Long eventId, Long eventPlaceId, Long eventTimeId) {
@@ -265,14 +266,11 @@ public class ReservationService {
             default -> throw new EventErrorException(SEAT_NOT_FOUND);
         }
 
-        // --- 2. Redis 분산락 + DB 낙관적 락 적용 ---
+        // --- 2. Lua 스크립트 + DB 낙관적 락 적용 ---
         String lockKey = "seat_lock:" + eventTimeReserveSeatId;
 
-        // 1차 잠금: Redis 분산 락 시도 (5분 유효)
-        Boolean isLocked = redisTemplate.opsForValue()
-                .setIfAbsent(lockKey, "locked", Duration.ofMinutes(5));
-
-        if (isLocked == null || !isLocked) {
+        // 1차 잠금: Lua 스크립트 시도 (로직이 매우 간결해짐)
+        if (!redisLockRepository.lock(lockKey, Duration.ofMinutes(5))) {
             throw new EventErrorException(SEAT_ALREADY_BOOKED);
         }
 
@@ -281,18 +279,14 @@ public class ReservationService {
             EventTimeReserveSeat seat = eventTimeReserveSeatRepository.findById(eventTimeReserveSeatId)
                     .orElseThrow(() -> new EventErrorException(SEAT_NOT_FOUND));
 
-            // 상태 변경 로직 호출 (내부에서 AVAILABLE 체크)
             seat.hold();
-
-            // 예매 객체에 좌석 반영
             r.selectEventSeat(seat);
 
         } catch (ObjectOptimisticLockingFailureException e) {
-            // Redis 락은 통과했지만, DB에서 버전 충돌이 발생한 희귀한 경우
-            throw new EventErrorException(SEAT_NOT_FOUND);
+            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
         } finally {
-            // 3. 작업 완료 후 Redis 락 해제 (필수!)
-            redisTemplate.delete(lockKey);
+            // 3. 작업 완료 후 안전하게 Redis 락 해제
+            redisLockRepository.unlock(lockKey);
         }
 
         return ReservationResponseDto.from(r);
