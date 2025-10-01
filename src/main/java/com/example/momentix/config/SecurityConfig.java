@@ -70,6 +70,8 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/notifications/events/**").hasAnyRole("ADMIN",
                                         "HOST")
 
+                                // 테스트용 api 주소
+                                .requestMatchers("/test/**").permitAll()
                                 .requestMatchers("/error").permitAll()
 
                                 // 특정 조건을 지정하지 않은 나머지 모든 API는 로그인만 했으면 호출 가능함
