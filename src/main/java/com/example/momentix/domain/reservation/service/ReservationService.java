@@ -334,7 +334,7 @@ public class ReservationService {
             r.selectEventSeat(seat);
 
         } catch (ObjectOptimisticLockingFailureException e) {
-            throw new IllegalStateException("이미 선점(HOLD)되었거나 선택 불가한 좌석입니다.");
+            throw new EventErrorException(SEAT_NOT_FOUND);
         } finally {
             // 3. 작업 완료 후 안전하게 Redis 락 해제
             redisLockRepository.unlock(lockKey);
