@@ -19,8 +19,8 @@ public class QueueController {
     public ResponseEntity<String> addQueue(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @PathVariable Long eventId,
-            @RequestParam String sessionId) {
-        String token = queueService.addQueue(userDetails.getUserId(), sessionId, eventId);
+            HttpSession session) {
+        String token = queueService.addQueue(userDetails.getUserId(), session.getId(), eventId);
         return ResponseEntity.ok("예매 가능/대기 상태로 진입" + token);
     }
 
