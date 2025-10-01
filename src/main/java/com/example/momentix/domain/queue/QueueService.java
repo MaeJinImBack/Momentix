@@ -2,14 +2,17 @@ package com.example.momentix.domain.queue;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QueueService {
@@ -21,7 +24,7 @@ public class QueueService {
     /**
      *
      */
-    private final String allowKey = "allow";
+    private final String allowKey = "allow:";
     private final String userToTokenKey = "user";
     private final String sessionToTokenKey = "session";
     // key값 생성 공연마다 대기열 구분 토큰으로 관리
@@ -102,57 +105,59 @@ public class QueueService {
      *
      * @param eventId 공연Id
      */
+    @Async
     public void processQueue(Long eventId) {
         // key값 생성 공연마다 대기열 구분 토큰으로 관리
         int batchSize = 3; // 배치사이즈 처리 속도에 따라 동적으로 관리 가능하게 변환 가능성 염두
 
         int allowSize = countAllow(eventId).intValue();
-        if (batchSize - allowSize <= 0) {
-            return;
-        }
-        // batchsize 만큼 조회 // index 값이 0부터 시작해서 batchSize - allowSize -1 해야함
-        Set<String> batch = redisTemplate.opsForZSet().range(eventQueueKey + eventId, 0, batchSize - allowSize - 1);
-
-        if (batch == null || batch.isEmpty()) {
-            return;
-        }
-
-        for (String token : batch) {
-            // token에 맞는 sessionId값 가져오기
-            String sessionId = Objects.requireNonNull(redisTemplate.opsForValue().get(tokenKey + eventId + ":" + token)).split(":")[0];
-            String userId = Objects.requireNonNull(redisTemplate.opsForValue().get(tokenKey + eventId + ":" + token)).split(":")[1];
-            // sessionId 값 없을경우 continue
-            if (sessionId == null || userId == null) {
-                continue;
-            }
-            // 예매 허용된 상태
-            String status = "ALLOWED";
-            Map<String, String> msg = Map.of(
-                    "token", token,
-                    "status", status
-            );
-            RecordId streamId = redisTemplate.opsForStream().add(streamKey + eventId, msg);
-            if (streamId != null) {
-                redisTemplate.opsForValue().set(token, streamId.getValue(), 10, TimeUnit.MINUTES);
-                redisTemplate.opsForValue().increment(allowKey + eventId);
+        if (batchSize - allowSize > 0) {
+            // batchsize 만큼 조회 // index 값이 0부터 시작해서 batchSize - allowSize -1 해야함
+            Set<String> batch = redisTemplate.opsForZSet().range(eventQueueKey + eventId, 0, batchSize - allowSize - 1);
+            log.info("process queue 1초마다 반복" + allowSize);
+            if (batch == null || batch.isEmpty()) {
+                return;
             }
 
-            // 완료된 유저 삭제
-            redisTemplate.opsForZSet().remove(eventQueueKey + eventId, token);
-            // token -> sessionId 매핑 알림 발송용 키 삭제
-            // sessionId -> token 매핑 중복유저 방지용 키 삭제
-            redisTemplate.delete(List.of(
-                    userToTokenKey + eventId + ":" + userId,
-                    sessionToTokenKey + eventId + ":" + sessionId
-                    ));
-            queueRegisterStreamService.registerStream(eventId);
-        }
+            for (String token : batch) {
+                // token에 맞는 sessionId값 가져오기
+                String sessionId = Objects.requireNonNull(redisTemplate.opsForValue().get(tokenKey + eventId + ":" + token)).split(":")[0];
+                String userId = Objects.requireNonNull(redisTemplate.opsForValue().get(tokenKey + eventId + ":" + token)).split(":")[1];
+                // sessionId 값 없을경우 continue
+                if (sessionId == null || userId == null) {
+                    continue;
+                }
+                // 예매 허용된 상태
+                String status = "ALLOWED";
+                Map<String, String> msg = Map.of(
+                        "token", token,
+                        "status", status
+                );
+                RecordId streamId = redisTemplate.opsForStream().add(streamKey + eventId, msg);
+                if (streamId != null) {
+                    redisTemplate.opsForValue().set(token, streamId.getValue(), 10, TimeUnit.MINUTES);
+                    redisTemplate.opsForValue().increment(allowKey + eventId);
+                }
+
+                // 완료된 유저 삭제
+                redisTemplate.opsForZSet().remove(eventQueueKey + eventId, token);
+                // token -> sessionId 매핑 알림 발송용 키 삭제
+                // sessionId -> token 매핑 중복유저 방지용 키 삭제
+                redisTemplate.delete(List.of(
+                        userToTokenKey + eventId + ":" + userId,
+                        sessionToTokenKey + eventId + ":" + sessionId
+                ));
+                queueRegisterStreamService.registerStream(eventId);
+            }
+        } else {
         // 최소 다음 batchSize때 예매 상태로 변화할 가능성 있는 순위는 바로 알림 // test 용으로 일단 남은 순번 다 알림
         Set<String> waiting = redisTemplate.opsForZSet().range(eventQueueKey + eventId, 0, - 1);
         if (waiting != null && !waiting.isEmpty()) {
+            log.info("process queue 알람 호출");
             for (String token : waiting) {
                 rankAlarmQueue(eventId, token);
             }
+        }
         }
 
     }
@@ -171,6 +176,7 @@ public class QueueService {
         if (position == null) {
             return;
         }
+        log.info("process queue 알람 호출 1초마다");
         String status = "WAITING"; // 대기상태
         Map<String, String> msg = Map.of(
                 "token", token,
